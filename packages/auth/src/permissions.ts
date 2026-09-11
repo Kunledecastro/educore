@@ -63,7 +63,7 @@ export const PERMISSION_MATRIX: Matrix = {
   // every role without exception (architecture rule #3: "Immutable"). A
   // tamper-proof audit trail that its own auditor could edit isn't one.
   [Role.PLATFORM_ADMIN]: {
-    ...(Object.fromEntries(RESOURCES.map((r) => [r, ALL])) as Matrix[Role.PLATFORM_ADMIN]),
+    ...(Object.fromEntries(RESOURCES.map((r) => [r, ALL])) as Matrix[typeof Role.PLATFORM_ADMIN]),
     auditLog: RE,
   },
 

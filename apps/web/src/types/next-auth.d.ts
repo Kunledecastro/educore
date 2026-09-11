@@ -16,7 +16,9 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
+// next-auth v5 re-exports JWT from @auth/core/jwt, so the augmentation must
+// target that module directly — augmenting "next-auth/jwt" is silently a no-op.
+declare module "@auth/core/jwt" {
   interface JWT {
     role: Role;
     tenantId: string | null;

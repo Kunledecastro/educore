@@ -1,4 +1,4 @@
-import { forTenant, platformPrisma, Role, type TenantScopedClient, type PrismaClient } from "@educore/db";
+import { forTenant, platformPrisma, Role, type TenantScopedClient } from "@educore/db";
 import { can, type Action, type Resource, type AuthUser } from "@educore/auth";
 import { auth } from "./auth";
 import { getCurrentTenant } from "./tenant";
@@ -19,7 +19,15 @@ export class ForbiddenError extends Error {
 
 export interface RequestContext {
   user: AuthUser & { name: string; email: string };
-  db: TenantScopedClient | PrismaClient;
+  /**
+   * A single client type for both paths. A union of the base PrismaClient and
+   * the extended client isn't callable in TypeScript (their generic method
+   * signatures don't unify), so every `db.model.findUnique(...)` would fail
+   * to type-check. The tenant-scope extension only adds a query hook — it
+   * doesn't change any method's shape — so the platform client is safely
+   * viewed through the same type.
+   */
+  db: TenantScopedClient;
   isPlatformAdmin: boolean;
 }
 
@@ -43,7 +51,9 @@ export async function requireUser(): Promise<RequestContext> {
     throw new ForbiddenError("User has no tenant assigned");
   }
 
-  const db = isPlatformAdmin ? platformPrisma() : forTenant(tenantId!);
+  const db: TenantScopedClient = isPlatformAdmin
+    ? (platformPrisma() as unknown as TenantScopedClient)
+    : forTenant(tenantId!);
 
   return {
     user: { id, role, tenantId, name: name ?? "", email: email ?? "" },
