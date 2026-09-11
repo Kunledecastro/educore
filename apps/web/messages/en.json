@@ -1,0 +1,48 @@
+{
+  "common": {
+    "appName": "EduCore",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "students": "Students",
+    "teachers": "Teachers",
+    "attendance": "Attendance",
+    "assessments": "Assessments & Marks",
+    "reportCards": "Report Cards",
+    "timetable": "Timetable",
+    "announcements": "Announcements",
+    "fees": "Fees & Invoices",
+    "payments": "Payments",
+    "messages": "Messages",
+    "auditLog": "Audit Log",
+    "platformTenants": "Schools (Tenants)",
+    "settings": "Settings"
+  },
+  "login": {
+    "title": "Sign in to your school portal",
+    "subtitle": "Enter your credentials to continue",
+    "email": "Email address",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Incorrect email or password for this school."
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}",
+    "enrollment": "Total enrollment",
+    "attendanceToday": "Attendance today",
+    "feeCollection": "Fee collection (this term)",
+    "pendingTasks": "Pending tasks",
+    "todaysClasses": "Today's classes",
+    "pendingAttendance": "Attendance not yet marked",
+    "unreadMessages": "Unread messages",
+    "childrenOverview": "Your children",
+    "feesDue": "Fees due",
+    "timetable": "Your timetable",
+    "results": "Your results"
+  }
+}

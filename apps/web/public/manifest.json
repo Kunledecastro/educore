@@ -1,0 +1,10 @@
+{
+  "name": "EduCore",
+  "short_name": "EduCore",
+  "description": "Multi-tenant school management SaaS",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": []
+}

@@ -1,0 +1,48 @@
+{
+  "common": {
+    "appName": "EduCore",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "students": "Élèves",
+    "teachers": "Enseignants",
+    "attendance": "Présence",
+    "assessments": "Évaluations & Notes",
+    "reportCards": "Bulletins",
+    "timetable": "Emploi du temps",
+    "announcements": "Annonces",
+    "fees": "Frais & Factures",
+    "payments": "Paiements",
+    "messages": "Messages",
+    "auditLog": "Journal d'audit",
+    "platformTenants": "Écoles (Locataires)",
+    "settings": "Paramètres"
+  },
+  "login": {
+    "title": "Connectez-vous à votre portail scolaire",
+    "subtitle": "Entrez vos identifiants pour continuer",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "error": "E-mail ou mot de passe incorrect pour cette école."
+  },
+  "dashboard": {
+    "welcome": "Bon retour, {name}",
+    "enrollment": "Effectif total",
+    "attendanceToday": "Présence aujourd'hui",
+    "feeCollection": "Encaissement des frais (ce trimestre)",
+    "pendingTasks": "Tâches en attente",
+    "todaysClasses": "Cours d'aujourd'hui",
+    "pendingAttendance": "Présence non encore enregistrée",
+    "unreadMessages": "Messages non lus",
+    "childrenOverview": "Vos enfants",
+    "feesDue": "Frais dus",
+    "timetable": "Votre emploi du temps",
+    "results": "Vos résultats"
+  }
+}
