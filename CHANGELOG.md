@@ -3,6 +3,31 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 0.1 — First production build (2026-09-11)
+
+### Fixed
+
+- **Build now passes on Vercel** (first time `prisma generate` + `next build`
+  ran end to end). Verified locally with a full `next build` and a clean
+  `tsc --noEmit` across `apps/web`, `packages/auth` and `packages/db`.
+- **Duplicate `@auth/core`**: `@auth/prisma-adapter@^2.7.4` had floated to a
+  release built on `@auth/core@0.41`, while `next-auth@5.0.0-beta.25` uses
+  `0.37.2`. Pinned the adapter to `2.7.2` and added a pnpm override so only
+  one copy is ever installed.
+- **Session typing**: the JWT augmentation targeted `next-auth/jwt`, which in
+  v5 only re-exports `@auth/core/jwt`, so `token.role`/`token.tenantId` were
+  `unknown`. Now augments `@auth/core/jwt` directly.
+- **RBAC matrix type**: `Matrix[Role.PLATFORM_ADMIN]` used a value as a
+  type; now `Matrix[typeof Role.PLATFORM_ADMIN]`. (Vitest doesn't type-check,
+  which is why the RBAC tests passed despite this.)
+- **Request db client**: `requireUser()` returned a union of the base and
+  tenant-scoped Prisma clients, which TypeScript can't call methods on. Both
+  paths now share the `TenantScopedClient` type.
+- **Native/engine bundling**: `argon2` and `@prisma/client` are now direct
+  dependencies of `apps/web`, so Next.js can keep them external instead of
+  bundling them (bundled `argon2` fails with "No native build was found").
+- `next-intl` messages typed as `AbstractIntlMessages` in `providers.tsx`.
+
 ## Phase 0 — Foundation (2026-09-07)
 
 ### Added

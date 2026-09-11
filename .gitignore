@@ -16,3 +16,5 @@ prisma/migrations/**/migration_lock.toml.bak
 test-results
 playwright-report
 .vercel
+next-env.d.ts
+*.tsbuildinfo
