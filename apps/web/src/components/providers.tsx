@@ -1,5 +1,5 @@
 "use client";
-
+import type { AbstractIntlMessages } from "next-intl";
 import * as React from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
@@ -19,7 +19,7 @@ export function Providers({
   const [queryClient] = React.useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 30_000 } } }));
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+<NextIntlClientProvider locale={locale} messages={messages as AbstractIntlMessages}>
       <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryClientProvider client={queryClient}>
