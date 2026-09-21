@@ -27,6 +27,10 @@ All notable changes to EduCore are documented here. Format loosely follows
   dependencies of `apps/web`, so Next.js can keep them external instead of
   bundling them (bundled `argon2` fails with "No native build was found").
 - `next-intl` messages typed as `AbstractIntlMessages` in `providers.tsx`.
+- **Tenant-resolution middleware never ran.** It lived at
+  `apps/web/middleware.ts`, but with a `src/` directory Next.js only picks
+  up `src/middleware.ts`, so no request was ever tenant-resolved by
+  subdomain. Moved it; the build output now lists `ƒ Middleware`.
 
 ## Phase 0 — Foundation (2026-09-07)
 
