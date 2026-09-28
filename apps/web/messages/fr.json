@@ -5,7 +5,12 @@
     "signOut": "Se déconnecter",
     "loading": "Chargement…",
     "save": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "working": "En cours…",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "actions": "Actions",
+    "back": "Retour"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -29,7 +34,19 @@
     "email": "Adresse e-mail",
     "password": "Mot de passe",
     "submit": "Se connecter",
-    "error": "E-mail ou mot de passe incorrect pour cette école."
+    "error": "E-mail ou mot de passe incorrect pour cette école.",
+    "emailInvalid": "Saisissez une adresse e-mail valide",
+    "passwordRequired": "Le mot de passe est obligatoire",
+    "submitting": "Connexion…",
+    "rateLimited": "Trop de tentatives de connexion. Patientez 15 minutes puis réessayez.",
+    "errors": {
+      "WrongSchool": "Votre compte appartient au portail d'une autre école. Connectez-vous depuis l'adresse de votre école.",
+      "SessionRequired": "Veuillez vous connecter pour continuer.",
+      "CredentialsSignin": "E-mail ou mot de passe incorrect pour cette école.",
+      "AccessDenied": "Votre compte n'a pas accès. Contactez l'administrateur de votre école.",
+      "Configuration": "La connexion est momentanément indisponible. Réessayez sous peu.",
+      "Unknown": "Un problème est survenu lors de la connexion. Réessayez."
+    }
   },
   "dashboard": {
     "welcome": "Bon retour, {name}",
@@ -43,6 +60,59 @@
     "childrenOverview": "Vos enfants",
     "feesDue": "Frais dus",
     "timetable": "Votre emploi du temps",
-    "results": "Vos résultats"
+    "results": "Vos résultats",
+    "outstandingFees": "Frais impayés",
+    "platformSchools": "Écoles sur la plateforme",
+    "platformActiveSubscriptions": "Abonnements actifs"
+  },
+  "list": {
+    "searchPlaceholder": "Rechercher…",
+    "clearSearch": "Effacer la recherche",
+    "allOf": "Tous : {label}",
+    "showing": "{from}–{to} sur {total}",
+    "rowsPerPage": "Lignes par page",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "pageOf": "Page {page} sur {pageCount}",
+    "pagination": "Pagination",
+    "noResults": "Aucun résultat pour cette recherche",
+    "noResultsHint": "Essayez un autre terme ou effacez les filtres.",
+    "clearFilters": "Effacer les filtres"
+  },
+  "comingSoon": {
+    "title": "{area} arrive bientôt",
+    "phases": {
+      "phase1": "Cette section est en cours de développement (phase 1 : intégration des écoles) et arrivera dans une prochaine mise à jour.",
+      "phase2": "Prévu pour la phase 2 — vie scolaire : présences, notes, bulletins et emplois du temps.",
+      "phase3": "Prévu pour la phase 3 — frais de scolarité, factures et paiements.",
+      "phase4": "Prévu pour la phase 4 — communication et administration de la plateforme."
+    }
+  },
+  "auditLog": {
+    "title": "Journal d'audit",
+    "description": "Chaque modification des dossiers élèves, personnel, notes, présences et frais — qui l'a faite, quand et ce qui a changé. Les entrées ne peuvent être ni modifiées ni supprimées.",
+    "searchPlaceholder": "Rechercher par personne ou identifiant",
+    "when": "Date",
+    "who": "Auteur",
+    "school": "École",
+    "action": "Action",
+    "entity": "Dossier",
+    "ip": "Adresse IP",
+    "details": "Détails",
+    "view": "Voir",
+    "close": "Fermer",
+    "before": "Avant",
+    "after": "Après",
+    "none": "—",
+    "systemActor": "Système / plateforme",
+    "emptyTitle": "Aucune modification enregistrée",
+    "emptyDescription": "Dès qu'un dossier est ajouté, modifié ou supprimé, il apparaîtra ici.",
+    "noMatches": "Aucune entrée ne correspond",
+    "noMatchesHint": "Essayez une autre recherche ou effacez les filtres.",
+    "actions": {
+      "CREATE": "Créé",
+      "UPDATE": "Modifié",
+      "DELETE": "Supprimé"
+    }
   }
 }

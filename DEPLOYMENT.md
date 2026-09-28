@@ -104,7 +104,7 @@ data.
 | Stripe (payments, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Cloudflare R2 (file storage) | 10GB free | `STORAGE_*` |
 | Inngest (background jobs) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` |
-| Upstash Redis (rate limiting) | free tier | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (omit to fall back to in-memory) |
+| Upstash Redis (rate limiting) | free tier | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`. Omit to fall back to an in-memory limiter, which works per server instance only — **set Upstash up before real schools go live** so login limits are shared across all instances. |
 | Sentry (error monitoring) | free tier | `SENTRY_DSN` |
 
 None of these block a Phase 0 deploy — they're documented in

@@ -11,15 +11,17 @@ export function Providers({
   children,
   locale,
   messages,
+  timeZone,
 }: {
   children: React.ReactNode;
   locale: string;
+  timeZone: string;
   messages: Record<string, unknown>;
 }) {
   const [queryClient] = React.useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 30_000 } } }));
 
   return (
-<NextIntlClientProvider locale={locale} messages={messages as AbstractIntlMessages}>
+<NextIntlClientProvider locale={locale} messages={messages as AbstractIntlMessages} timeZone={timeZone}>
       <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryClientProvider client={queryClient}>

@@ -28,7 +28,36 @@ packages/db/          Prisma schema, migrations, seed script, tenant-scoping
                        Prisma Client Extension, RLS helper, audit-log helper
 packages/auth/        RBAC permission matrix (single source of truth),
                        password hashing, ORM-independent Role mirror
+packages/ui/          Design-system primitives (shadcn/ui-style): button,
+                       input, select, table, dialog, alert-dialog, dropdown,
+                       empty state, skeleton. Presentational only.
 ```
+
+## Building a feature: the conventions
+
+- **List pages** are Server Components driven by the URL: parse
+  `searchParams` with `parseListParams()` (`apps/web/src/lib/list-params.ts`,
+  which whitelists sort columns and filter values), then render
+  `ListToolbar` + `ListSearch` / `ListFilter` + `SortableHeader` +
+  `ListPagination` from `components/list/`, an `EmptyState` when there are
+  no rows, and a `loading.tsx` with `TableSkeleton`. See `/audit-log`.
+- **Money, numbers, dates** always go through `lib/format.ts`
+  (`formatMoney`, `formatDate`, `formatDateTime`, `todayInTimeZone`) with
+  the school's settings from `getSettingsForUser()` — never `toLocaleString()`
+  or a hard-coded `₦`. School settings are validated by
+  `lib/tenant-settings.ts` and fall back to safe defaults field by field.
+- **Server Actions** return `ActionResult` (`lib/action-result.ts`) — never
+  throw expected errors. Destructive actions use `ConfirmAction`.
+- **Changes to audited data** go through `auditedMutation()`
+  (`packages/db/src/audit.ts`) with `auditContextFor(ctx)` from
+  `lib/guard.ts`: the change and its audit entry commit in one RLS-bound
+  transaction, and secrets (`passwordHash`, tokens) are redacted from the
+  before/after snapshots.
+- **Forms** use React Hook Form + Zod with `FormField`
+  (`components/form/form-field.tsx`), which wires labels, hints, inline
+  errors and `aria-*` attributes.
+- **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
+  if the two files ever have different keys or placeholders.
 
 ## Multi-tenancy & security model (architecture rule #1)
 

@@ -6,7 +6,7 @@ import type { Config } from "tailwindcss";
 // --primary at runtime without a rebuild.
 const config: Config = {
   darkMode: ["class"],
-  content: ["./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
   theme: {
     container: {
       center: true,

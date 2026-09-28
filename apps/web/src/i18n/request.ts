@@ -1,5 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies } from "next/headers";
+import { DEFAULT_TENANT_SETTINGS } from "@/lib/tenant-settings";
 
 // EduCore is localization-ready (architecture rule #5) via next-intl, but
 // Phase 0 deliberately skips locale-prefixed routing: the URL's first path
@@ -18,6 +19,10 @@ export default getRequestConfig(async () => {
 
   return {
     locale,
+    // Required by next-intl for server-side date formatting (without it every
+    // page logs ENVIRONMENT_FALLBACK). School-specific dates are formatted via
+    // lib/format.ts with the tenant's own time zone; this is the app default.
+    timeZone: DEFAULT_TENANT_SETTINGS.timezone,
     messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });

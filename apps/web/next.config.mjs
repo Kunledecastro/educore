@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@educore/db", "@educore/auth"],
+  transpilePackages: ["@educore/db", "@educore/auth", "@educore/ui"],
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2"],
   },

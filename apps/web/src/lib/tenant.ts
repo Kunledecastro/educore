@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 import { platformPrisma, type Tenant } from "@educore/db";
+import { parseTenantSettings, type TenantSettings } from "./tenant-settings";
 
 /**
  * Resolves the current request's Tenant row from the subdomain/custom-domain
@@ -48,3 +49,13 @@ export const getTenantForUser = cache(
     return { tenant, mismatch: !tenant || tenant.status !== "ACTIVE" };
   },
 );
+
+/**
+ * Formatting/behaviour settings for the signed-in user's school, with safe
+ * defaults (platform admins and unknown tenants get the defaults).
+ */
+export const getSettingsForUser = cache(async (userTenantId: string | null): Promise<TenantSettings> => {
+  if (!userTenantId) return parseTenantSettings(null);
+  const { tenant } = await getTenantForUser(userTenantId);
+  return parseTenantSettings(tenant?.settings);
+});

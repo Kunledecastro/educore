@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
@@ -7,6 +7,13 @@ import { z } from "zod";
 import { prisma, Role } from "@educore/db";
 import { verifyPassword } from "@educore/auth";
 import { isLoginAllowed, loginHostFromHeaders } from "./login-guard";
+import { allowLoginAttempt } from "./rate-limit";
+import { clientIpFromHeaders } from "./request-meta";
+
+/** Too many attempts. The code reaches the login form so it can show a specific message. */
+class RateLimitedSignin extends CredentialsSignin {
+  code = "rate_limited";
+}
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -52,6 +59,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = credentialsSchema.safeParse(raw);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
+
+        // Checked before any database lookup or password hashing, so a
+        // flood of attempts costs us almost nothing.
+        if (!(await allowLoginAttempt(email, clientIpFromHeaders(request.headers)))) {
+          throw new RateLimitedSignin();
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },

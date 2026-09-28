@@ -5,7 +5,12 @@
     "signOut": "Sign out",
     "loading": "Loading…",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "working": "Working…",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "back": "Back"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -29,7 +34,19 @@
     "email": "Email address",
     "password": "Password",
     "submit": "Sign in",
-    "error": "Incorrect email or password for this school."
+    "error": "Incorrect email or password for this school.",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "submitting": "Signing in…",
+    "rateLimited": "Too many sign-in attempts. Please wait 15 minutes and try again.",
+    "errors": {
+      "WrongSchool": "Your account belongs to a different school's portal. Sign in from your own school's address.",
+      "SessionRequired": "Please sign in to continue.",
+      "CredentialsSignin": "Incorrect email or password for this school.",
+      "AccessDenied": "Your account doesn't have access. Ask your school administrator.",
+      "Configuration": "Sign-in is temporarily unavailable. Please try again shortly.",
+      "Unknown": "Something went wrong signing you in. Please try again."
+    }
   },
   "dashboard": {
     "welcome": "Welcome back, {name}",
@@ -43,6 +60,59 @@
     "childrenOverview": "Your children",
     "feesDue": "Fees due",
     "timetable": "Your timetable",
-    "results": "Your results"
+    "results": "Your results",
+    "outstandingFees": "Outstanding fees",
+    "platformSchools": "Schools on platform",
+    "platformActiveSubscriptions": "Active subscriptions"
+  },
+  "list": {
+    "searchPlaceholder": "Search…",
+    "clearSearch": "Clear search",
+    "allOf": "All {label}",
+    "showing": "Showing {from}–{to} of {total}",
+    "rowsPerPage": "Rows per page",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pageCount}",
+    "pagination": "Pagination",
+    "noResults": "No results match your search",
+    "noResultsHint": "Try a different search term or clear the filters.",
+    "clearFilters": "Clear filters"
+  },
+  "comingSoon": {
+    "title": "{area} is on its way",
+    "phases": {
+      "phase1": "This is being built right now as part of Phase 1 (school onboarding) and will appear in an upcoming update.",
+      "phase2": "Planned for Phase 2 — daily academics: attendance, marks, report cards and timetables.",
+      "phase3": "Planned for Phase 3 — fees, invoices and payments.",
+      "phase4": "Planned for Phase 4 — communication and platform administration."
+    }
+  },
+  "auditLog": {
+    "title": "Audit log",
+    "description": "Every change to student, staff, grade, attendance and fee records — who made it, when, and what changed. Entries can't be edited or deleted.",
+    "searchPlaceholder": "Search by person or record ID",
+    "when": "When",
+    "who": "Who",
+    "school": "School",
+    "action": "Action",
+    "entity": "Record",
+    "ip": "IP address",
+    "details": "Details",
+    "view": "View",
+    "close": "Close",
+    "before": "Before",
+    "after": "After",
+    "none": "—",
+    "systemActor": "System / platform",
+    "emptyTitle": "No changes recorded yet",
+    "emptyDescription": "As soon as anyone adds, edits or removes a record, it will appear here.",
+    "noMatches": "No entries match",
+    "noMatchesHint": "Try a different search or clear the filters.",
+    "actions": {
+      "CREATE": "Created",
+      "UPDATE": "Updated",
+      "DELETE": "Deleted"
+    }
   }
 }

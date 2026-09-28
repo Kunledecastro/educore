@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@educore/ui/button";
 import { getCurrentTenant } from "@/lib/tenant";
 
 export default async function MarketingHome() {

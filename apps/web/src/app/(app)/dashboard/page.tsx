@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Role } from "@educore/db";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { requireUser } from "@/lib/guard";
+import { getSettingsForUser } from "@/lib/tenant";
+import { formatMoney, formatNumber, todayInTimeZone } from "@/lib/format";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -19,6 +21,9 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 export default async function DashboardPage() {
   const { user, db } = await requireUser();
   const t = await getTranslations("dashboard");
+  const settings = await getSettingsForUser(user.tenantId ?? null);
+  const money = (v: Parameters<typeof formatMoney>[0]) => formatMoney(v, settings);
+  const num = (v: number) => formatNumber(v, settings);
 
   let stats: { label: string; value: string | number }[] = [];
 
@@ -29,8 +34,8 @@ export default async function DashboardPage() {
         db.subscription.count({ where: { status: "ACTIVE" } }),
       ]);
       stats = [
-        { label: "Schools on platform", value: tenantCount },
-        { label: "Active subscriptions", value: activeSubs },
+        { label: t("platformSchools"), value: num(tenantCount) },
+        { label: t("platformActiveSubscriptions"), value: num(activeSubs) },
       ];
       break;
     }
@@ -38,14 +43,14 @@ export default async function DashboardPage() {
       const [studentCount, presentToday, feeAgg] = await Promise.all([
         db.student.count({ where: { status: "ACTIVE" } }),
         db.attendance.count({
-          where: { date: new Date(new Date().toISOString().slice(0, 10)), status: "PRESENT" },
+          where: { date: todayInTimeZone(settings.timezone), status: "PRESENT" },
         }),
         db.payment.aggregate({ _sum: { amount: true } }),
       ]);
       stats = [
-        { label: t("enrollment"), value: studentCount },
-        { label: t("attendanceToday"), value: presentToday },
-        { label: t("feeCollection"), value: `₦${(feeAgg._sum.amount ?? 0).toLocaleString()}` },
+        { label: t("enrollment"), value: num(studentCount) },
+        { label: t("attendanceToday"), value: num(presentToday) },
+        { label: t("feeCollection"), value: money(feeAgg._sum.amount) },
       ];
       break;
     }
@@ -55,14 +60,14 @@ export default async function DashboardPage() {
         db.payment.aggregate({ _sum: { amount: true } }),
       ]);
       stats = [
-        { label: "Outstanding fees", value: `₦${(outstanding._sum.totalDue ?? 0).toLocaleString()}` },
-        { label: t("feeCollection"), value: `₦${(collected._sum.amount ?? 0).toLocaleString()}` },
+        { label: t("outstandingFees"), value: money(outstanding._sum.totalDue) },
+        { label: t("feeCollection"), value: money(collected._sum.amount) },
       ];
       break;
     }
     case Role.TEACHER: {
       const teacher = await db.teacher.findUnique({ where: { userId: user.id } });
-      const today = new Date().getDay();
+      const today = todayInTimeZone(settings.timezone).getUTCDay();
       const classesToday = teacher
         ? await db.timetableEntry.count({ where: { teacherId: teacher.id, dayOfWeek: today } })
         : 0;
@@ -85,7 +90,7 @@ export default async function DashboardPage() {
         : { _sum: { totalDue: null } };
       stats = [
         { label: t("childrenOverview"), value: childCount },
-        { label: t("feesDue"), value: `₦${(feesDue._sum.totalDue ?? 0).toLocaleString()}` },
+        { label: t("feesDue"), value: money(feesDue._sum.totalDue) },
       ];
       break;
     }

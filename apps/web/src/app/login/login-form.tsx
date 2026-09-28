@@ -7,19 +7,25 @@ import { z } from "zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-const schema = z.object({
-  email: z.string().email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-type FormValues = z.infer<typeof schema>;
+import { useTranslations } from "next-intl";
+import { Button } from "@educore/ui/button";
+import { Input } from "@educore/ui/input";
+import { FormField } from "@/components/form/form-field";
 
 export function LoginForm() {
+  const t = useTranslations("login");
   const router = useRouter();
   const [submitting, setSubmitting] = React.useState(false);
+
+  const schema = React.useMemo(
+    () =>
+      z.object({
+        email: z.string().trim().email(t("emailInvalid")),
+        password: z.string().min(1, t("passwordRequired")),
+      }),
+    [t],
+  );
+  type FormValues = z.infer<typeof schema>;
 
   const {
     register,
@@ -30,12 +36,9 @@ export function LoginForm() {
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
     try {
-      const result = await signIn("credentials", {
-        ...values,
-        redirect: false,
-      });
+      const result = await signIn("credentials", { ...values, redirect: false });
       if (result?.error) {
-        toast.error("Incorrect email or password for this school.");
+        toast.error(result.code === "rate_limited" ? t("rateLimited") : t("error"));
         return;
       }
       router.push("/dashboard");
@@ -47,18 +50,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <div className="space-y-1.5">
-        <Label htmlFor="email">Email address</Label>
-        <Input id="email" type="email" autoComplete="email" {...register("email")} />
-        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
-        {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-      </div>
+      <FormField label={t("email")} htmlFor="email" error={errors.email?.message} required>
+        <Input type="email" autoComplete="email" {...register("email")} />
+      </FormField>
+      <FormField label={t("password")} htmlFor="password" error={errors.password?.message} required>
+        <Input type="password" autoComplete="current-password" {...register("password")} />
+      </FormField>
       <Button type="submit" className="w-full" disabled={submitting}>
-        {submitting ? "Signing in…" : "Sign in"}
+        {submitting ? t("submitting") : t("submit")}
       </Button>
     </form>
   );

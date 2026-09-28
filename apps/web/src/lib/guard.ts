@@ -1,4 +1,6 @@
-import { forTenant, platformPrisma, Role, type TenantScopedClient } from "@educore/db";
+import { headers } from "next/headers";
+import { forTenant, platformPrisma, Role, type AuditContext, type TenantScopedClient } from "@educore/db";
+import { clientIpFromHeaders, userAgentFromHeaders } from "./request-meta";
 import { can, type Action, type Resource, type AuthUser } from "@educore/auth";
 import { auth } from "./auth";
 import { getTenantForUser } from "./tenant";
@@ -96,4 +98,20 @@ export async function requireMatchingTenant(): Promise<RequestContext> {
     throw new ForbiddenError("Session does not belong to this school's portal");
   }
   return ctx;
+}
+
+/**
+ * Who/where for audit entries on this request (architecture rule #3):
+ * actor, tenant, IP and user agent. `tenantId` defaults to the user's own
+ * school; platform admins acting on a school must pass that school's id.
+ */
+export function auditContextFor(ctx: RequestContext, tenantId: string | null = ctx.user.tenantId ?? null): AuditContext {
+  if (!tenantId) throw new ForbiddenError("An audited change needs a school (tenant) context");
+  const h = headers();
+  return {
+    tenantId,
+    actorId: ctx.user.id,
+    ipAddress: clientIpFromHeaders(h),
+    userAgent: userAgentFromHeaders(h),
+  };
 }

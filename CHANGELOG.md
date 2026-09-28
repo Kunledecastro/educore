@@ -8,6 +8,50 @@ All notable changes to EduCore are documented here. Format loosely follows
 Spec: onboarding-first — foundations, academic structure, people, CSV
 import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
 
+### Added (milestone 1.0 — foundations)
+
+- **`packages/ui`** — design-system primitives moved out of the app and
+  extended: table, select, textarea, dialog, alert dialog, dropdown menu,
+  empty state (plus existing button, input, label, card, badge, skeleton).
+- **List kit** (`apps/web/src/components/list/`): debounced search, filter
+  dropdowns, sortable column headers, pagination with page size — all
+  URL-driven so lists are shareable and back-button friendly. Parsing is
+  whitelisted in `lib/list-params.ts` (11 tests).
+- **Forms & actions**: `FormField` (label, hint, inline error, aria wiring),
+  `ConfirmAction` (confirmation dialog + toast for destructive actions),
+  `ActionResult` return type for server actions.
+- **School settings** (`lib/tenant-settings.ts`): locale, time zone,
+  currency, date style, grading scale, feature flags — validated with safe
+  per-field fallbacks. **Formatting** (`lib/format.ts`): money, numbers,
+  dates and "today" in the school's time zone (12 tests).
+- **Audit log page** (`/audit-log`): searchable, filterable, sortable list
+  of every recorded change with before/after details. School admins see
+  their school; platform admins see all schools; accountants see finance
+  records only (assumption: least privilege).
+- **`auditedMutation()`**: a change and its audit entry are written in one
+  RLS-bound transaction; `passwordHash` and tokens are redacted from
+  snapshots (4 tests). `auditContextFor()` captures actor, school, IP and
+  user agent (4 tests).
+- **Login rate limiting**: 5 attempts per account+IP and 30 per IP per 15
+  minutes, checked before any database work. Upstash Redis when configured,
+  in-memory fallback otherwise; fails open if the limiter is down (7 tests).
+- **Login page** explains `?error=` codes (wrong school, session required,
+  too many attempts…) instead of failing silently; the form is fully
+  translated.
+- "Coming soon" pages (with the roadmap phase) replace the 404s behind
+  sidebar links that aren't built yet.
+- Translation parity test: English and French must have the same keys and
+  placeholders.
+
+### Fixed
+
+- Money showed as "₦150000": now "₦150,000", in the school's own currency.
+- "Attendance today" and "today's classes" used the UTC date; they now use
+  the school's time zone (a Lagos school at 00:30 is already on the next day).
+- next-intl logged `ENVIRONMENT_FALLBACK` on every page (no time zone set).
+- `pnpm test` in `apps/web` tried to run the Playwright spec under Vitest.
+- Remaining hard-coded English on the dashboard is now translated.
+
 ### Security
 
 - **Row Level Security now actually enforces tenant isolation.** The app
@@ -22,6 +66,8 @@ import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
   returns zero rows.
 - Tenant-isolation suite: 5 new tests that exercise RLS with raw SQL and no
   application-level filter.
+- The tenant role can no longer UPDATE/DELETE/TRUNCATE `audit_logs` at all
+  (migration 0005), on top of the append-only trigger.
 
 ## Phase 0.2 — Fix production login (2026-09-28)
 
