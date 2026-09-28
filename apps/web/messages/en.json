@@ -34,7 +34,11 @@
     "academics": "Academic setup",
     "mainNavigation": "Main navigation",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "staff": "Staff",
+    "parents": "Parents",
+    "myStudents": "My students",
+    "myChildren": "My children"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -54,6 +58,9 @@
       "AccessDenied": "Your account doesn't have access. Ask your school administrator.",
       "Configuration": "Sign-in is temporarily unavailable. Please try again shortly.",
       "Unknown": "Something went wrong signing you in. Please try again."
+    },
+    "notices": {
+      "PasswordSet": "Your password is set. Sign in with your email and new password."
     }
   },
   "dashboard": {
@@ -132,7 +139,14 @@
     "outOfRange": "This number is out of range",
     "endBeforeStart": "The end date must be after the start date",
     "yearTooLong": "An academic year can't be longer than 2 years — check the dates",
-    "codeFormat": "Use letters, numbers and dashes only (e.g. MATH or BIO-2)"
+    "codeFormat": "Use letters, numbers and dashes only (e.g. MATH or BIO-2)",
+    "email": "Enter a valid email address",
+    "admissionNo": "Use letters, numbers and / - _ . only (e.g. GA-2026-0001)",
+    "employeeId": "Use letters, numbers and / - _ . only (e.g. GA-T-004)",
+    "phone": "Enter a valid phone number (e.g. +2348012345678)",
+    "dobFuture": "Date of birth can't be in the future",
+    "passwordWeak": "Use at least 10 characters, including a letter and a number",
+    "passwordMismatch": "The passwords don't match"
   },
   "actionErrors": {
     "unauthenticated": "Your session has expired. Please sign in again.",
@@ -142,7 +156,14 @@
     "duplicate": "Something with that name or code already exists.",
     "inUse": "This can't be deleted yet because it still has {reasons}. Remove or move those first.",
     "inUseGeneric": "This is still linked to other records, so it can't be changed or deleted.",
-    "unexpected": "Something went wrong on our side. Please try again."
+    "unexpected": "Something went wrong on our side. Please try again.",
+    "duplicateField": {
+      "email": "This email is already used by another account",
+      "admissionNo": "Another student already has this admission number",
+      "employeeId": "Another person already has this employee ID",
+      "code": "Another subject already uses this code",
+      "name": "This name is already used"
+    }
   },
   "blockers": {
     "activeYear": "the active-year flag (make another year active first)",
@@ -278,5 +299,191 @@
     "STUDENT": "Student",
     "PARENT": "Parent",
     "ACCOUNTANT": "Accountant"
+  },
+  "people": {
+    "errors": {
+      "sectionNotInClass": "That section isn't part of the chosen class",
+      "noParentAccount": "No parent account with this email in your school. Use \"Add a new parent\" instead.",
+      "cannotDemoteSelf": "You can't remove your own admin access",
+      "lastAdmin": "Your school needs at least one active admin. Make someone else an admin first.",
+      "cannotDeactivateSelf": "You can't deactivate your own account",
+      "inviteDeactivated": "Reactivate this account before sending an invite",
+      "alreadyActive": "This person has already set their password and can sign in"
+    },
+    "status": {
+      "active": "Can sign in",
+      "invited": "Invite sent",
+      "expired": "Invite expired",
+      "notInvited": "Not invited",
+      "deactivated": "Deactivated"
+    },
+    "invite": {
+      "send": "Send invite",
+      "resend": "Resend invite",
+      "sent": "Invite emailed to {email}",
+      "linkTitle": "Share this invite link",
+      "linkDescription": "Email isn't set up yet, so send this link to {email} yourself (WhatsApp, SMS…). It works once and expires in 7 days.",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "emailSubject": "Your {school} account on EduCore",
+      "emailGreeting": "Hello {name},",
+      "emailBody": "{school} has created an EduCore account for you. Click below to choose your password and sign in.",
+      "emailButton": "Set my password",
+      "emailExpiry": "This link works once and expires in 7 days. If you weren't expecting it, you can ignore this email.",
+      "emailText": "Hello {name},\n\n{school} has created an EduCore account for you. Choose your password here:\n{link}\n\nThis link works once and expires in 7 days."
+    },
+    "account": {
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "deactivateTitle": "Deactivate {name}?",
+      "deactivateDescription": "{name} won't be able to sign in. Their records and history stay in EduCore, and you can reactivate them at any time.",
+      "reactivateTitle": "Reactivate {name}?",
+      "reactivateDescription": "{name} will be able to sign in again.",
+      "deactivated": "Account deactivated",
+      "reactivated": "Account reactivated"
+    },
+    "fields": {
+      "name": "Full name",
+      "email": "Email",
+      "employeeId": "Employee ID",
+      "department": "Department",
+      "qualification": "Qualification",
+      "designation": "Job title",
+      "joiningDate": "Joining date",
+      "role": "Access",
+      "phone": "Phone",
+      "occupation": "Occupation",
+      "status": "Account"
+    }
+  },
+  "teachers": {
+    "title": "Teachers",
+    "description": "Teaching staff and what they teach this year.",
+    "new": "Add teacher",
+    "edit": "Edit teacher",
+    "created": "Teacher added",
+    "updated": "Teacher saved",
+    "emailHint": "They'll use this to sign in. We'll send the invite here.",
+    "teaches": "Teaching",
+    "teachesCount": "{count, plural, =0 {No classes} one {# class} other {# classes}}",
+    "emptyTitle": "No teachers yet",
+    "emptyDescription": "Add your teachers, then invite them so they can sign in and take attendance.",
+    "searchPlaceholder": "Search by name, email or employee ID"
+  },
+  "staff": {
+    "title": "Staff",
+    "description": "Administrators and accountants who use EduCore but don't teach.",
+    "new": "Add staff member",
+    "edit": "Edit staff member",
+    "created": "Staff member added",
+    "updated": "Staff member saved",
+    "roleHint": "Admins manage everything in the school; accountants manage fees and payments.",
+    "emptyTitle": "No staff yet",
+    "emptyDescription": "Add your bursar, admin officers and other staff who need to sign in.",
+    "searchPlaceholder": "Search by name, email or employee ID"
+  },
+  "parents": {
+    "title": "Parents & guardians",
+    "description": "Family contacts and their children at the school. Add parents from a student's page.",
+    "children": "Children",
+    "edit": "Edit parent",
+    "updated": "Parent saved",
+    "emptyTitle": "No parents yet",
+    "emptyDescription": "Open a student's page and add their parent or guardian there.",
+    "goToStudents": "Go to students",
+    "searchPlaceholder": "Search by name, email or phone",
+    "noChildren": "No linked children"
+  },
+  "students": {
+    "title": "Students",
+    "titleParent": "My children",
+    "titleTeacher": "My students",
+    "description": "Everyone enrolled at the school.",
+    "descriptionParent": "Your children at the school.",
+    "descriptionTeacher": "Students in the classes you teach.",
+    "new": "Add student",
+    "edit": "Edit student",
+    "created": "Student added",
+    "updated": "Student saved",
+    "admissionNo": "Admission no.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "name": "Name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "genders": {
+      "FEMALE": "Female",
+      "MALE": "Male",
+      "OTHER": "Other"
+    },
+    "notSpecified": "Not specified",
+    "class": "Class",
+    "section": "Section",
+    "noSection": "No section yet",
+    "admissionDate": "Admission date",
+    "admissionDateHint": "Defaults to today.",
+    "status": "Status",
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "GRADUATED": "Graduated",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "changeStatus": "Change status",
+    "statusTitle": "Mark {name} as {status}?",
+    "statusDescription": "The student's records are kept. You can change the status back at any time.",
+    "statusChanged": "Status updated",
+    "chooseClass": "Choose a class",
+    "chooseSection": "Choose a section (optional)",
+    "classFilter": "class",
+    "statusFilter": "status",
+    "searchPlaceholder": "Search by name or admission no.",
+    "emptyTitle": "No students in {year} yet",
+    "emptyDescription": "Add students one by one, or import your whole list (coming in the next update).",
+    "emptyParent": "No children are linked to your account yet. Please contact the school office.",
+    "emptyTeacher": "You don't have any students yet. Once the school assigns you to a class, its students appear here.",
+    "needClasses": "Create classes for {year} before adding students.",
+    "goToClasses": "Set up classes",
+    "view": "View",
+    "profile": "Profile",
+    "guardians": "Parents & guardians",
+    "noGuardians": "No parent or guardian linked yet.",
+    "addGuardian": "Add a new parent",
+    "linkGuardian": "Link an existing parent",
+    "linkGuardianHint": "For a parent who already has an account at this school — for example, a sibling's parent.",
+    "relationship": "Relationship",
+    "relationships": {
+      "MOTHER": "Mother",
+      "FATHER": "Father",
+      "GUARDIAN": "Guardian",
+      "OTHER": "Other"
+    },
+    "primary": "Primary contact",
+    "makePrimary": "Make primary",
+    "primaryUpdated": "Primary contact updated",
+    "isPrimaryLabel": "Primary contact for this student",
+    "guardianAdded": "Parent added",
+    "guardianLinked": "Parent linked",
+    "unlink": "Unlink",
+    "unlinkTitle": "Unlink {name}?",
+    "unlinkDescription": "{name} will no longer see {student} in their account. Their parent account isn't deleted.",
+    "unlinked": "Parent unlinked",
+    "backToList": "All students",
+    "age": "{age, plural, one {# year} other {# years}}"
+  },
+  "invitePage": {
+    "title": "Welcome, {name}",
+    "subtitle": "Choose a password for {email}.",
+    "password": "New password",
+    "passwordHint": "At least 10 characters, including a letter and a number.",
+    "confirm": "Confirm password",
+    "submit": "Set password",
+    "saving": "Saving…",
+    "done": "Password set — you can sign in now",
+    "fixErrors": "Please fix the highlighted fields.",
+    "invalidTitle": "This link doesn't work",
+    "invalidLink": "This invite link is invalid, has already been used or has expired. Ask your school to send a new one.",
+    "goToLogin": "Go to sign in",
+    "tooManyAttempts": "Too many attempts. Please wait 15 minutes and try again."
   }
 }

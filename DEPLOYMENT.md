@@ -100,7 +100,7 @@ data.
 
 | Service | Free tier | Env vars |
 |---|---|---|
-| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM` |
+| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
 | Stripe (payments, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Cloudflare R2 (file storage) | 10GB free | `STORAGE_*` |
 | Inngest (background jobs) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` |

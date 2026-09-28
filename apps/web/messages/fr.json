@@ -34,7 +34,11 @@
     "academics": "Organisation pédagogique",
     "mainNavigation": "Navigation principale",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "staff": "Personnel",
+    "parents": "Parents",
+    "myStudents": "Mes élèves",
+    "myChildren": "Mes enfants"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -54,6 +58,9 @@
       "AccessDenied": "Votre compte n'a pas accès. Contactez l'administrateur de votre école.",
       "Configuration": "La connexion est momentanément indisponible. Réessayez sous peu.",
       "Unknown": "Un problème est survenu lors de la connexion. Réessayez."
+    },
+    "notices": {
+      "PasswordSet": "Votre mot de passe est défini. Connectez-vous avec votre e-mail et ce nouveau mot de passe."
     }
   },
   "dashboard": {
@@ -132,7 +139,14 @@
     "outOfRange": "Ce nombre est hors limites",
     "endBeforeStart": "La date de fin doit être postérieure à la date de début",
     "yearTooLong": "Une année scolaire ne peut pas dépasser 2 ans — vérifiez les dates",
-    "codeFormat": "Lettres, chiffres et tirets uniquement (ex. MATH ou BIO-2)"
+    "codeFormat": "Lettres, chiffres et tirets uniquement (ex. MATH ou BIO-2)",
+    "email": "Saisissez une adresse e-mail valide",
+    "admissionNo": "Lettres, chiffres et / - _ . uniquement (ex. GA-2026-0001)",
+    "employeeId": "Lettres, chiffres et / - _ . uniquement (ex. GA-T-004)",
+    "phone": "Saisissez un numéro valide (ex. +2348012345678)",
+    "dobFuture": "La date de naissance ne peut pas être dans le futur",
+    "passwordWeak": "Au moins 10 caractères, dont une lettre et un chiffre",
+    "passwordMismatch": "Les mots de passe ne correspondent pas"
   },
   "actionErrors": {
     "unauthenticated": "Votre session a expiré. Veuillez vous reconnecter.",
@@ -142,7 +156,14 @@
     "duplicate": "Un élément avec ce nom ou ce code existe déjà.",
     "inUse": "Suppression impossible pour l'instant : il reste {reasons}. Supprimez-les ou déplacez-les d'abord.",
     "inUseGeneric": "Cet élément est encore lié à d'autres données et ne peut pas être modifié ni supprimé.",
-    "unexpected": "Un problème est survenu de notre côté. Veuillez réessayer."
+    "unexpected": "Un problème est survenu de notre côté. Veuillez réessayer.",
+    "duplicateField": {
+      "email": "Cette adresse e-mail est déjà utilisée par un autre compte",
+      "admissionNo": "Un autre élève a déjà ce numéro d'inscription",
+      "employeeId": "Une autre personne a déjà ce matricule",
+      "code": "Une autre matière utilise déjà ce code",
+      "name": "Ce nom est déjà utilisé"
+    }
   },
   "blockers": {
     "activeYear": "le statut d'année active (activez d'abord une autre année)",
@@ -278,5 +299,191 @@
     "STUDENT": "Élève",
     "PARENT": "Parent",
     "ACCOUNTANT": "Comptable"
+  },
+  "people": {
+    "errors": {
+      "sectionNotInClass": "Cette section ne fait pas partie de la classe choisie",
+      "noParentAccount": "Aucun compte parent avec cet e-mail dans votre école. Utilisez « Ajouter un nouveau parent ».",
+      "cannotDemoteSelf": "Vous ne pouvez pas retirer vos propres droits d'administrateur",
+      "lastAdmin": "Votre école doit garder au moins un administrateur actif. Nommez d'abord quelqu'un d'autre.",
+      "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte",
+      "inviteDeactivated": "Réactivez ce compte avant d'envoyer une invitation",
+      "alreadyActive": "Cette personne a déjà défini son mot de passe et peut se connecter"
+    },
+    "status": {
+      "active": "Peut se connecter",
+      "invited": "Invitation envoyée",
+      "expired": "Invitation expirée",
+      "notInvited": "Pas encore invité",
+      "deactivated": "Désactivé"
+    },
+    "invite": {
+      "send": "Envoyer l'invitation",
+      "resend": "Renvoyer l'invitation",
+      "sent": "Invitation envoyée à {email}",
+      "linkTitle": "Partagez ce lien d'invitation",
+      "linkDescription": "L'e-mail n'est pas encore configuré : envoyez vous-même ce lien à {email} (WhatsApp, SMS…). Il fonctionne une seule fois et expire dans 7 jours.",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "emailSubject": "Votre compte {school} sur EduCore",
+      "emailGreeting": "Bonjour {name},",
+      "emailBody": "{school} vous a créé un compte EduCore. Cliquez ci-dessous pour choisir votre mot de passe et vous connecter.",
+      "emailButton": "Choisir mon mot de passe",
+      "emailExpiry": "Ce lien fonctionne une seule fois et expire dans 7 jours. Si vous ne l'attendiez pas, ignorez cet e-mail.",
+      "emailText": "Bonjour {name},\n\n{school} vous a créé un compte EduCore. Choisissez votre mot de passe ici :\n{link}\n\nCe lien fonctionne une seule fois et expire dans 7 jours."
+    },
+    "account": {
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver",
+      "deactivateTitle": "Désactiver {name} ?",
+      "deactivateDescription": "{name} ne pourra plus se connecter. Ses données et son historique restent dans EduCore ; vous pouvez le réactiver à tout moment.",
+      "reactivateTitle": "Réactiver {name} ?",
+      "reactivateDescription": "{name} pourra de nouveau se connecter.",
+      "deactivated": "Compte désactivé",
+      "reactivated": "Compte réactivé"
+    },
+    "fields": {
+      "name": "Nom complet",
+      "email": "E-mail",
+      "employeeId": "Matricule",
+      "department": "Département",
+      "qualification": "Diplôme",
+      "designation": "Fonction",
+      "joiningDate": "Date d'arrivée",
+      "role": "Accès",
+      "phone": "Téléphone",
+      "occupation": "Profession",
+      "status": "Compte"
+    }
+  },
+  "teachers": {
+    "title": "Enseignants",
+    "description": "Le personnel enseignant et ce qu'il enseigne cette année.",
+    "new": "Ajouter un enseignant",
+    "edit": "Modifier l'enseignant",
+    "created": "Enseignant ajouté",
+    "updated": "Enseignant enregistré",
+    "emailHint": "Il s'en servira pour se connecter. L'invitation sera envoyée ici.",
+    "teaches": "Enseigne",
+    "teachesCount": "{count, plural, =0 {Aucune classe} one {# classe} other {# classes}}",
+    "emptyTitle": "Aucun enseignant",
+    "emptyDescription": "Ajoutez vos enseignants puis invitez-les pour qu'ils puissent se connecter et faire l'appel.",
+    "searchPlaceholder": "Rechercher par nom, e-mail ou matricule"
+  },
+  "staff": {
+    "title": "Personnel",
+    "description": "Administrateurs et comptables qui utilisent EduCore sans enseigner.",
+    "new": "Ajouter un membre du personnel",
+    "edit": "Modifier le membre du personnel",
+    "created": "Membre du personnel ajouté",
+    "updated": "Membre du personnel enregistré",
+    "roleHint": "Les administrateurs gèrent toute l'école ; les comptables gèrent les frais et paiements.",
+    "emptyTitle": "Aucun membre du personnel",
+    "emptyDescription": "Ajoutez votre économe, vos agents administratifs et tout autre membre du personnel qui doit se connecter.",
+    "searchPlaceholder": "Rechercher par nom, e-mail ou matricule"
+  },
+  "parents": {
+    "title": "Parents et tuteurs",
+    "description": "Les contacts familiaux et leurs enfants dans l'école. Ajoutez les parents depuis la fiche d'un élève.",
+    "children": "Enfants",
+    "edit": "Modifier le parent",
+    "updated": "Parent enregistré",
+    "emptyTitle": "Aucun parent",
+    "emptyDescription": "Ouvrez la fiche d'un élève et ajoutez-y son parent ou tuteur.",
+    "goToStudents": "Aller aux élèves",
+    "searchPlaceholder": "Rechercher par nom, e-mail ou téléphone",
+    "noChildren": "Aucun enfant associé"
+  },
+  "students": {
+    "title": "Élèves",
+    "titleParent": "Mes enfants",
+    "titleTeacher": "Mes élèves",
+    "description": "Tous les élèves inscrits dans l'école.",
+    "descriptionParent": "Vos enfants inscrits dans l'école.",
+    "descriptionTeacher": "Les élèves des classes où vous enseignez.",
+    "new": "Ajouter un élève",
+    "edit": "Modifier l'élève",
+    "created": "Élève ajouté",
+    "updated": "Élève enregistré",
+    "admissionNo": "N° d'inscription",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "name": "Nom",
+    "dateOfBirth": "Date de naissance",
+    "gender": "Sexe",
+    "genders": {
+      "FEMALE": "Féminin",
+      "MALE": "Masculin",
+      "OTHER": "Autre"
+    },
+    "notSpecified": "Non précisé",
+    "class": "Classe",
+    "section": "Section",
+    "noSection": "Pas encore de section",
+    "admissionDate": "Date d'inscription",
+    "admissionDateHint": "Aujourd'hui par défaut.",
+    "status": "Statut",
+    "statuses": {
+      "ACTIVE": "Actif",
+      "INACTIVE": "Inactif",
+      "GRADUATED": "Diplômé",
+      "WITHDRAWN": "Retiré"
+    },
+    "changeStatus": "Changer le statut",
+    "statusTitle": "Passer {name} au statut « {status} » ?",
+    "statusDescription": "Les données de l'élève sont conservées. Vous pouvez rétablir le statut à tout moment.",
+    "statusChanged": "Statut mis à jour",
+    "chooseClass": "Choisissez une classe",
+    "chooseSection": "Choisissez une section (facultatif)",
+    "classFilter": "classe",
+    "statusFilter": "statut",
+    "searchPlaceholder": "Rechercher par nom ou n° d'inscription",
+    "emptyTitle": "Aucun élève en {year}",
+    "emptyDescription": "Ajoutez les élèves un par un, ou importez toute votre liste (prochaine mise à jour).",
+    "emptyParent": "Aucun enfant n'est encore associé à votre compte. Contactez le secrétariat de l'école.",
+    "emptyTeacher": "Vous n'avez pas encore d'élèves. Dès que l'école vous affecte à une classe, ses élèves apparaissent ici.",
+    "needClasses": "Créez les classes de {year} avant d'ajouter des élèves.",
+    "goToClasses": "Créer les classes",
+    "view": "Voir",
+    "profile": "Fiche",
+    "guardians": "Parents et tuteurs",
+    "noGuardians": "Aucun parent ou tuteur associé.",
+    "addGuardian": "Ajouter un nouveau parent",
+    "linkGuardian": "Associer un parent existant",
+    "linkGuardianHint": "Pour un parent qui a déjà un compte dans cette école — par exemple le parent d'un frère ou d'une sœur.",
+    "relationship": "Lien de parenté",
+    "relationships": {
+      "MOTHER": "Mère",
+      "FATHER": "Père",
+      "GUARDIAN": "Tuteur",
+      "OTHER": "Autre"
+    },
+    "primary": "Contact principal",
+    "makePrimary": "Définir comme principal",
+    "primaryUpdated": "Contact principal mis à jour",
+    "isPrimaryLabel": "Contact principal pour cet élève",
+    "guardianAdded": "Parent ajouté",
+    "guardianLinked": "Parent associé",
+    "unlink": "Dissocier",
+    "unlinkTitle": "Dissocier {name} ?",
+    "unlinkDescription": "{name} ne verra plus {student} dans son compte. Son compte parent n'est pas supprimé.",
+    "unlinked": "Parent dissocié",
+    "backToList": "Tous les élèves",
+    "age": "{age, plural, one {# an} other {# ans}}"
+  },
+  "invitePage": {
+    "title": "Bienvenue, {name}",
+    "subtitle": "Choisissez un mot de passe pour {email}.",
+    "password": "Nouveau mot de passe",
+    "passwordHint": "Au moins 10 caractères, dont une lettre et un chiffre.",
+    "confirm": "Confirmer le mot de passe",
+    "submit": "Définir le mot de passe",
+    "saving": "Enregistrement…",
+    "done": "Mot de passe défini — vous pouvez vous connecter",
+    "fixErrors": "Veuillez corriger les champs en surbrillance.",
+    "invalidTitle": "Ce lien ne fonctionne pas",
+    "invalidLink": "Ce lien d'invitation est invalide, a déjà été utilisé ou a expiré. Demandez à votre école de vous en envoyer un nouveau.",
+    "goToLogin": "Aller à la connexion",
+    "tooManyAttempts": "Trop de tentatives. Patientez 15 minutes puis réessayez."
   }
 }

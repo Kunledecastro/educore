@@ -8,6 +8,41 @@ All notable changes to EduCore are documented here. Format loosely follows
 Spec: onboarding-first — foundations, academic structure, people, CSV
 import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
 
+### Added (milestone 1.2 — people)
+
+- **Students** (`/students`): search, filter by class and status, sort,
+  year switcher; add and edit (class/section checked to belong together);
+  change status (active, inactive, graduated, withdrawn) — students are
+  never deleted, so their history stays. **Profile page** with details and
+  parents/guardians.
+- **Parents & guardians**: add a new parent from a student's page (creates
+  their account), link an existing parent to a sibling, set the primary
+  contact, unlink. `/parents` lists every family contact with their
+  children, phone and sign-in status.
+- **Teachers** (`/teachers`) and **Staff** (`/staff`, admins and
+  accountants): add, edit, deactivate/reactivate (blocks sign-in, keeps
+  history), search and filter. Guard rails: you can't deactivate or demote
+  yourself, and a school always keeps at least one active admin.
+- **Invites**: "Send invite" creates a one-time, 7-day link to set a
+  password (`/invite/[token]`). Emailed via Resend when configured;
+  otherwise the admin gets the link to share. Only a SHA-256 hash of the
+  token is stored, the link is single-use (atomic claim), re-inviting
+  voids the old link, attempts are rate-limited, and the new password is
+  written in the school's RLS transaction with an audit entry. Each person
+  shows "Not invited / Invite sent / Invite expired / Can sign in /
+  Deactivated".
+- **Row-level access to students** (architecture rule #2), enforced in the
+  query itself: parents see only their own children, teachers only
+  students in sections they teach, admins and accountants the whole school.
+  A parent opening another child's URL gets "not found". Parents don't see
+  other guardians on file.
+- Sidebar: Students, Parents, Teachers, Staff for admins; "My students" for
+  teachers; "My children" for parents; Students (read-only) for accountants.
+- Server errors now point at the exact field for duplicates (email,
+  admission number, employee ID, subject code).
+- Tests: people validation (10), invite tokens (6), student row scope (5),
+  plus earlier suites — 74 web + 21 auth unit tests.
+
 ### Added (milestone 1.1 — academic structure)
 
 - **Academic setup** (`/academics`, school admins): four tabs.

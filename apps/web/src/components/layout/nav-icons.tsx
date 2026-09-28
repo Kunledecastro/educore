@@ -1,10 +1,12 @@
 import {
+  Briefcase,
   Building2,
   CalendarCheck,
   CalendarClock,
   ClipboardList,
   FileText,
   GraduationCap,
+  HeartHandshake,
   LayoutDashboard,
   Library,
   Megaphone,
@@ -19,12 +21,14 @@ import {
 
 /** Icons the sidebar can show, looked up by name (see NavItem.icon). */
 export const NAV_ICONS = {
+  Briefcase,
   Building2,
   CalendarCheck,
   CalendarClock,
   ClipboardList,
   FileText,
   GraduationCap,
+  HeartHandshake,
   LayoutDashboard,
   Library,
   Megaphone,

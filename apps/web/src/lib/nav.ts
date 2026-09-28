@@ -31,7 +31,9 @@ export function getNavItemsForRole(role: Role): NavItem[] {
     items.push(
       { labelKey: "academics", href: "/academics", icon: "Library" },
       { labelKey: "students", href: "/students", icon: "Users" },
+      { labelKey: "parents", href: "/parents", icon: "HeartHandshake" },
       { labelKey: "teachers", href: "/teachers", icon: "GraduationCap" },
+      { labelKey: "staff", href: "/staff", icon: "Briefcase" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
@@ -44,6 +46,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
 
   if (role === Role.TEACHER) {
     items.push(
+      { labelKey: "myStudents", href: "/students", icon: "Users" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
@@ -54,6 +57,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
 
   if (role === Role.ACCOUNTANT) {
     items.push(
+      { labelKey: "students", href: "/students", icon: "Users" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
@@ -62,6 +66,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
 
   if (role === Role.PARENT) {
     items.push(
+      { labelKey: "myChildren", href: "/students", icon: "Users" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },

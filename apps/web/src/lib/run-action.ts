@@ -30,6 +30,9 @@ export class UserFacingError extends Error {
   }
 }
 
+/** Unique fields we can name in a "that already exists" message. */
+const DUPLICATE_FIELDS = ["email", "admissionNo", "employeeId", "code", "name"] as const;
+
 /**
  * Wraps every Server Action: checks the permission matrix FIRST (nothing
  * runs for a role that isn't allowed), then maps expected failures to a
@@ -64,7 +67,14 @@ export async function runAction<T>(
       return fail(t("invalid"), fieldErrors);
     }
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      if (err.code === "P2002") return fail(t("duplicate"));
+      if (err.code === "P2002") {
+        // Point at the field that clashed (e.g. admission number, email) when we can tell which.
+        const target = err.meta?.target;
+        const fields = (Array.isArray(target) ? target.map(String) : [String(target ?? "")]).join(" ");
+        const fieldErrors: Record<string, string> = {};
+        for (const f of DUPLICATE_FIELDS) if (fields.includes(f)) fieldErrors[f] = t(`duplicateField.${f}`);
+        return fail(t("duplicate"), Object.keys(fieldErrors).length ? fieldErrors : undefined);
+      }
       if (err.code === "P2025") return fail(t("notFound"));
       if (err.code === "P2003") return fail(t("inUseGeneric"));
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Role } from "./roles";
-import { can, assertPermission, ForbiddenError, PERMISSION_MATRIX, RESOURCES } from "./permissions";
+import { can, assertPermission, ForbiddenError, PERMISSION_MATRIX, RESOURCES, studentScopeWhere } from "./permissions";
 
 describe("RBAC permission matrix", () => {
   it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log", () => {
@@ -82,6 +82,35 @@ describe("RBAC permission matrix", () => {
       expect(can(Role.STUDENT, resource, "read")).toBe(false);
       expect(can(Role.ACCOUNTANT, resource, "read")).toBe(false);
     }
+  });
+
+});
+
+describe("studentScopeWhere (row-level: which students a user may see)", () => {
+  const user = (role: Role) => ({ id: "u1", tenantId: "t1", role });
+
+  it("school admins and accountants see the whole school (tenant scoping does the rest)", () => {
+    expect(studentScopeWhere(user(Role.SCHOOL_ADMIN), {})).toEqual({});
+    expect(studentScopeWhere(user(Role.ACCOUNTANT), {})).toEqual({});
+  });
+
+  it("parents see only their linked children", () => {
+    expect(studentScopeWhere(user(Role.PARENT), { guardianStudentIds: ["s1", "s2"] })).toEqual({ id: { in: ["s1", "s2"] } });
+  });
+
+  it("a parent with no linked children sees nothing — never everything", () => {
+    expect(studentScopeWhere(user(Role.PARENT), {})).toEqual({ id: { in: [] } });
+    expect(studentScopeWhere(user(Role.PARENT), { guardianStudentIds: [] })).toEqual({ id: { in: [] } });
+  });
+
+  it("teachers see only students in sections they teach", () => {
+    expect(studentScopeWhere(user(Role.TEACHER), { teacherSectionIds: ["sec1"] })).toEqual({ sectionId: { in: ["sec1"] } });
+    expect(studentScopeWhere(user(Role.TEACHER), {})).toEqual({ sectionId: { in: [] } });
+  });
+
+  it("students see only themselves; an unlinked student account sees nothing", () => {
+    expect(studentScopeWhere(user(Role.STUDENT), { ownStudentId: "s9" })).toEqual({ id: "s9" });
+    expect(studentScopeWhere(user(Role.STUDENT), {})).toEqual({ id: "__none__" });
   });
 });
 
