@@ -2,31 +2,29 @@ import type { PrismaClient } from "@prisma/client";
 import { prisma } from "./client";
 
 /**
- * Defense-in-depth layer #2: PostgreSQL Row Level Security (see the RLS
- * migration under prisma/migrations for the policies themselves).
+ * Runs a multi-statement unit of work (background jobs, bulk imports, raw
+ * SQL) inside ONE transaction with the same database-layer isolation that
+ * `forTenant()` applies per operation: `app.tenant_id` is set and the
+ * connection switches to the RLS-bound `educore_app` role (no BYPASSRLS),
+ * both transaction-locally so nothing leaks across pooled connections.
  *
- * KNOWN PHASE-0 LIMITATION (documented per project working rules — stated
- * explicitly rather than silently glossed over): RLS policies compare each
- * tenant-owned row's `tenant_id` against the Postgres session variable
- * `app.tenant_id`. Setting that variable safely requires either (a) a
- * dedicated, non-pooled connection per request, or (b) wrapping the whole
- * unit of work in one transaction that opens with `SET LOCAL`, because a
- * bare session-level `SET` on a pgbouncer-pooled connection can leak one
- * tenant's context into the next request that reuses the same connection.
- *
- * `forTenant()` in tenant-scope.ts (layer #1, enforced on every ordinary
- * request via Prisma Client Extensions) does NOT currently call this — it
- * is the layer that protects the ordinary request path today. `withRls()`
- * below is for the paths that run outside a per-request Prisma call and
- * therefore most need the second guarantee: background jobs (report-card
- * generation, bulk CSV import) and any hand-written raw SQL. Wiring RLS
- * into the hot path for every ORM call too is the next hardening step,
- * tracked for Phase 1, once the background-job runner (Inngest/Trigger.dev)
- * gives us one connection per job rather than a shared pool.
+ * Inside `fn`, every row read or written is limited to `tenantId` by the
+ * Postgres RLS policies (migrations 0002/0003/0004) — even a raw query with
+ * no WHERE clause. Still pass `tenantId` explicitly on writes: RLS rejects
+ * a row whose tenantId doesn't match rather than filling it in.
  */
-export async function withRls<T>(tenantId: string, fn: (tx: PrismaClient) => Promise<T>): Promise<T> {
-  return prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`;
-    return fn(tx as unknown as PrismaClient);
-  });
+export async function withRls<T>(
+  tenantId: string,
+  fn: (tx: PrismaClient) => Promise<T>,
+  options?: { timeoutMs?: number },
+): Promise<T> {
+  if (!tenantId) throw new Error("withRls() called without a tenantId");
+  return prisma.$transaction(
+    async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`;
+      await tx.$executeRaw`SET LOCAL ROLE educore_app`;
+      return fn(tx as unknown as PrismaClient);
+    },
+    { timeout: options?.timeoutMs ?? 15_000 },
+  );
 }

@@ -84,14 +84,17 @@ data.
 ## Notes on the two-layer tenant isolation in production
 
 - RLS is enabled with `FORCE ROW LEVEL SECURITY` on every tenant-owned
-  table. Confirm your Supabase connection role is **not** a Postgres
-  superuser (Supabase's default `postgres` role is not), otherwise RLS is
-  silently bypassed regardless of `FORCE`.
-- The pooled connection (port 6543, pgbouncer) is what the app uses for
-  ordinary requests — tenant isolation there is enforced by the Prisma
-  Client Extension (`forTenant()`), not by session-level RLS variables
-  (see the "known limitation" in README.md). The direct connection
-  (`DIRECT_URL`) is used only for `prisma migrate`.
+  table. **On Supabase the `postgres` role has `BYPASSRLS`**, so RLS alone
+  would protect nothing on that connection. Migration `0004_rls_app_role`
+  creates `educore_app` (no `BYPASSRLS`, cannot log in) and grants
+  `postgres` permission to switch into it; the app does
+  `SET LOCAL ROLE educore_app` + `set_config('app.tenant_id', …, true)` at
+  the start of every tenant transaction. Nothing to configure — just apply
+  the migrations.
+- Verify it on any new database: in the SQL editor run
+  `begin; set local role educore_app; select count(*) from students; rollback;`
+  — it must return **0** (no tenant set = fail closed).
+- The direct connection (`DIRECT_URL`) is used only for `prisma migrate`.
 
 ## Other free-tier services (later phases)
 

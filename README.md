@@ -53,14 +53,16 @@ break the other:
 (via `platformPrisma()`), and every platform-admin action must be paired
 with an audit log entry.
 
-**Known Phase 0 limitation** (stated explicitly rather than glossed over):
-setting `app.tenant_id` safely on a pooled connection requires either a
-dedicated connection per request or `SET LOCAL` inside a transaction — a
-bare `SET` on a pgbouncer-pooled connection can leak context between
-requests. `packages/db/src/rls.ts`'s `withRls()` helper does this correctly
-and is used for background jobs / raw SQL; wiring it into every ordinary
-ORM call (on top of the Prisma Client Extension, which already protects the
-hot path) is tracked as Phase 1 work.
+**How the database layer is enforced:** tenant requests run as the
+`educore_app` Postgres role, which has no `BYPASSRLS` (migration
+`0004_rls_app_role`). `forTenant()` wraps every operation in a short
+transaction that sets `app.tenant_id` and `SET LOCAL ROLE educore_app`;
+`withRls()` does the same for multi-statement work (jobs, imports, raw SQL).
+Both settings are transaction-local, so they are safe on pgbouncer/Supavisor
+pooling. The `postgres` role (which does bypass RLS on Supabase) is used only
+by `platformPrisma()` for audited platform-admin work, by Auth.js, and by
+migrations. Don't call `$transaction` on a `forTenant()` client — use
+`withRls()`.
 
 ## RBAC
 

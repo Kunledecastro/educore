@@ -3,6 +3,26 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 1 — Onboarding (in progress)
+
+Spec: onboarding-first — foundations, academic structure, people, CSV
+import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
+
+### Security
+
+- **Row Level Security now actually enforces tenant isolation.** The app
+  connects as Supabase's `postgres` role, which has `BYPASSRLS`, so the RLS
+  policies from Phase 0 were never applied to app queries — isolation
+  rested on the Prisma extension alone. New role `educore_app` (no
+  BYPASSRLS); `forTenant()` and `withRls()` switch to it per transaction
+  with `SET LOCAL ROLE` + `app.tenant_id`. Tenants can read only their own
+  `tenants`/`subscriptions` row; `accounts`/`verification_tokens` are
+  denied. Verified on the live database: unfiltered SELECT returns only the
+  caller's school, cross-tenant INSERT is rejected, and no tenant set
+  returns zero rows.
+- Tenant-isolation suite: 5 new tests that exercise RLS with raw SQL and no
+  application-level filter.
+
 ## Phase 0.2 — Fix production login (2026-09-28)
 
 ### Fixed

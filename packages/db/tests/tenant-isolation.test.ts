@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../src/client";
 import { forTenant } from "../src/tenant-scope";
+import { withRls } from "../src/rls";
 
 /**
  * Integration tests for the most important guarantee in this codebase:
@@ -127,5 +128,49 @@ describe("tenant isolation (forTenant scoping)", () => {
   it("forTenant() refuses to build an unscoped client", () => {
     // @ts-expect-error — intentionally omitting the required tenantId
     expect(() => forTenant()).toThrow();
+  });
+});
+
+/**
+ * Layer #2 on its own: Postgres RLS, with the Prisma filter taken out of the
+ * picture entirely (raw SQL, no WHERE clause). If these pass, a bug in the
+ * Prisma extension still could not leak another school's data.
+ */
+describe("tenant isolation (database RLS layer, no app-level filter)", () => {
+  it("a raw SELECT with no WHERE sees only the caller's tenant", async () => {
+    const rows = await withRls(tenantA.id, (tx) =>
+      tx.$queryRaw<{ id: string }[]>`SELECT id FROM students`,
+    );
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    expect(rows.some((r) => r.id === studentB.id)).toBe(false);
+  });
+
+  it("a raw INSERT into another tenant is rejected by the RLS policy", async () => {
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO students (id, "tenantId", "admissionNo", "firstName", "lastName", "updatedAt")
+                       VALUES (${`rls-x-${Date.now()}`}, ${tenantB.id}, 'X-1', 'X', 'Y', now())`,
+      ),
+    ).rejects.toThrow(/row-level security/);
+  });
+
+  it("a raw UPDATE of another tenant's row changes nothing", async () => {
+    const changed = await withRls(tenantA.id, (tx) =>
+      tx.$executeRaw`UPDATE students SET "firstName" = 'HACKED' WHERE id = ${studentB.id}`,
+    );
+    expect(changed).toBe(0);
+  });
+
+  it("the tenant row itself: only your own school is visible", async () => {
+    const rows = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM tenants`);
+    expect(rows.map((r) => r.id)).toEqual([tenantA.id]);
+  });
+
+  it("with no tenant set, RLS fails closed (zero rows)", async () => {
+    const rows = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SET LOCAL ROLE educore_app`;
+      return tx.$queryRaw<{ id: string }[]>`SELECT id FROM students`;
+    });
+    expect(rows).toHaveLength(0);
   });
 });
