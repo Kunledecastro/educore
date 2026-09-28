@@ -19,7 +19,8 @@ import type { ActionResult } from "@/lib/action-result";
 /**
  * Every destructive action goes through this: a confirmation dialog, then
  * the server action, then a toast with the outcome. The trigger is whatever
- * element you pass (a Button, a DropdownMenuItem with onSelect prevented…).
+ * element you pass, or control it with `open`/`onOpenChange` — do that for
+ * menu items: a dialog rendered inside a dropdown unmounts when the menu closes.
  */
 export function ConfirmAction({
   trigger,
@@ -29,22 +30,29 @@ export function ConfirmAction({
   destructive = true,
   action,
   successMessage,
+  open: controlledOpen,
+  onOpenChange,
 }: {
-  trigger: React.ReactNode;
+  /** Omit when opening it yourself via `open`/`onOpenChange` (e.g. from a dropdown menu item). */
+  trigger?: React.ReactNode;
   title: string;
   description: React.ReactNode;
   confirmLabel: string;
   destructive?: boolean;
   action: () => Promise<ActionResult<unknown>>;
   successMessage: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const t = useTranslations("common");
-  const [open, setOpen] = React.useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
   const [pending, startTransition] = React.useTransition();
 
   return (
     <AlertDialog open={open} onOpenChange={(o) => !pending && setOpen(o)}>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      {trigger ? <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger> : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

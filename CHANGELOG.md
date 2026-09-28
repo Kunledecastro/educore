@@ -8,6 +8,44 @@ All notable changes to EduCore are documented here. Format loosely follows
 Spec: onboarding-first — foundations, academic structure, people, CSV
 import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
 
+### Added (milestone 1.1 — academic structure)
+
+- **Academic setup** (`/academics`, school admins): four tabs.
+  - **Academic years**: create, edit, make active, delete. A school's first
+    year becomes active automatically; making another year active switches
+    it in one transaction.
+  - **Classes & sections**: per academic year (year switcher, defaults to
+    the active year), with student counts and optional section capacity.
+  - **Subjects**: searchable, sortable list with a unique short code.
+  - **Teacher assignments**: who teaches which subject in which section;
+    filter by class, subject or teacher; change teacher or remove.
+- Every change is permission-checked, validated with the same Zod schema in
+  the browser and on the server, and written with its audit entry in one
+  tenant-bound transaction (visible in `/audit-log`).
+- **Every id a form sends is re-checked to belong to the school** before it
+  is linked — Postgres foreign-key checks ignore RLS, so without this a
+  guessed id from another school could be attached.
+- **Safe deletes**: years, classes, sections and subjects that still hold
+  students, attendance, assessments, timetable entries, fee structures or
+  invoices can't be deleted (the schema cascades); the message says what's
+  still attached. The active year can never be deleted.
+- **Database rules** (migration 0006): one active year per school (partial
+  unique index), year must end after it starts, unique year names per
+  school, unique class names per year, unique section names per class,
+  capacity > 0. Verified on the live database.
+- **Mobile layout**: below tablet width the sidebar becomes a top bar with a
+  slide-in menu (down to 375px); role names are translated.
+- `runAction()` wrapper for server actions: permission first, then friendly
+  translated errors for validation, duplicates, "in use" and not-found —
+  internal errors are logged, never shown.
+- `useServerForm` + `FormDialog`: forms re-show server field errors inline;
+  `ConfirmAction` can now be opened from dropdown menus.
+- `formatDateOnly()` so date-only values never shift a day in time zones
+  west of UTC.
+- Tests: academic validation (10), RBAC for academic setup (1 more), date
+  formatting (1 more); DB integration suite `academic-structure.test.ts`
+  for the new constraints and cross-school isolation.
+
 ### Added (milestone 1.0 — foundations)
 
 - **`packages/ui`** — design-system primitives moved out of the app and

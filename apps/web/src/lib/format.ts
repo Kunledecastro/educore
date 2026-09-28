@@ -75,3 +75,15 @@ export function formatDateTime(
     timeZone: settings.timezone,
   }).format(date);
 }
+
+/**
+ * For date-only values (birthdays, term dates, academic years) stored at UTC
+ * midnight: formatted in UTC so the calendar day never shifts, whatever the
+ * school's time zone.
+ */
+export function formatDateOnly(
+  value: Date | string | null | undefined,
+  settings: Pick<TenantSettings, "locale" | "dateStyle">,
+): string {
+  return formatDate(value, { ...settings, timezone: "UTC" });
+}

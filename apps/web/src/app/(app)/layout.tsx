@@ -3,7 +3,7 @@ import { Role } from "@educore/db";
 import { auth } from "@/lib/auth";
 import { getTenantForUser } from "@/lib/tenant";
 import { getNavItemsForRole } from "@/lib/nav";
-import { Sidebar } from "@/components/layout/sidebar";
+import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -21,9 +21,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const items = getNavItemsForRole(session.user.role);
 
   return (
-    <div className="flex">
+    <div className="min-h-screen md:flex">
       <Sidebar items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+      <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
+        {children}
+      </main>
     </div>
   );
 }

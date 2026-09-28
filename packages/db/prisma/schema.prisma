@@ -264,6 +264,10 @@ model AcademicYear {
   feeStructures    FeeStructure[]
   invoices         Invoice[]
 
+  // Also enforced in migration 0006 (not expressible in Prisma schema):
+  //   - partial unique index: at most one isActive = true per tenant
+  //   - CHECK (endDate > startDate)
+  @@unique([tenantId, name])
   @@index([tenantId])
   @@index([tenantId, isActive])
   @@map("academic_years")
@@ -283,6 +287,7 @@ model ClassGrade {
   feeStructures    FeeStructure[]
   timetableEntries TimetableEntry[]
 
+  @@unique([tenantId, academicYearId, name])
   @@index([tenantId])
   @@index([tenantId, academicYearId])
   @@map("class_grades")
@@ -303,6 +308,8 @@ model Section {
   assessments          Assessment[]
   timetableEntries     TimetableEntry[]
 
+  // Also enforced in migration 0006: CHECK (capacity IS NULL OR capacity > 0)
+  @@unique([tenantId, classId, name])
   @@index([tenantId])
   @@index([tenantId, classId])
   @@map("sections")

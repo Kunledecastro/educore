@@ -29,6 +29,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
 
   if (role === Role.SCHOOL_ADMIN) {
     items.push(
+      { labelKey: "academics", href: "/academics", icon: "Library" },
       { labelKey: "students", href: "/students", icon: "Users" },
       { labelKey: "teachers", href: "/teachers", icon: "GraduationCap" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },

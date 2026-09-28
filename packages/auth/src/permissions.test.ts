@@ -65,4 +65,23 @@ describe("RBAC permission matrix", () => {
       expect(Object.values(Role)).toContain(role);
     }
   });
+
+  it("academic setup (years, classes, sections, subjects, teacher assignments) is managed only by school admins", () => {
+    const resources = ["academicYear", "classGrade", "section", "subject", "teacherAssignment"] as const;
+    const writes = ["create", "update", "delete"] as const;
+    for (const resource of resources) {
+      for (const action of writes) {
+        expect(can(Role.SCHOOL_ADMIN, resource, action)).toBe(true);
+        for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+          expect(can(role, resource, action), `${role} must not ${action} ${resource}`).toBe(false);
+        }
+      }
+      // Teachers can look at the structure they teach in; families and finance staff can't browse it.
+      expect(can(Role.TEACHER, resource, "read")).toBe(true);
+      expect(can(Role.PARENT, resource, "read")).toBe(false);
+      expect(can(Role.STUDENT, resource, "read")).toBe(false);
+      expect(can(Role.ACCOUNTANT, resource, "read")).toBe(false);
+    }
+  });
 });
+

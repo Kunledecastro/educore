@@ -75,3 +75,11 @@ describe("todayInTimeZone", () => {
     expect(todayInTimeZone("UTC", now).toISOString()).toBe("2026-09-01T00:00:00.000Z");
   });
 });
+
+describe("formatDateOnly", () => {
+  it("never shifts a date-only value, even for schools west of UTC", async () => {
+    const { formatDateOnly } = await import("./format");
+    const us = parseTenantSettings({ locale: "en-US", timezone: "America/New_York" });
+    expect(formatDateOnly(new Date("2026-09-01T00:00:00Z"), us)).toMatch(/Sep 1, 2026/);
+  });
+});
