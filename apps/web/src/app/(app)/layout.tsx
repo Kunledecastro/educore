@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Role } from "@educore/db";
 import { auth } from "@/lib/auth";
-import { getCurrentTenant } from "@/lib/tenant";
+import { getTenantForUser } from "@/lib/tenant";
 import { getNavItemsForRole } from "@/lib/nav";
 import { Sidebar } from "@/components/layout/sidebar";
 
@@ -11,10 +11,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  const tenant = await getCurrentTenant();
   const isPlatformAdmin = session.user.role === Role.PLATFORM_ADMIN;
+  const { tenant, mismatch } = await getTenantForUser(session.user.tenantId ?? null);
 
-  if (!isPlatformAdmin && (!tenant || tenant.id !== session.user.tenantId)) {
+  if (!isPlatformAdmin && mismatch) {
     redirect("/login?error=WrongSchool");
   }
 

@@ -24,6 +24,12 @@ All notable changes to EduCore are documented here. Format loosely follows
   school a login is for now comes only from the request host (middleware
   headers), in `apps/web/src/lib/login-guard.ts`. Previously a caller could
   omit the field to skip the check.
+- **After signing in, school users were bounced back to
+  `/login?error=WrongSchool`.** The app layout required a school subdomain,
+  which the `*.vercel.app` root domain can't have. On the root domain the
+  app now uses the user's own school from their session (same rule as the
+  login guard); on a school's own subdomain it must still match. A
+  suspended school now ends existing sessions too.
 - **Security: tenant headers could be forged.** Middleware now strips any
   client-sent `x-tenant-*` headers before setting its own.
 

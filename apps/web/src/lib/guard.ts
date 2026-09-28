@@ -1,7 +1,7 @@
 import { forTenant, platformPrisma, Role, type TenantScopedClient } from "@educore/db";
 import { can, type Action, type Resource, type AuthUser } from "@educore/auth";
 import { auth } from "./auth";
-import { getCurrentTenant } from "./tenant";
+import { getTenantForUser } from "./tenant";
 
 export class UnauthenticatedError extends Error {
   constructor() {
@@ -91,8 +91,8 @@ export async function requireMatchingTenant(): Promise<RequestContext> {
   const ctx = await requireUser();
   if (ctx.isPlatformAdmin) return ctx;
 
-  const tenant = await getCurrentTenant();
-  if (!tenant || tenant.id !== ctx.user.tenantId) {
+  const { mismatch } = await getTenantForUser(ctx.user.tenantId ?? null);
+  if (mismatch) {
     throw new ForbiddenError("Session does not belong to this school's portal");
   }
   return ctx;

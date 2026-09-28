@@ -22,3 +22,29 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | null> => {
   }
   return null;
 });
+
+/**
+ * The tenant a signed-in user is working in for this request.
+ *
+ * - On a school's subdomain / custom domain: that school, and it must be the
+ *   user's own (otherwise `mismatch` is true and the caller should reject).
+ * - On the root domain (no wildcard domain yet): the user's own tenant, from
+ *   their session. Same rule as the login guard in login-guard.ts.
+ * - A suspended school counts as a mismatch, so existing sessions stop
+ *   working as soon as a school is suspended.
+ */
+export const getTenantForUser = cache(
+  async (userTenantId: string | null): Promise<{ tenant: Tenant | null; mismatch: boolean }> => {
+    const h = headers();
+    const onTenantHost = Boolean(h.get("x-tenant-subdomain") || h.get("x-tenant-custom-domain"));
+
+    if (onTenantHost) {
+      const tenant = await getCurrentTenant();
+      return { tenant, mismatch: !tenant || tenant.id !== userTenantId || tenant.status !== "ACTIVE" };
+    }
+
+    if (!userTenantId) return { tenant: null, mismatch: true };
+    const tenant = await platformPrisma().tenant.findUnique({ where: { id: userTenantId } });
+    return { tenant, mismatch: !tenant || tenant.status !== "ACTIVE" };
+  },
+);
