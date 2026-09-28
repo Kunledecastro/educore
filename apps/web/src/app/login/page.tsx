@@ -13,7 +13,7 @@ export default async function LoginPage() {
           </p>
           <h1 className="mt-1 text-xl font-semibold">Sign in to your school portal</h1>
         </div>
-        <LoginForm subdomain={tenant?.subdomain} />
+        <LoginForm />
       </div>
     </div>
   );

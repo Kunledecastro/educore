@@ -9,6 +9,16 @@ const ROOT_DOMAINS = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000,edu
 
 const RESERVED_SUBDOMAINS = new Set(["www", "app", "admin", "api"]);
 
+// Headers only this middleware may set. Any copy sent by the client is
+// stripped first, otherwise a caller could forge its tenant context.
+const TENANT_HEADERS = ["x-tenant-subdomain", "x-tenant-custom-domain", "x-tenant-host"];
+
+function cleanHeaders(request: NextRequest): Headers {
+  const headers = new Headers(request.headers);
+  for (const name of TENANT_HEADERS) headers.delete(name);
+  return headers;
+}
+
 /**
  * Tenant resolution middleware (architecture rule #1). Runs on the Edge
  * runtime, so it deliberately does NOT touch Prisma/Postgres here — it only
@@ -45,13 +55,13 @@ export function middleware(request: NextRequest) {
       // by exact hostname match against Tenant.customDomain further down the
       // request lifecycle — forward the full hostname instead.
       subdomain = null;
-      const requestHeaders = new Headers(request.headers);
+      const requestHeaders = cleanHeaders(request);
       requestHeaders.set("x-tenant-custom-domain", hostname);
       return NextResponse.next({ request: { headers: requestHeaders } });
     }
   }
 
-  const requestHeaders = new Headers(request.headers);
+  const requestHeaders = cleanHeaders(request);
   if (subdomain) {
     requestHeaders.set("x-tenant-subdomain", subdomain);
   }

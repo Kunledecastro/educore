@@ -16,9 +16,22 @@ All notable changes to EduCore are documented here. Format loosely follows
 - Hash parameters are now explicit (OWASP baseline: m=19 MiB, t=2, p=1).
   Existing hashes keep verifying because parameters are read from the PHC
   string — confirmed against the live seeded users' hash format.
+- **Every login was rejected** with "Incorrect email or password for this
+  school", even with the right password. The login form posted an unset
+  `subdomain` field, which next-auth serialised as the string `"undefined"`,
+  so the cross-tenant guard compared `"greenfield"` to `"undefined"`.
+- **Security: the cross-tenant login guard trusted client input.** The
+  school a login is for now comes only from the request host (middleware
+  headers), in `apps/web/src/lib/login-guard.ts`. Previously a caller could
+  omit the field to skip the check.
+- **Security: tenant headers could be forged.** Middleware now strips any
+  client-sent `x-tenant-*` headers before setting its own.
 
 ### Added
 
+- `apps/web/src/lib/login-guard.test.ts`: 11 tests for the login guard
+  (own/other subdomain, custom domain, root domain, suspended school,
+  platform admin).
 - `packages/auth/src/passwords.test.ts`: argon2id format, correct/incorrect
   password, per-hash salt, malformed-hash handling, and backward
   compatibility with both existing hash formats.

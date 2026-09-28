@@ -17,7 +17,7 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function LoginForm({ subdomain }: { subdomain?: string }) {
+export function LoginForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -32,7 +32,6 @@ export function LoginForm({ subdomain }: { subdomain?: string }) {
     try {
       const result = await signIn("credentials", {
         ...values,
-        subdomain,
         redirect: false,
       });
       if (result?.error) {

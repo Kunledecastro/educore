@@ -6,11 +6,11 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { z } from "zod";
 import { prisma, Role } from "@educore/db";
 import { verifyPassword } from "@educore/auth";
+import { isLoginAllowed, loginHostFromHeaders } from "./login-guard";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
-  subdomain: z.string().optional(),
 });
 
 const oauthProviders = [];
@@ -47,12 +47,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        subdomain: { label: "School", type: "text" },
       },
-      async authorize(raw) {
+      async authorize(raw, request) {
         const parsed = credentialsSchema.safeParse(raw);
         if (!parsed.success) return null;
-        const { email, password, subdomain } = parsed.data;
+        const { email, password } = parsed.data;
 
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },
@@ -63,13 +62,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await verifyPassword(user.passwordHash, password);
         if (!valid) return null;
 
-        // Cross-tenant login guard: a school-scoped user signing in through
-        // a different school's subdomain is rejected outright, even with a
-        // correct password.
-        if (user.role !== Role.PLATFORM_ADMIN) {
-          if (!user.tenant || user.tenant.status !== "ACTIVE") return null;
-          if (subdomain && user.tenant.subdomain !== subdomain) return null;
-        }
+        // Cross-tenant login guard — the school comes from the request host
+        // (set by middleware), never from client input. See login-guard.ts.
+        const allowed = isLoginAllowed(
+          { isPlatformAdmin: user.role === Role.PLATFORM_ADMIN, tenant: user.tenant },
+          loginHostFromHeaders(request.headers),
+        );
+        if (!allowed) return null;
 
         return {
           id: user.id,
