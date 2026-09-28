@@ -30,6 +30,11 @@ All notable changes to EduCore are documented here. Format loosely follows
   app now uses the user's own school from their session (same rule as the
   login guard); on a school's own subdomain it must still match. A
   suspended school now ends existing sessions too.
+- **Dashboard crashed with "Application error: a server-side exception"**
+  (digest 107561826). The server-built nav items carried lucide icon
+  components into the client `<Sidebar>`, which React can't serialise.
+  Nav items now carry an icon name; the sidebar maps it via
+  `components/layout/nav-icons.tsx`.
 - **Security: tenant headers could be forged.** Middleware now strips any
   client-sent `x-tenant-*` headers before setting its own.
 

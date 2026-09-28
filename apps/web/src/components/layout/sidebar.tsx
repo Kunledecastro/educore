@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { GraduationCap, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem } from "@/lib/nav";
+import { NAV_ICONS } from "./nav-icons";
 import type { Role } from "@educore/db";
 
 export function Sidebar({
@@ -34,7 +35,7 @@ export function Sidebar({
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
+          const Icon = NAV_ICONS[item.icon];
           return (
             <Link
               key={item.href}
