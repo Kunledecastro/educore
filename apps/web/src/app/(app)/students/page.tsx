@@ -13,6 +13,7 @@ import { ListSearch } from "@/components/list/list-search";
 import { ListToolbar } from "@/components/list/list-toolbar";
 import { SortableHeader } from "@/components/list/sortable-header";
 import { YearSwitcher } from "@/components/list/year-switcher";
+import { ExportMenu } from "@/components/list/export-menu";
 import { PageHeader } from "@/components/page-header";
 import { resolveAcademicYear } from "@/lib/academic-year";
 import { requirePermission } from "@/lib/guard";
@@ -84,6 +85,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
   const description =
     user.role === Role.PARENT ? t("descriptionParent") : user.role === Role.TEACHER ? t("descriptionTeacher") : t("description");
   const newButton = canManage && classes.length > 0 ? <NewStudentButton classes={classes} /> : null;
+  const canExport = can(user.role, "student", "export") && user.role !== Role.PLATFORM_ADMIN;
 
   let empty: React.ReactNode = null;
   if (all === 0) {
@@ -115,7 +117,18 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
 
   return (
     <div>
-      <PageHeader title={title} description={description} actions={all > 0 ? newButton : null} />
+      <PageHeader
+        title={title}
+        description={description}
+        actions={
+          all > 0 ? (
+            <>
+              {canExport ? <ExportMenu kind="students" /> : null}
+              {newButton}
+            </>
+          ) : null
+        }
+      />
       {selected && years.length > 1 ? (
         <div className="mb-4">
           <YearSwitcher years={years.map(({ id, name, isActive }) => ({ id, name, isActive }))} selectedId={selected.id} />

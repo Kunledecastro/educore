@@ -7,7 +7,9 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@educore/db", "@educore/auth", "@educore/ui"],
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2"],
+    serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2", "exceljs"],
+    // CSV uploads go through a Server Action: 2 MB file limit + form overhead.
+    serverActions: { bodySizeLimit: "3mb" },
   },
   async headers() {
     return [

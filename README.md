@@ -56,6 +56,15 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
 - **Forms** use React Hook Form + Zod with `FormField`
   (`components/form/form-field.tsx`), which wires labels, hints, inline
   errors and `aria-*` attributes.
+- **CSV imports** live in `apps/web/src/lib/imports/`: an `Importer` (see
+  `types.ts`) only validates one row and writes one row; the engine does
+  parsing (UTF-8/Windows-1252, `,`/`;`), header aliases, limits, in-file
+  duplicates, per-row SAVEPOINTs and auditing. Upload = validate only
+  (`/imports` → report); confirming sends `educore/import.requested` to
+  Inngest, which imports in batches of 50 (`lib/inngest/run-import.ts`).
+  Imports upsert on natural keys, so re-importing never duplicates.
+- **Exports** (`/api/exports/{students|staff|parents}`) use the list page's
+  filters and row scope, and the same column names as the import templates.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 

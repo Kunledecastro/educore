@@ -103,7 +103,7 @@ data.
 | Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
 | Stripe (payments, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Cloudflare R2 (file storage) | 10GB free | `STORAGE_*` |
-| Inngest (background jobs) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` |
+| Inngest (background jobs — CSV imports) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`. Install **Inngest from the Vercel Marketplace** (Integrations → Inngest → Install → choose the project); it sets both variables and syncs the app from `/api/inngest` on every deploy. Required for imports — without it the "Import" button reports the importer is unavailable. |
 | Upstash Redis (rate limiting) | free tier | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`. Omit to fall back to an in-memory limiter, which works per server instance only — **set Upstash up before real schools go live** so login limits are shared across all instances. |
 | Sentry (error monitoring) | free tier | `SENTRY_DSN` |
 

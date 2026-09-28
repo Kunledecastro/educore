@@ -100,6 +100,21 @@ enum AuditAction {
   DELETE
 }
 
+enum ImportKind {
+  STUDENTS
+  STAFF
+  CLASSES
+}
+
+enum ImportStatus {
+  VALIDATED
+  QUEUED
+  IMPORTING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 enum SubscriptionStatus {
   TRIALING
   ACTIVE
@@ -153,6 +168,7 @@ model Tenant {
   messages          Message[]
   auditLogs         AuditLog[]
   subscription      Subscription?
+  importJobs        ImportJob[]
 
   @@map("tenants")
 }
@@ -207,6 +223,7 @@ model User {
   messagesSent       Message[]        @relation("MessageSender")
   threadParticipants ThreadParticipant[]
   auditLogEntries    AuditLog[]       @relation("AuditActor")
+  importJobs         ImportJob[]      @relation("ImportCreatedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -763,4 +780,41 @@ model AuditLog {
   @@index([tenantId])
   @@index([tenantId, entityType, entityId])
   @@map("audit_logs")
+}
+
+// ---------------------------------------------------------------------------
+// CSV import jobs (Phase 1.3). The uploaded file lives in `csv` (≤ 2 MB,
+// CHECK in migration 0007) so it gets the same RLS protection as the rest
+// of the school's data. `errors` = validation report; `importErrors` = rows
+// that failed while importing. Both are arrays of { row, column, message }.
+// ---------------------------------------------------------------------------
+
+model ImportJob {
+  id            String       @id @default(cuid())
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdById   String?
+  createdBy     User?        @relation("ImportCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  kind          ImportKind
+  status        ImportStatus @default(VALIDATED)
+  fileName      String
+  csv           String
+  options       Json         @default("{}")
+  totalRows     Int          @default(0)
+  validRows     Int          @default(0)
+  errorRows     Int          @default(0)
+  processedRows Int          @default(0)
+  createdRows   Int          @default(0)
+  updatedRows   Int          @default(0)
+  failedRows    Int          @default(0)
+  errors        Json         @default("[]")
+  importErrors  Json         @default("[]")
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("import_jobs")
 }

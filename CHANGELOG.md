@@ -8,6 +8,49 @@ All notable changes to EduCore are documented here. Format loosely follows
 Spec: onboarding-first — foundations, academic structure, people, CSV
 import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
 
+### Added (milestone 1.3 — import & export)
+
+- **Import & export page** (`/imports`, school admins): download a template,
+  upload a CSV, get a **validation report** before anything is written —
+  row number, column and a plain-language problem for every issue
+  ("No class called 'Grade 9' in this academic year", "Repeated — already
+  used on row 12"…), downloadable as CSV. Then **Import N rows**: valid rows
+  are imported in the background with a **live progress bar**; problem rows
+  are skipped and can be fixed and re-imported.
+- Three importers:
+  - **Students** (+ optional parent/guardian per row): upsert on admission
+    number; class/section matched by name in the chosen year; siblings
+    share a parent by email (created once, linked to each child, first
+    parent becomes primary contact).
+  - **Teachers & staff** in one file (`role` = teacher / admin /
+    accountant): upsert on email; an import never changes someone's role
+    or reuses another person's employee ID.
+  - **Classes & sections** for a year: upsert on name; order and capacity
+    updated.
+- Forgiving parsing: UTF-8 or Windows-1252 files, comma or semicolon,
+  headers in any case/spacing with aliases ("Admission Number",
+  "Surname"…), day-first dates (07/03/2016) or ISO, "F"/"Female", extra
+  columns ignored (and mentioned). Excel files get a "save as CSV UTF-8"
+  hint. Limits: 2 MB, 5,000 rows.
+- **Background jobs with Inngest** (`/api/inngest`): 50 rows per step, each
+  in the school's RLS transaction; one import per school at a time; steps
+  retried individually and resumed after a crash; every batch re-validates
+  against current data; each row in its own savepoint so one bad row
+  doesn't undo the batch; every created/updated record audited; cancel
+  stops at the next batch.
+- **Exports**: Students, Teachers & staff, Parents as **CSV or Excel**, from
+  an Export button on each list (uses the current search/filters) or the
+  Import & export page. Columns match the import templates. Same row scope
+  as the lists (a teacher's export contains only their students, without
+  family contact details). Formula injection neutralised in every cell.
+- **Import records** (`import_jobs`, migration 0007): tenant-scoped with
+  RLS; the uploaded file is stored only until the import finishes or is
+  cancelled, then deleted (data minimisation); 2 MB CHECK constraint.
+  Verified live: another school's import is invisible, cross-school writes
+  are blocked.
+- Tests: CSV parsing/encoding/dates/formula escaping (11), importer
+  validation for all three kinds (13) — 98 web unit tests in total.
+
 ### Added (milestone 1.2 — people)
 
 - **Students** (`/students`): search, filter by class and status, sort,

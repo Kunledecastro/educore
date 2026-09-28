@@ -9,6 +9,7 @@ import { ListSearch } from "@/components/list/list-search";
 import { ListToolbar } from "@/components/list/list-toolbar";
 import { SortableHeader } from "@/components/list/sortable-header";
 import { PageHeader } from "@/components/page-header";
+import { ExportMenu } from "@/components/list/export-menu";
 import { AccountStatusBadge } from "@/components/people/account-status-badge";
 import { PersonActions } from "@/components/people/person-actions";
 import { requirePermission } from "@/lib/guard";
@@ -64,7 +65,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Sea
 
   return (
     <div>
-      <PageHeader title={t("title")} description={t("description")} actions={all > 0 ? <NewPersonButton kind="teacher" /> : null} />
+      <PageHeader title={t("title")} description={t("description")} actions={all > 0 ? (<><ExportMenu kind="staff" /><NewPersonButton kind="teacher" /></>) : null} />
       {all === 0 ? (
         <EmptyState
           icon={<GraduationCap className="h-6 w-6" />}

@@ -34,6 +34,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
       { labelKey: "parents", href: "/parents", icon: "HeartHandshake" },
       { labelKey: "teachers", href: "/teachers", icon: "GraduationCap" },
       { labelKey: "staff", href: "/staff", icon: "Briefcase" },
+      { labelKey: "imports", href: "/imports", icon: "FileUp" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
