@@ -7,7 +7,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@educore/db", "@educore/auth"],
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "argon2"],
+    serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2"],
   },
   async headers() {
     return [

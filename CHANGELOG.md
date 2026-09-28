@@ -3,6 +3,26 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 0.2 — Fix production login (2026-09-28)
+
+### Fixed
+
+- **Every auth route returned 500 in production** (`/api/auth/session`,
+  `/api/auth/providers`, `/dashboard`): the `argon2` package loads a
+  node-gyp native binary that was missing from Vercel's serverless bundle
+  ("No native build was found for platform=linux ... node=24.20.0").
+  Replaced it with **`@node-rs/argon2`**, which ships prebuilt N-API
+  binaries per platform and needs no build step. Still argon2id.
+- Hash parameters are now explicit (OWASP baseline: m=19 MiB, t=2, p=1).
+  Existing hashes keep verifying because parameters are read from the PHC
+  string — confirmed against the live seeded users' hash format.
+
+### Added
+
+- `packages/auth/src/passwords.test.ts`: argon2id format, correct/incorrect
+  password, per-hash salt, malformed-hash handling, and backward
+  compatibility with both existing hash formats.
+
 ## Phase 0.1 — First production build (2026-09-11)
 
 ### Fixed

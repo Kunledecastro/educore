@@ -1,13 +1,14 @@
 /* eslint-disable no-console */
 import { PrismaClient, Role, AttendanceStatus } from "@prisma/client";
-import argon2 from "argon2";
+import { hash as argon2Hash } from "@node-rs/argon2";
 
 const prisma = new PrismaClient();
 
 const DEMO_PASSWORD = "Passw0rd!23"; // documented in README — demo data only, never used in prod
 
 async function hash(password: string) {
-  return argon2.hash(password, { type: argon2.argon2id });
+  // Same argon2id parameters as packages/auth/src/passwords.ts.
+  return argon2Hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 });
 }
 
 async function main() {
