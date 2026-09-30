@@ -14,7 +14,7 @@ import { requireUser } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
 import { getSettingsForUser } from "@/lib/tenant";
 import { resolveTermRange } from "@/lib/term-range";
-import { TermSwitcher } from "./term-switcher";
+import { TermSwitcher } from "@/components/list/term-switcher";
 
 export default async function AttendanceSummaryPage({
   params,

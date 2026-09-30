@@ -178,11 +178,13 @@ async function main() {
   const assessmentType = await prisma.assessmentType.create({
     data: { tenantId: tenant.id, name: "Midterm", weight: 40, order: 0 },
   });
-  await prisma.assessmentType.create({ data: { tenantId: tenant.id, name: "Exam", weight: 60, order: 1 } });
+  const examType = await prisma.assessmentType.create({ data: { tenantId: tenant.id, name: "Exam", weight: 60, order: 1 } });
+  const firstTerm = await prisma.term.findFirstOrThrow({ where: { tenantId: tenant.id, academicYearId: academicYear.id, order: 1 } });
   const assessment = await prisma.assessment.create({
     data: {
       tenantId: tenant.id,
       academicYearId: academicYear.id,
+      termId: firstTerm.id,
       sectionId: grade5A.id,
       subjectId: math.id,
       assessmentTypeId: assessmentType.id,
@@ -227,6 +229,7 @@ async function main() {
   const firstNames = ["Amaka", "Tunde", "Chiamaka", "Bayo", "Ijeoma", "Kelechi", "Zainab", "Emeka", "Fatima", "Obinna", "Adaobi", "Yusuf"];
   const lastNames = ["Okonkwo", "Balogun", "Nwosu", "Adigun", "Eze", "Yakubu", "Umeh", "Afolabi", "Chukwu", "Danjuma", "Nnamdi", "Sani"];
 
+  const seededStudents: { id: string; i: number }[] = [];
   for (let i = 0; i < 12; i++) {
     const section = i < 6 ? grade5A : grade6A;
     const cls = i < 6 ? grade5 : grade6;
@@ -292,16 +295,19 @@ async function main() {
         });
       }
 
-      await prisma.mark.create({
-        data: {
-          tenantId: tenant.id,
-          assessmentId: assessment.id,
-          studentId: student.id,
-          score: 60 + ((i * 7) % 40),
-          grade: "B",
-          enteredById: teachers[0]!.userId,
-        },
-      });
+      seededStudents.push({ id: student.id, i });
+      // The Grade 5 A mathematics midterm is marked out of 100 (scaled to 40 marks).
+      if (i < 6) {
+        await prisma.mark.create({
+          data: {
+            tenantId: tenant.id,
+            assessmentId: assessment.id,
+            studentId: student.id,
+            score: 60 + ((i * 7) % 40),
+            enteredById: teachers[0]!.userId,
+          },
+        });
+      }
     }
 
     const invoice = await prisma.invoice.create({
@@ -352,6 +358,35 @@ async function main() {
       publishedById: admin.id,
     },
   });
+
+
+  // -------------------------------------------------------------------
+  // Phase 2.2 demo scores (First term; not published — publishing is the demo)
+  //   Grade 5 A Mathematics: Exam (the Midterm is above) → complete
+  //   Grade 5 A English:     Midterm + Exam → complete
+  //   Grade 6 A Science:     Midterm only → Exam still to come
+  // -------------------------------------------------------------------
+  const column = (sectionId: string, subjectId: string, typeId: string, name: string, maxScore: number) =>
+    prisma.assessment.create({
+      data: { tenantId: tenant.id, academicYearId: academicYear.id, termId: firstTerm.id, sectionId, subjectId, assessmentTypeId: typeId, name, maxScore, date: new Date("2026-12-10") },
+    });
+  const mathExam = await column(grade5A.id, math.id, examType.id, "Mathematics · Exam", 60);
+  const engMid = await column(grade5A.id, english.id, assessmentType.id, "English · Midterm", 40);
+  const engExam = await column(grade5A.id, english.id, examType.id, "English · Exam", 60);
+  const sciMid = await column(grade6A.id, science.id, assessmentType.id, "Science · Midterm", 40);
+  for (const { id, i } of seededStudents) {
+    const scores: [string, number, string][] =
+      i < 6
+        ? [
+            [mathExam.id, 30 + ((i * 11) % 29), teachers[0]!.userId],
+            [engMid.id, 20 + ((i * 7) % 19), teachers[1]!.userId],
+            [engExam.id, 28 + ((i * 13) % 31), teachers[1]!.userId],
+          ]
+        : [[sciMid.id, 18 + ((i * 5) % 21), teachers[2]!.userId]];
+    for (const [assessmentId, score, enteredById] of scores) {
+      await prisma.mark.create({ data: { tenantId: tenant.id, assessmentId, studentId: id, score, enteredById } });
+    }
+  }
 
   console.log("Seed complete.");
   console.log(`Tenant subdomain: ${tenant.subdomain}`);

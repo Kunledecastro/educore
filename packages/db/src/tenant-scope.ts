@@ -38,6 +38,7 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "Term",
   "GradeBand",
   "AcademicSettings",
+  "ResultPublication",
 ]);
 
 const READ_ACTIONS = new Set([

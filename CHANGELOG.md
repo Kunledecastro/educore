@@ -9,6 +9,61 @@ Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
 school (default 3); subject score = school-set components adding up to 100;
 position in class optional (off by default); attendance once a day per class.
 
+### Added (milestone 2.2 — assessments & scores)
+
+- **Gradebooks** (`/assessments`): one per section + subject + term, listed
+  with progress ("12 of 18 scores entered") and a Published badge.
+  Admins see every subject taught; teachers only the subjects they teach
+  (being form teacher doesn't open other teachers' subjects).
+- **Gradebook grid**: students × score components, "out of" shown per
+  column; totals, grades and class average / highest / lowest update as
+  you type (same maths as the server). Enter moves down a column; invalid
+  cells are marked and block saving; unsaved-changes guard. Empty =
+  not scored yet; clearing a score removes it (audited).
+- **Maths** (`lib/results.ts`, tested): a component contributes
+  score ÷ maxScore × weight (so a test marked out of 50 for a 20-mark
+  component is scaled); totals rounded to 1 d.p.; a subject gets a grade
+  only when every component is scored (a missing exam never shows as F);
+  averages use complete subjects only; positions share ties (1, 2, 2, 4).
+- **Save**: only real changes written, one audit entry per score
+  (create / update / delete, before/after), one RLS transaction; the
+  gradebook column (assessment) is created with the first score.
+- **Score files**: "Fill from a file" reads a CSV (the gradebook's own
+  export works as a template) into the grid with a row-by-row problem
+  list — nothing is saved until you review and save. CSV/Excel export.
+- **Class results** (`/assessments/results`, admins): per class and term,
+  every student's subject totals and grades, average, position (if the
+  school turned it on; within the section), subject averages, and how many
+  scores are still missing.
+- **Publishing**: admins publish a class's term results — families can see
+  them and scores lock for teachers — or unpublish to correct them. Both
+  audited. Confirmation warns if scores are missing.
+- **Families**: the student profile shows the latest published term's
+  results (subjects, totals, grades, remarks, class averages, average,
+  position if enabled); students get "My results". Unpublished results
+  are never shown to families. Staff see the current term with a
+  Published / Not published badge.
+- Greenfield demo: First term scores for Grade 5 A (Mathematics, English:
+  complete) and Grade 6 A (Science: Midterm only), not yet published.
+
+### Changed (milestone 2.2)
+
+- RBAC: new `results` resource (admins publish; teachers, parents, students
+  read). Admins can now correct scores while results are unpublished;
+  teachers can export scores.
+- Deleting a term that has scores is refused with a clear message.
+- The unused `marks.grade` column is no longer written (grades are always
+  computed from the school's current scale).
+
+### Security (milestone 2.2)
+
+- Migration `0011_scores_and_publishing`: `assessments.termId` (backfilled;
+  `ON DELETE RESTRICT`), one assessment per term/section/subject/component,
+  CHECKs `maxScore > 0` and `score >= 0`; `result_publications` with forced
+  RLS. Verified live: existing midterm placed in First term, cross-school
+  publication refused, negative scores refused, term with scores
+  undeletable. Added to the tenant-isolation suite.
+
 ### Added (milestone 2.1 — attendance)
 
 - **Registers** (`/attendance`): pick a day (previous / next / today, never

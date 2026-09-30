@@ -151,4 +151,18 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     }
     expect(can(Role.ACCOUNTANT, "attendance", "read")).toBe(false);
   });
+
+  it("results: only school admins publish; teachers enter scores; families only read", () => {
+    expect(can(Role.SCHOOL_ADMIN, "results", "update")).toBe(true);
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+      expect(can(role, "results", "update"), `${role} must not publish results`).toBe(false);
+    }
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT]) expect(can(role, "results", "read")).toBe(true);
+    expect(can(Role.ACCOUNTANT, "results", "read")).toBe(false);
+    for (const role of [Role.SCHOOL_ADMIN, Role.TEACHER]) expect(can(role, "mark", "update")).toBe(true);
+    for (const role of [Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "mark", "update")).toBe(false);
+    for (const role of Object.values(Role)) {
+      if (role !== Role.PLATFORM_ADMIN) expect(can(role, "mark", "delete"), `${role} must not delete marks wholesale`).toBe(false);
+    }
+  });
 });

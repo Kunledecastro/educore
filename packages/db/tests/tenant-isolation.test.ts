@@ -215,4 +215,15 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
       ),
     ).rejects.toThrow(/row-level security/);
   });
+
+  // Migration 0011: a school can't publish (or see) another school's results.
+  it("result publications are invisible and unwritable across schools", async () => {
+    const seen = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM result_publications WHERE "tenantId" = ${tenantB.id}`);
+    expect(seen).toHaveLength(0);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO result_publications (id, "tenantId", "termId", "classId") VALUES (${`rp-x-${Date.now()}`}, ${tenantB.id}, 'x', 'y')`,
+      ),
+    ).rejects.toThrow(/row-level security|foreign key/);
+  });
 });

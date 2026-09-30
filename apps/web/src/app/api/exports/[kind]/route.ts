@@ -11,6 +11,7 @@ import { attendanceSummaries, loadRegisterSection, sectionStudents } from "@/lib
 import { todayInTimeZone } from "@/lib/format";
 import { NotFoundError } from "@/lib/run-action";
 import { resolveTermRange } from "@/lib/term-range";
+import { loadGradebook } from "@/lib/gradebook";
 import { STUDENT_STATUSES } from "@/lib/validation/people";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ export const dynamic = "force-dynamic";
 const iso = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
 
 /**
- * GET /api/exports/{students|staff|parents|attendance}?format=csv|xlsx&…list filters
+ * GET /api/exports/{students|staff|parents|attendance|scores}?format=csv|xlsx&…list filters
  *
  * Same permission checks and row scope as the list pages, and the same
  * filters (the Export button passes the page's query string), so you export
@@ -129,6 +130,27 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
             c.present, c.absent, c.late, c.excused, c.marked, c.rate ?? "",
           ];
         }),
+      };
+    },
+  },
+  scores: {
+    permission: "mark",
+    // One gradebook (?sectionId=&subjectId=&term=); same access rule as the gradebook. Re-importable.
+    async build(ctx, sp) {
+      const settings = await getSettingsForUser(ctx.user.tenantId ?? null);
+      const book = await loadGradebook(ctx, sp.get("sectionId") ?? "", sp.get("subjectId") ?? "", sp.get("term") ?? undefined, settings.timezone);
+      return {
+        sheetName: `${book.subject.code} ${book.section.class.name} ${book.section.name}`,
+        headers: ["admission_no", "last_name", "first_name", ...book.components.map((c) => c.name), "total", "grade", "remark"],
+        rows: book.rows.map((r) => [
+          r.student.admissionNo,
+          r.student.lastName,
+          r.student.firstName,
+          ...book.components.map((c) => r.scores[c.id] ?? ""),
+          r.total.total ?? "",
+          r.grade?.grade ?? "",
+          r.grade?.remark ?? "",
+        ]),
       };
     },
   },

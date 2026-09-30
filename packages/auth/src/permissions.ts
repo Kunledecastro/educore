@@ -44,6 +44,7 @@ export const RESOURCES = [
   "auditLog",
   "onboarding",
   "academicSettings",
+  "results",
 ] as const;
 
 export type Resource = (typeof RESOURCES)[number];
@@ -84,7 +85,7 @@ export const PERMISSION_MATRIX: Matrix = {
     staff: [...CRUDE, "import"],
     attendance: [...RW, "export"], // corrects registers (audited); never deletes them
     assessment: CRUDE,
-    mark: RE,
+    mark: [...RW, "export"], // can correct scores while results are unpublished (audited)
     reportCard: RE,
     timetable: CRUDE,
     announcement: CRUDE,
@@ -95,6 +96,7 @@ export const PERMISSION_MATRIX: Matrix = {
     auditLog: R, // read-only, immutable — even for SCHOOL_ADMIN
     onboarding: ["read", "update"], // setup checklist on the dashboard; update = hide/show it
     academicSettings: ["create", "read", "update", "delete"], // terms, grading scale, score components, options
+    results: ["read", "update"], // class results; update = publish / unpublish a term's results
   },
 
   [Role.ACCOUNTANT]: {
@@ -116,10 +118,11 @@ export const PERMISSION_MATRIX: Matrix = {
     teacherAssignment: R,
     attendance: [...RW, "export"], // only sections they teach or are form teacher of, within the edit window
     assessment: RW, // only for subjects they teach
-    mark: RW,
+    mark: [...RW, "export"], // only for subjects they teach, while results are unpublished
     reportCard: R,
     timetable: R,
     academicSettings: R, // needs the terms, scale and components to enter scores
+    results: R, // class results for sections they teach
     announcement: RW,
     message: RW,
   },
@@ -127,7 +130,8 @@ export const PERMISSION_MATRIX: Matrix = {
   [Role.PARENT]: {
     student: R, // scoped to their own children
     attendance: R,
-    mark: R,
+    mark: R, // published results only (enforced where results are read)
+    results: R,
     reportCard: R,
     invoice: R,
     payment: [...R, "create"], // may submit a payment against their child's invoice
@@ -139,7 +143,8 @@ export const PERMISSION_MATRIX: Matrix = {
   [Role.STUDENT]: {
     student: R, // scoped to self only
     attendance: R,
-    mark: R,
+    mark: R, // published results only (enforced where results are read)
+    results: R,
     reportCard: R,
     timetable: R,
     announcement: R,

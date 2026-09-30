@@ -7,6 +7,7 @@ import { Role } from "@educore/db";
 import { Badge } from "@educore/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { StudentAttendanceCard } from "@/components/attendance/student-attendance-card";
+import { StudentResultsCard } from "@/components/results/student-results-card";
 import { AccountStatusBadge } from "@/components/people/account-status-badge";
 import { PageHeader } from "@/components/page-header";
 import { formatDateOnly } from "@/lib/format";
@@ -187,6 +188,16 @@ export default async function StudentProfilePage({ params }: { params: { id: str
 
         {student.academicYear && can(user.role, "attendance", "read") && user.role !== Role.PLATFORM_ADMIN ? (
           <StudentAttendanceCard db={db} studentId={student.id} year={student.academicYear} settings={settings} />
+        ) : null}
+
+        {student.academicYear && can(user.role, "results", "read") && user.role !== Role.PLATFORM_ADMIN ? (
+          <StudentResultsCard
+            db={db}
+            student={{ id: student.id, classId: student.classId }}
+            yearId={student.academicYear.id}
+            viewerRole={user.role}
+            settings={settings}
+          />
         ) : null}
       </div>
     </div>

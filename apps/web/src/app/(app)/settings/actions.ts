@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { auditedMutation, type PrismaClient } from "@educore/db";
 import { auditContextFor } from "@/lib/guard";
 import { validateGradeBands, validateScoreComponents } from "@/lib/grading";
-import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
+import { InUseError, NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { resolveCurrentTerm, suggestTerms, validateTerm, type TermIssue } from "@/lib/terms";
 import { idSchema } from "@/lib/validation/common";
 import { academicOptionsSchema, gradeBandsFormSchema, scoreComponentsFormSchema, termSchema } from "@/lib/validation/settings";
@@ -106,13 +106,15 @@ export async function deleteTerm(id: unknown) {
   return runAction(["academicSettings", "delete"], async (ctx) => {
     const termId = idSchema.parse(id);
     const audit = auditContextFor(ctx);
-    // Nothing references a term yet (scores and report cards arrive in 2.2/2.3,
-    // and will add their own "in use" checks here).
     await auditedMutation(audit, {
       action: "DELETE",
       entityType: "Term",
       run: async (tx) => {
         const before = await must(tx.term.findFirst({ where: { id: termId, tenantId: audit.tenantId } }));
+        // Scores belong to a term; the database refuses too (ON DELETE RESTRICT), this just says why.
+        if ((await tx.assessment.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
+          throw new InUseError(["assessments"]);
+        }
         await tx.term.delete({ where: { id: before.id } });
         return { before, after: before };
       },

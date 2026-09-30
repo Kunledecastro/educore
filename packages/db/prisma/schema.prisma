@@ -175,6 +175,7 @@ model Tenant {
   terms             Term[]
   gradeBands        GradeBand[]
   academicSettings  AcademicSettings?
+  resultPublications ResultPublication[]
 
   @@map("tenants")
 }
@@ -230,6 +231,7 @@ model User {
   threadParticipants ThreadParticipant[]
   auditLogEntries    AuditLog[]       @relation("AuditActor")
   importJobs         ImportJob[]      @relation("ImportCreatedBy")
+  resultsPublished   ResultPublication[] @relation("ResultPublishedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -310,6 +312,7 @@ model ClassGrade {
   students         Student[]
   feeStructures    FeeStructure[]
   timetableEntries TimetableEntry[]
+  resultPublications ResultPublication[]
 
   @@unique([tenantId, academicYearId, name])
   @@index([tenantId])
@@ -541,12 +544,19 @@ model Assessment {
   subject          Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   assessmentTypeId String
   assessmentType   AssessmentType @relation(fields: [assessmentTypeId], references: [id], onDelete: Cascade)
+  /// Term the scores count toward (Phase 2.2). A term with assessments can't be deleted.
+  termId           String
+  term             Term           @relation(fields: [termId], references: [id], onDelete: Restrict)
   name             String
+  /// What the assessment is marked out of; scaled to the component's weight (lib/results.ts).
   maxScore         Float          @default(100)
   date             DateTime       @db.Date
 
   marks Mark[]
 
+  // One gradebook column per component, per subject, section and term.
+  // Also enforced in migration 0011: CHECK (maxScore > 0)
+  @@unique([tenantId, termId, sectionId, subjectId, assessmentTypeId])
   @@index([tenantId])
   @@map("assessments")
 }
@@ -854,6 +864,9 @@ model Term {
   isCurrent      Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
+  assessments  Assessment[]
+  publications ResultPublication[]
+
   // Also enforced in migration 0009:
   //   - partial unique index: at most one isCurrent = true per tenant
   //   - CHECK (endDate > startDate)
@@ -894,4 +907,24 @@ model AcademicSettings {
 
   // Also enforced in migration 0009: CHECK (attendanceEditDays BETWEEN 0 AND 60)
   @@map("academic_settings")
+}
+
+/// A class's results for a term are visible to parents and students only
+/// while a row exists here (Phase 2.2). Published results are locked for
+/// teachers; an admin unpublishes to correct them. Both are audited.
+model ResultPublication {
+  id            String     @id @default(cuid())
+  tenantId      String
+  tenant        Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  termId        String
+  term          Term       @relation(fields: [termId], references: [id], onDelete: Cascade)
+  classId       String
+  class         ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
+  publishedAt   DateTime   @default(now())
+  publishedById String?
+  publishedBy   User?      @relation("ResultPublishedBy", fields: [publishedById], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, termId, classId])
+  @@index([tenantId])
+  @@map("result_publications")
 }
