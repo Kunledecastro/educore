@@ -82,7 +82,7 @@ export const PERMISSION_MATRIX: Matrix = {
     guardian: CRUDE,
     teacher: [...CRUDE, "import"],
     staff: [...CRUDE, "import"],
-    attendance: RE,
+    attendance: [...RW, "export"], // corrects registers (audited); never deletes them
     assessment: CRUDE,
     mark: RE,
     reportCard: RE,
@@ -114,7 +114,7 @@ export const PERMISSION_MATRIX: Matrix = {
     section: R,
     subject: R,
     teacherAssignment: R,
-    attendance: RW, // only for their own assigned sections
+    attendance: [...RW, "export"], // only sections they teach or are form teacher of, within the edit window
     assessment: RW, // only for subjects they teach
     mark: RW,
     reportCard: R,

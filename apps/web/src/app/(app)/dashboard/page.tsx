@@ -7,6 +7,9 @@ import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { formatMoney, formatNumber, todayInTimeZone } from "@/lib/format";
 import { loadOnboardingChecklist } from "@/lib/onboarding-data";
 import { getCurrentTerm } from "@/lib/current-term";
+import { isSchoolDay } from "@/lib/attendance";
+import { incompleteRegisters } from "@/lib/attendance-data";
+import { teacherSectionIds } from "@/lib/teacher-sections";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 
@@ -54,16 +57,20 @@ export default async function DashboardPage() {
       break;
     }
     case Role.SCHOOL_ADMIN: {
-      const [studentCount, presentToday, feeAgg] = await Promise.all([
+      const today = todayInTimeZone(settings.timezone);
+      const [studentCount, presentToday, feeAgg, registers] = await Promise.all([
         db.student.count({ where: { status: "ACTIVE" } }),
-        db.attendance.count({
-          where: { date: todayInTimeZone(settings.timezone), status: "PRESENT" },
-        }),
+        db.attendance.count({ where: { date: today, status: { in: ["PRESENT", "LATE"] } } }),
         db.payment.aggregate({ _sum: { amount: true } }),
+        isSchoolDay(today) ? incompleteRegisters(db, today, "all") : Promise.resolve(null),
       ]);
       stats = [
         { label: t("enrollment"), value: num(studentCount) },
         { label: t("attendanceToday"), value: num(presentToday) },
+        {
+          label: t("registersNotTaken"),
+          value: registers ? t("registersValue", { incomplete: registers.incomplete, total: registers.total }) : t("noSchoolToday"),
+        },
         { label: t("feeCollection"), value: money(feeAgg._sum.amount) },
       ];
       break;
@@ -80,14 +87,16 @@ export default async function DashboardPage() {
       break;
     }
     case Role.TEACHER: {
-      const teacher = await db.teacher.findUnique({ where: { userId: user.id } });
-      const today = todayInTimeZone(settings.timezone).getUTCDay();
-      const classesToday = teacher
-        ? await db.timetableEntry.count({ where: { teacherId: teacher.id, dayOfWeek: today } })
+      const todayDate = todayInTimeZone(settings.timezone);
+      const { teacherId, formSectionIds } = await teacherSectionIds(db, user.id);
+      const classesToday = teacherId
+        ? await db.timetableEntry.count({ where: { teacherId, dayOfWeek: todayDate.getUTCDay() } })
         : 0;
+      // Registers are the form teacher's job (decision 4); count only their sections.
+      const pending = isSchoolDay(todayDate) ? await incompleteRegisters(db, todayDate, formSectionIds) : null;
       stats = [
         { label: t("todaysClasses"), value: classesToday },
-        { label: t("pendingAttendance"), value: 0 },
+        { label: t("pendingAttendance"), value: pending ? pending.incomplete : t("noSchoolToday") },
         { label: t("unreadMessages"), value: 0 },
       ];
       break;

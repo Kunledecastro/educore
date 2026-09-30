@@ -503,6 +503,7 @@ model Attendance {
   markedBy       User             @relation("AttendanceMarkedBy", fields: [markedById], references: [id])
   remarks        String?
   createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
 
   @@index([tenantId])
   @@index([tenantId, sectionId, date])

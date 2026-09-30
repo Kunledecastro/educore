@@ -9,6 +9,43 @@ Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
 school (default 3); subject score = school-set components adding up to 100;
 position in class optional (off by default); attendance once a day per class.
 
+### Added (milestone 2.1 — attendance)
+
+- **Registers** (`/attendance`): pick a day (previous / next / today, never
+  the future) and see every section you can take a register for — taken,
+  partly taken or not taken, with how many are absent. Admins see all
+  sections; teachers see sections they're form teacher of or teach in.
+- **Daily register** per section: Present / Absent / Late / Excused per
+  student (keyboard- and phone-friendly radio buttons), **Mark all
+  present**, optional note per student, running tally, "last saved by …",
+  warning before leaving with unsaved changes.
+- **Edit window**: teachers can change a register for N days (school
+  option, default 7; 0 = same day); after that it's read-only for them.
+  Admins can correct any earlier day in the year. Nobody can mark the
+  future or outside the active year.
+- **Every entry audited**: only real changes are written, each with its own
+  audit entry (before/after); re-saving an unchanged register writes
+  nothing. Registers are never deleted.
+- **Term summary** per section: present / absent / late / excused and
+  attendance rate per student (below 90% highlighted) plus the section
+  total; **CSV/Excel export** (`/api/exports/attendance`).
+- **Parents** see their child's attendance this term (rate, counts, recent
+  absences with notes) on the child's profile; staff see it there too.
+- **Dashboards**: admins get "Registers not taken today (x of y)"; teachers'
+  "Attendance not yet marked" is now real (their form sections). Weekends
+  show "No school today".
+- Attendance rate = (present + late) ÷ (days marked − excused).
+  ASSUMPTION: school days are Monday–Friday.
+- Greenfield demo: registers for 21–29 Sep 2026 for both sections.
+
+### Changed (milestone 2.1)
+
+- RBAC: school admins can now create/update attendance (was read/export);
+  teachers can export. Nobody except the platform can delete attendance.
+- Teachers now see students in sections they're **form teacher** of, not
+  only sections they teach a subject in (`lib/teacher-sections.ts`).
+- Migration `0010_attendance_updated_at`: `attendance.updatedAt`.
+
 ### Added (milestone 2.0 — academic settings)
 
 - **School settings** (`/settings`, school admins), four tabs:

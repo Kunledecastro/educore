@@ -135,4 +135,20 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     expect(can(Role.TEACHER, "academicSettings", "read")).toBe(true);
     expect(can(Role.PARENT, "academicSettings", "read")).toBe(false);
   });
+
+  it("attendance: admins and teachers take/correct registers, nobody deletes them, families only read", () => {
+    for (const role of [Role.SCHOOL_ADMIN, Role.TEACHER]) {
+      for (const action of ["create", "read", "update", "export"] as const) expect(can(role, "attendance", action)).toBe(true);
+    }
+    for (const role of Object.values(Role)) {
+      if (role === Role.PLATFORM_ADMIN) continue;
+      expect(can(role, "attendance", "delete"), `${role} must not delete attendance`).toBe(false);
+    }
+    for (const role of [Role.PARENT, Role.STUDENT]) {
+      expect(can(role, "attendance", "read")).toBe(true);
+      expect(can(role, "attendance", "create")).toBe(false);
+      expect(can(role, "attendance", "update")).toBe(false);
+    }
+    expect(can(Role.ACCOUNTANT, "attendance", "read")).toBe(false);
+  });
 });

@@ -6,7 +6,11 @@ import { exportFileName, MAX_EXPORT_ROWS, renderExport, type ExportTable } from 
 import { ForbiddenError, requireUser, UnauthenticatedError, type RequestContext } from "@/lib/guard";
 import { parseListParams } from "@/lib/list-params";
 import { studentScopeFor } from "@/lib/student-scope";
-import { getTenantForUser } from "@/lib/tenant";
+import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
+import { attendanceSummaries, loadRegisterSection, sectionStudents } from "@/lib/attendance-data";
+import { todayInTimeZone } from "@/lib/format";
+import { NotFoundError } from "@/lib/run-action";
+import { resolveTermRange } from "@/lib/term-range";
 import { STUDENT_STATUSES } from "@/lib/validation/people";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +18,7 @@ export const dynamic = "force-dynamic";
 const iso = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
 
 /**
- * GET /api/exports/{students|staff|parents}?format=csv|xlsx&…list filters
+ * GET /api/exports/{students|staff|parents|attendance}?format=csv|xlsx&…list filters
  *
  * Same permission checks and row scope as the list pages, and the same
  * filters (the Export button passes the page's query string), so you export
@@ -106,6 +110,28 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
       };
     },
   },
+  attendance: {
+    permission: "attendance",
+    // One section's attendance for a term (?sectionId=&term=), same access rule as its register.
+    async build(ctx, sp) {
+      const section = await loadRegisterSection(ctx, sp.get("sectionId") ?? "");
+      const settings = await getSettingsForUser(ctx.user.tenantId ?? null);
+      const range = await resolveTermRange(ctx.db, section.class.academicYear, sp.get("term") ?? undefined, todayInTimeZone(settings.timezone));
+      const students = await sectionStudents(ctx.db, section.id);
+      const summaries = await attendanceSummaries(ctx.db, students.map((s) => s.id), range);
+      return {
+        sheetName: "Attendance",
+        headers: ["admission_no", "last_name", "first_name", "class", "section", "period", "from", "to", "present", "absent", "late", "excused", "days_marked", "attendance_rate_percent"],
+        rows: students.map((s) => {
+          const c = summaries.get(s.id)!;
+          return [
+            s.admissionNo, s.lastName, s.firstName, section.class.name, section.name, range.label, iso(range.from), iso(range.to),
+            c.present, c.absent, c.late, c.excused, c.marked, c.rate ?? "",
+          ];
+        }),
+      };
+    },
+  },
   parents: {
     permission: "guardian",
     async build(ctx) {
@@ -158,6 +184,7 @@ export async function GET(req: NextRequest, { params }: { params: { kind: string
   } catch (err) {
     if (err instanceof UnauthenticatedError) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     if (err instanceof ForbiddenError) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (err instanceof NotFoundError) return NextResponse.json({ error: "Not found" }, { status: 404 });
     console.error("[export] failed", err);
     return NextResponse.json({ error: "Export failed" }, { status: 500 });
   }

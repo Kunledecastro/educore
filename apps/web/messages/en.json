@@ -81,7 +81,10 @@
     "platformSchools": "Schools on platform",
     "platformActiveSubscriptions": "Active subscriptions",
     "yearAndTerm": "{year} · {term}",
-    "yearOnly": "{year}"
+    "yearOnly": "{year}",
+    "registersNotTaken": "Registers not taken today",
+    "registersValue": "{incomplete} of {total}",
+    "noSchoolToday": "No school today"
   },
   "list": {
     "searchPlaceholder": "Search…",
@@ -784,6 +787,86 @@
       "editDays": "Teachers can change a register for (days)",
       "editDaysHint": "After this, only admins can change it. 0 = same day only.",
       "saved": "Options saved."
+    }
+  },
+  "attendance": {
+    "title": "Attendance",
+    "description": "Take each class's daily register and see who's been away.",
+    "noYearTitle": "No active academic year",
+    "noYearDescription": "Registers belong to the active academic year.",
+    "goToYears": "Go to academic years",
+    "adminWindow": "As an admin you can correct any earlier day this year.",
+    "teacherWindow": "You can change a register for up to {days, plural, =0 {the same day} one {# day} other {# days}}.",
+    "weekend": "This is a weekend. Registers aren't expected, but you can still take one.",
+    "locked": {
+      "future": "You can't take a register for a future date.",
+      "tooOld": "This day is past the edit window, so the register is read-only. Ask an admin if it needs correcting.",
+      "outsideYear": "This day is outside the active academic year, so the register is read-only."
+    },
+    "noSectionsAdmin": "No class sections this year",
+    "noSectionsAdminHint": "Add classes and sections under Academics first.",
+    "noSectionsTeacher": "No registers for you yet",
+    "noSectionsTeacherHint": "You'll see a section here once you're its form teacher or teach a subject in it.",
+    "formTeacher": "Form teacher: {name}",
+    "noFormTeacher": "No form teacher",
+    "state": {
+      "taken": "Taken",
+      "partial": "Partly taken",
+      "notTaken": "Not taken",
+      "empty": "No students"
+    },
+    "noStudents": "No students in this section",
+    "noStudentsHint": "Students appear here once they're enrolled in this section.",
+    "markedCount": "{marked} of {total} marked · {absent} absent",
+    "edit": "Edit register",
+    "take": "Take register",
+    "view": "View register",
+    "termSummary": "Term summary",
+    "dateShown": "Showing {date}.",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "date": "Date",
+    "today": "Today",
+    "backToAll": "All registers",
+    "registerTitle": "Register · {section}",
+    "lastSaved": "Last saved by {name}, {when}",
+    "noChanges": "Nothing changed.",
+    "saved": "Register saved ({count, plural, one {# change} other {# changes}}).",
+    "tally": "{present} present · {absent} absent · {late} late · {excused} excused",
+    "unmarked": "{count} not marked",
+    "markAllPresent": "Mark all present",
+    "registerFor": "Register for {date}",
+    "status": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "LATE": "Late",
+      "EXCUSED": "Excused"
+    },
+    "addRemark": "Add a note",
+    "remarkFor": "Note for {name}",
+    "remarkPlaceholder": "Note (optional), e.g. doctor's appointment",
+    "unsaved": "Unsaved changes",
+    "saving": "Saving…",
+    "save": "Save register",
+    "summaryTitle": "Attendance · {section}",
+    "summaryRange": "{label}: {from} – {to}",
+    "exportCsv": "Export CSV",
+    "exportXlsx": "Export Excel",
+    "rateExplained": "Attendance rate = days present or late ÷ days marked, leaving out excused absences.",
+    "student": "Student",
+    "rate": "Attendance rate",
+    "belowNinety": "below 90%",
+    "sectionTotal": "Whole section",
+    "term": "Term",
+    "profileTitle": "Attendance · {label}",
+    "profileEmpty": "No registers taken yet this term.",
+    "recentAbsences": "Recent absences and late arrivals",
+    "errors": {
+      "yearNotActive": "This section belongs to an academic year that isn't active.",
+      "future": "You can't take a register for a future date.",
+      "tooOld": "This day is past the edit window. Ask an admin to correct it.",
+      "outsideYear": "This day is outside the academic year.",
+      "duplicateStudent": "A student appears twice in this register."
     }
   }
 }

@@ -73,6 +73,11 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   inline — use `lib/grading.ts` (`gradeFor`, `roundScore`, validators) and
   `lib/current-term.ts` / `lib/terms.ts`. Score components are
   `AssessmentType` rows whose `weight` is marks out of 100.
+- **Attendance**: rules (edit window, rate, what a save changes) are in
+  `lib/attendance.ts`; who may take which register is
+  `registerSectionIdsFor` / `loadRegisterSection` in
+  `lib/attendance-data.ts` — use them for any new attendance screen or
+  export. Write attendance only through `saveRegister` (audits each change).
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 

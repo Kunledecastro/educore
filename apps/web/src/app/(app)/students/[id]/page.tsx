@@ -6,6 +6,7 @@ import { can } from "@educore/auth";
 import { Role } from "@educore/db";
 import { Badge } from "@educore/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
+import { StudentAttendanceCard } from "@/components/attendance/student-attendance-card";
 import { AccountStatusBadge } from "@/components/people/account-status-badge";
 import { PageHeader } from "@/components/page-header";
 import { formatDateOnly } from "@/lib/format";
@@ -39,7 +40,7 @@ export default async function StudentProfilePage({ params }: { params: { id: str
     include: {
       class: { select: { name: true } },
       section: { select: { name: true } },
-      academicYear: { select: { name: true } },
+      academicYear: { select: { id: true, name: true, startDate: true, endDate: true } },
       guardians: {
         orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
         include: {
@@ -183,6 +184,10 @@ export default async function StudentProfilePage({ params }: { params: { id: str
           </CardContent>
         </Card>
         )}
+
+        {student.academicYear && can(user.role, "attendance", "read") && user.role !== Role.PLATFORM_ADMIN ? (
+          <StudentAttendanceCard db={db} studentId={student.id} year={student.academicYear} settings={settings} />
+        ) : null}
       </div>
     </div>
   );

@@ -273,6 +273,25 @@ async function main() {
         },
       });
 
+      // Phase 2.1 demo: daily registers for school days 21–29 Sep 2026, taken by the form teacher.
+      const formTeacherUserId = (i < 6 ? teachers[0] : teachers[2])!.userId;
+      for (const day of ["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-28", "2026-09-29"]) {
+        const h = (i * 7 + Number(day.slice(-2))) % 20;
+        await prisma.attendance.create({
+          data: {
+            tenantId: tenant.id,
+            studentId: student.id,
+            classId: cls.id,
+            sectionId: section.id,
+            academicYearId: academicYear.id,
+            date: new Date(day),
+            status: h === 0 ? AttendanceStatus.ABSENT : h === 1 ? AttendanceStatus.LATE : h === 2 ? AttendanceStatus.EXCUSED : AttendanceStatus.PRESENT,
+            remarks: h === 2 ? "Doctor's appointment" : null,
+            markedById: formTeacherUserId,
+          },
+        });
+      }
+
       await prisma.mark.create({
         data: {
           tenantId: tenant.id,

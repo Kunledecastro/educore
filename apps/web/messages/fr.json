@@ -81,7 +81,10 @@
     "platformSchools": "Écoles sur la plateforme",
     "platformActiveSubscriptions": "Abonnements actifs",
     "yearAndTerm": "{year} · {term}",
-    "yearOnly": "{year}"
+    "yearOnly": "{year}",
+    "registersNotTaken": "Appels non faits aujourd'hui",
+    "registersValue": "{incomplete} sur {total}",
+    "noSchoolToday": "Pas de classe aujourd'hui"
   },
   "list": {
     "searchPlaceholder": "Rechercher…",
@@ -784,6 +787,86 @@
       "editDays": "Les enseignants peuvent modifier un appel pendant (jours)",
       "editDaysHint": "Ensuite, seuls les administrateurs peuvent le modifier. 0 = le jour même uniquement.",
       "saved": "Options enregistrées."
+    }
+  },
+  "attendance": {
+    "title": "Présences",
+    "description": "Faites l'appel quotidien de chaque classe et voyez qui a été absent.",
+    "noYearTitle": "Aucune année scolaire active",
+    "noYearDescription": "Les appels appartiennent à l'année scolaire active.",
+    "goToYears": "Aller aux années scolaires",
+    "adminWindow": "En tant qu'administrateur, vous pouvez corriger tout jour antérieur de l'année.",
+    "teacherWindow": "Vous pouvez modifier un appel pendant {days, plural, =0 {le jour même} one {# jour} other {# jours}}.",
+    "weekend": "C'est le week-end. L'appel n'est pas attendu, mais vous pouvez quand même le faire.",
+    "locked": {
+      "future": "Impossible de faire l'appel pour une date future.",
+      "tooOld": "Ce jour dépasse le délai de modification : l'appel est en lecture seule. Demandez à un administrateur si une correction est nécessaire.",
+      "outsideYear": "Ce jour est hors de l'année scolaire active : l'appel est en lecture seule."
+    },
+    "noSectionsAdmin": "Aucune section cette année",
+    "noSectionsAdminHint": "Ajoutez d'abord des classes et des sections dans Scolarité.",
+    "noSectionsTeacher": "Aucun appel pour vous pour l'instant",
+    "noSectionsTeacherHint": "Une section apparaît ici dès que vous en êtes le professeur principal ou y enseignez une matière.",
+    "formTeacher": "Professeur principal : {name}",
+    "noFormTeacher": "Aucun professeur principal",
+    "state": {
+      "taken": "Fait",
+      "partial": "Partiel",
+      "notTaken": "Non fait",
+      "empty": "Aucun élève"
+    },
+    "noStudents": "Aucun élève dans cette section",
+    "noStudentsHint": "Les élèves apparaissent ici une fois inscrits dans cette section.",
+    "markedCount": "{marked} sur {total} marqués · {absent} absent(s)",
+    "edit": "Modifier l'appel",
+    "take": "Faire l'appel",
+    "view": "Voir l'appel",
+    "termSummary": "Bilan du trimestre",
+    "dateShown": "Date affichée : {date}.",
+    "previousDay": "Jour précédent",
+    "nextDay": "Jour suivant",
+    "date": "Date",
+    "today": "Aujourd'hui",
+    "backToAll": "Tous les appels",
+    "registerTitle": "Appel · {section}",
+    "lastSaved": "Dernier enregistrement par {name}, {when}",
+    "noChanges": "Aucune modification.",
+    "saved": "Appel enregistré ({count, plural, one {# modification} other {# modifications}}).",
+    "tally": "{present} présent(s) · {absent} absent(s) · {late} en retard · {excused} excusé(s)",
+    "unmarked": "{count} non marqué(s)",
+    "markAllPresent": "Tous présents",
+    "registerFor": "Appel du {date}",
+    "status": {
+      "PRESENT": "Présent",
+      "ABSENT": "Absent",
+      "LATE": "En retard",
+      "EXCUSED": "Excusé"
+    },
+    "addRemark": "Ajouter une note",
+    "remarkFor": "Note pour {name}",
+    "remarkPlaceholder": "Note (facultatif), ex. rendez-vous médical",
+    "unsaved": "Modifications non enregistrées",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer l'appel",
+    "summaryTitle": "Présences · {section}",
+    "summaryRange": "{label} : {from} – {to}",
+    "exportCsv": "Exporter en CSV",
+    "exportXlsx": "Exporter en Excel",
+    "rateExplained": "Taux de présence = jours présent ou en retard ÷ jours marqués, hors absences excusées.",
+    "student": "Élève",
+    "rate": "Taux de présence",
+    "belowNinety": "moins de 90 %",
+    "sectionTotal": "Toute la section",
+    "term": "Trimestre",
+    "profileTitle": "Présences · {label}",
+    "profileEmpty": "Aucun appel fait ce trimestre.",
+    "recentAbsences": "Absences et retards récents",
+    "errors": {
+      "yearNotActive": "Cette section appartient à une année scolaire inactive.",
+      "future": "Impossible de faire l'appel pour une date future.",
+      "tooOld": "Ce jour dépasse le délai de modification. Demandez à un administrateur de le corriger.",
+      "outsideYear": "Ce jour est hors de l'année scolaire.",
+      "duplicateStudent": "Un élève apparaît deux fois dans cet appel."
     }
   }
 }

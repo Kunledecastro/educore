@@ -2,6 +2,7 @@ import "server-only";
 import { studentScopeWhere } from "@educore/auth";
 import { Role, type Prisma } from "@educore/db";
 import type { RequestContext } from "./guard";
+import { teacherSectionIds } from "./teacher-sections";
 
 /**
  * Row-level scope for student records (architecture rule #2: "Parents can
@@ -10,7 +11,7 @@ import type { RequestContext } from "./guard";
  * this decides WHICH students:
  *
  *   SCHOOL_ADMIN / ACCOUNTANT → the whole school (already tenant-scoped)
- *   TEACHER → students in sections they're assigned to teach
+ *   TEACHER → students in sections they teach or are form teacher of
  *   PARENT  → only children linked to them as a guardian
  *   STUDENT → only themself
  *
@@ -27,11 +28,8 @@ export async function studentScopeFor(ctx: RequestContext): Promise<Prisma.Stude
       return studentScopeWhere(user, { guardianStudentIds: guardian?.students.map((s) => s.studentId) ?? [] });
     }
     case Role.TEACHER: {
-      const teacher = await db.teacher.findUnique({ where: { userId: user.id }, select: { id: true } });
-      const sections = teacher
-        ? await db.classSectionSubject.findMany({ where: { teacherId: teacher.id }, select: { sectionId: true }, distinct: ["sectionId"] })
-        : [];
-      return studentScopeWhere(user, { teacherSectionIds: sections.map((s) => s.sectionId) });
+      const { sectionIds } = await teacherSectionIds(db, user.id);
+      return studentScopeWhere(user, { teacherSectionIds: sectionIds });
     }
     case Role.STUDENT: {
       const student = await db.student.findUnique({ where: { userId: user.id }, select: { id: true } });
