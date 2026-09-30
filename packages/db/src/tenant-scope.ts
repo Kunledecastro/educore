@@ -35,6 +35,9 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "Payment",
   "AuditLog",
   "ImportJob",
+  "Term",
+  "GradeBand",
+  "AcademicSettings",
 ]);
 
 const READ_ACTIONS = new Set([

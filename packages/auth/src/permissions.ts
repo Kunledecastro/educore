@@ -43,6 +43,7 @@ export const RESOURCES = [
   "message",
   "auditLog",
   "onboarding",
+  "academicSettings",
 ] as const;
 
 export type Resource = (typeof RESOURCES)[number];
@@ -93,6 +94,7 @@ export const PERMISSION_MATRIX: Matrix = {
     message: RW,
     auditLog: R, // read-only, immutable — even for SCHOOL_ADMIN
     onboarding: ["read", "update"], // setup checklist on the dashboard; update = hide/show it
+    academicSettings: ["create", "read", "update", "delete"], // terms, grading scale, score components, options
   },
 
   [Role.ACCOUNTANT]: {
@@ -117,6 +119,7 @@ export const PERMISSION_MATRIX: Matrix = {
     mark: RW,
     reportCard: R,
     timetable: R,
+    academicSettings: R, // needs the terms, scale and components to enter scores
     announcement: RW,
     message: RW,
   },

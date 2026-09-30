@@ -69,6 +69,10 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   are computed from counts gathered in `lib/onboarding-data.ts`, never
   ticked by hand. To add a step: add its id, done-rule, prerequisites and
   links there, plus `onboarding.steps.<id>` text in both message files.
+- **Grading and terms**: never compute a total, grade or current term
+  inline — use `lib/grading.ts` (`gradeFor`, `roundScore`, validators) and
+  `lib/current-term.ts` / `lib/terms.ts`. Score components are
+  `AssessmentType` rows whose `weight` is marks out of 100.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 

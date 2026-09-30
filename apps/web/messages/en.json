@@ -79,7 +79,9 @@
     "results": "Your results",
     "outstandingFees": "Outstanding fees",
     "platformSchools": "Schools on platform",
-    "platformActiveSubscriptions": "Active subscriptions"
+    "platformActiveSubscriptions": "Active subscriptions",
+    "yearAndTerm": "{year} · {term}",
+    "yearOnly": "{year}"
   },
   "list": {
     "searchPlaceholder": "Search…",
@@ -248,7 +250,12 @@
       "updated": "Section saved",
       "deleted": "Section deleted",
       "deleteTitle": "Delete section {name}?",
-      "deleteDescription": "This removes the section and its teacher assignments. Sections with students or records can't be deleted."
+      "deleteDescription": "This removes the section and its teacher assignments. Sections with students or records can't be deleted.",
+      "formTeacher": "Form teacher",
+      "formTeacherHint": "Takes the daily register and writes report-card comments for this section.",
+      "noFormTeacherOption": "No form teacher",
+      "formTeacherValue": "Form teacher: {name}",
+      "noFormTeacher": "No form teacher"
     },
     "subjects": {
       "new": "New subject",
@@ -666,6 +673,117 @@
         "action": "Invite teachers",
         "secondaryAction": "Invite other staff"
       }
+    }
+  },
+  "settings": {
+    "title": "School settings",
+    "description": "Terms, grading and how results are worked out for your school.",
+    "tabs": {
+      "label": "Settings sections",
+      "terms": "Terms",
+      "grading": "Grading scale",
+      "scores": "Score components",
+      "options": "Options"
+    },
+    "terms": {
+      "noYearTitle": "Create an academic year first",
+      "noYearDescription": "Terms belong to an academic year.",
+      "goToYears": "Go to academic years",
+      "emptyTitle": "No terms for {year} yet",
+      "emptyDescription": "Add the three usual terms with suggested dates and adjust them, or add your own.",
+      "addSuggested": "Add 3 terms",
+      "adding": "Adding…",
+      "suggestedAdded": "Added three terms to {year}. Check the dates match your calendar.",
+      "new": "New term",
+      "edit": "Edit term",
+      "name": "Name",
+      "namePlaceholder": "e.g. First term",
+      "startDate": "Starts",
+      "endDate": "Ends",
+      "status": "Status",
+      "actions": "Actions",
+      "current": "Current term",
+      "inactiveYearNote": "This isn't the active year, so none of its terms can be the current term.",
+      "setCurrent": "Make current",
+      "setCurrentTitle": "Make {name} the current term?",
+      "setCurrentDescription": "Attendance, scores and results will default to {name} for everyone in the school.",
+      "setCurrentDone": "{name} is now the current term.",
+      "deleteTitle": "Delete {name}?",
+      "deleteDescription": "The term is removed from this academic year.",
+      "deleted": "Term deleted.",
+      "created": "Term added.",
+      "updated": "Term updated.",
+      "withinYear": "Dates must fall within {year}, and terms can't overlap.",
+      "defaultNames": {
+        "first": "First term",
+        "second": "Second term",
+        "third": "Third term"
+      },
+      "errors": {
+        "endBeforeStart": "The term must end after it starts.",
+        "outsideYear": "The term must fall within the academic year.",
+        "overlaps": "These dates overlap {name}.",
+        "tooMany": "An academic year can have at most 12 terms.",
+        "yearNotActive": "Make this academic year active first — only a term in the active year can be current.",
+        "alreadyHasTerms": "This year already has terms."
+      }
+    },
+    "grading": {
+      "intro": "A subject total of at least the minimum score earns that grade, up to the next band. Totals are rounded to one decimal place first, so 69.95 counts as 70.",
+      "startingPoint": "This is a common scale to start from — change it to match your school, then save.",
+      "minScore": "From (score)",
+      "grade": "Grade",
+      "remark": "Remark",
+      "remarkPlaceholder": "e.g. Excellent",
+      "band": "band {n}",
+      "addBand": "Add band",
+      "useDefault": "Start from the default scale",
+      "preview": "How totals will be graded",
+      "previewUnavailable": "Fill in every row to see the ranges.",
+      "range": "{min}–{max}",
+      "save": "Save grading scale",
+      "saved": "Grading scale saved.",
+      "errors": {
+        "empty": "Add at least one grade.",
+        "noZeroBand": "One band must start at 0, so every score gets a grade.",
+        "outOfRange": "Use a score from 0 to 100.",
+        "duplicateMin": "Two bands start at the same score.",
+        "duplicateGrade": "This grade is used twice.",
+        "blankGrade": "Enter a grade."
+      }
+    },
+    "scores": {
+      "intro": "What a subject's term score is made of. The components must add up to 100 — for example CA1 20 + CA2 20 + Exam 60.",
+      "startingPoint": "These are common components to start from — change them to match your school, then save.",
+      "name": "Component",
+      "namePlaceholder": "e.g. CA1",
+      "weight": "Marks",
+      "marks": "marks",
+      "lockedHint": "Scores have been recorded for this component, so it can't be removed. You can still rename it or change its marks.",
+      "component": "component {n}",
+      "add": "Add component",
+      "totalOk": "Total: 100 ✓",
+      "totalOff": "Total: {total} — must be 100",
+      "save": "Save components",
+      "saved": "Score components saved.",
+      "errors": {
+        "empty": "Add at least one component.",
+        "sumNot100": "The components add up to {sum}; they must add up to 100.",
+        "badWeight": "Use a number of marks above 0, up to 100.",
+        "duplicateName": "This name is used twice.",
+        "blankName": "Enter a name.",
+        "inUse": "{name} already has scores recorded, so it can't be removed."
+      }
+    },
+    "options": {
+      "intro": "School-wide choices for results and attendance.",
+      "resultsLegend": "Results and report cards",
+      "showPosition": "Show position in class",
+      "showPositionHint": "Adds each student's position (e.g. 3rd of 32) to results and report cards. Off by default.",
+      "attendanceLegend": "Attendance",
+      "editDays": "Teachers can change a register for (days)",
+      "editDaysHint": "After this, only admins can change it. 0 = same day only.",
+      "saved": "Options saved."
     }
   }
 }

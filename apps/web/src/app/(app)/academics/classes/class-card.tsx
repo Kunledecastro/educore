@@ -17,10 +17,19 @@ export interface ClassCardData {
   name: string;
   order: number;
   studentCount: number;
-  sections: { id: string; name: string; capacity: number | null; studentCount: number }[];
+  sections: {
+    id: string;
+    name: string;
+    capacity: number | null;
+    studentCount: number;
+    formTeacherId: string | null;
+    formTeacherName: string | null;
+  }[];
 }
 
-export function ClassCard({ cls }: { cls: ClassCardData }) {
+export type TeacherOption = { id: string; name: string };
+
+export function ClassCard({ cls, teachers }: { cls: ClassCardData; teachers: TeacherOption[] }) {
   const t = useTranslations("academics.classes");
   const ts = useTranslations("academics.sections");
   const tc = useTranslations("common");
@@ -63,7 +72,7 @@ export function ClassCard({ cls }: { cls: ClassCardData }) {
         ) : (
           <ul className="divide-y rounded-md border">
             {cls.sections.map((s) => (
-              <SectionRow key={s.id} classId={cls.id} className={cls.name} section={s} />
+              <SectionRow key={s.id} classId={cls.id} className={cls.name} section={s} teachers={teachers} />
             ))}
           </ul>
         )}
@@ -76,7 +85,7 @@ export function ClassCard({ cls }: { cls: ClassCardData }) {
             </Button>
           }
         >
-          {(close) => <SectionForm classId={cls.id} onDone={close} />}
+          {(close) => <SectionForm classId={cls.id} teachers={teachers} onDone={close} />}
         </FormDialog>
       </CardContent>
 
@@ -100,10 +109,12 @@ function SectionRow({
   classId,
   className,
   section,
+  teachers,
 }: {
   classId: string;
   className: string;
   section: ClassCardData["sections"][number];
+  teachers: TeacherOption[];
 }) {
   const t = useTranslations("academics.sections");
   const tcl = useTranslations("academics.classes");
@@ -119,6 +130,9 @@ function SectionRow({
         <span className="ml-2 text-muted-foreground">
           {tcl("students", { count: section.studentCount })}
           {section.capacity ? ` · ${t("capacityValue", { count: section.capacity })}` : ""}
+        </span>
+        <span className="block text-xs text-muted-foreground">
+          {section.formTeacherName ? t("formTeacherValue", { name: section.formTeacherName }) : t("noFormTeacher")}
         </span>
       </div>
       <div className="flex shrink-0 gap-1">
@@ -136,7 +150,7 @@ function SectionRow({
         </Button>
       </div>
       <FormDialog title={t("edit")} open={editing} onOpenChange={setEditing}>
-        {(close) => <SectionForm classId={classId} section={section} onDone={close} />}
+        {(close) => <SectionForm classId={classId} section={section} teachers={teachers} onDone={close} />}
       </FormDialog>
       <ConfirmAction
         open={deleting}

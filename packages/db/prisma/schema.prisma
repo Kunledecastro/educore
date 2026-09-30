@@ -172,6 +172,9 @@ model Tenant {
   auditLogs         AuditLog[]
   subscription      Subscription?
   importJobs        ImportJob[]
+  terms             Term[]
+  gradeBands        GradeBand[]
+  academicSettings  AcademicSettings?
 
   @@map("tenants")
 }
@@ -277,6 +280,7 @@ model AcademicYear {
   createdAt DateTime @default(now())
 
   classes          ClassGrade[]
+  terms            Term[]
   students         Student[]
   attendance       Attendance[]
   assessments      Assessment[]
@@ -321,6 +325,9 @@ model Section {
   class    ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
   name     String // e.g. "A"
   capacity Int?   @default(40)
+  /// Optional form (class) teacher: takes the daily register and writes report-card comments (Phase 2).
+  formTeacherId String?
+  formTeacher   Teacher? @relation("FormTeacher", fields: [formTeacherId], references: [id], onDelete: SetNull)
 
   students             Student[]
   classSectionSubjects ClassSectionSubject[]
@@ -452,6 +459,7 @@ model Teacher {
 
   classSectionSubjects ClassSectionSubject[]
   timetableEntries     TimetableEntry[]
+  formSections         Section[] @relation("FormTeacher")
 
   @@index([tenantId])
   @@unique([tenantId, employeeId])
@@ -506,11 +514,16 @@ model AssessmentType {
   id       String @id @default(cuid())
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name     String // e.g. "Midterm", "Final Exam"
-  weight   Float  @default(1)
+  /// A score component, e.g. "CA1", "Exam" (Phase 2 decision: school-set components adding up to 100).
+  name     String
+  /// Maximum marks for this component, out of the subject's 100. Components add up to 100 (checked in the app).
+  weight   Float  @default(100)
+  order    Int    @default(0)
 
   assessments Assessment[]
 
+  // Also enforced in migration 0009: CHECK (weight > 0 AND weight <= 100)
+  @@unique([tenantId, name])
   @@index([tenantId])
   @@map("assessment_types")
 }
@@ -820,4 +833,64 @@ model ImportJob {
   @@index([tenantId])
   @@index([tenantId, createdAt(sort: Desc)])
   @@map("import_jobs")
+}
+
+// ---------------------------------------------------------------------------
+// Academic settings (Phase 2, milestone 2.0)
+// ---------------------------------------------------------------------------
+
+/// A term within an academic year (Phase 2 decision: terms set per school, default three).
+model Term {
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  name           String // e.g. "First term"
+  order          Int
+  startDate      DateTime     @db.Date
+  endDate        DateTime     @db.Date
+  isCurrent      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  // Also enforced in migration 0009:
+  //   - partial unique index: at most one isCurrent = true per tenant
+  //   - CHECK (endDate > startDate)
+  @@unique([tenantId, academicYearId, name])
+  @@unique([tenantId, academicYearId, order])
+  @@index([tenantId])
+  @@index([tenantId, academicYearId])
+  @@map("terms")
+}
+
+/// One band of the school's grading scale: a total of `minScore` or more (up to the next band) earns `grade`.
+model GradeBand {
+  id       String  @id @default(cuid())
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  minScore Float
+  grade    String // e.g. "A"
+  remark   String? // e.g. "Excellent"
+
+  // Also enforced in migration 0009: CHECK (minScore >= 0 AND minScore <= 100)
+  @@unique([tenantId, minScore])
+  @@unique([tenantId, grade])
+  @@index([tenantId])
+  @@map("grade_bands")
+}
+
+/// School-editable academic options. Deliberately separate from `Tenant.settings`,
+/// which also holds plan/feature switches that only the platform may change.
+model AcademicSettings {
+  id                 String   @id @default(cuid())
+  tenantId           String   @unique
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  /// Show position in class on results and report cards (decision 3: off by default).
+  showPosition       Boolean  @default(false)
+  /// Days after which a teacher can no longer change a register (admins still can).
+  attendanceEditDays Int      @default(7)
+  updatedAt          DateTime @updatedAt
+
+  // Also enforced in migration 0009: CHECK (attendanceEditDays BETWEEN 0 AND 60)
+  @@map("academic_settings")
 }

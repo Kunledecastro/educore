@@ -216,6 +216,16 @@ export async function deleteClass(id: unknown) {
 
 // ------------------------------------------------------------- sections ---
 
+/**
+ * A form teacher must be one of THIS school's active teachers (FK checks
+ * ignore RLS, so we look it up ourselves). Returns the id to store, or null.
+ */
+async function checkFormTeacher(tx: PrismaClient, tenantId: string, teacherId: string | undefined): Promise<string | null> {
+  if (!teacherId) return null;
+  const teacher = await must(tx.teacher.findFirst({ where: { id: teacherId, tenantId, user: { isActive: true } }, select: { id: true } }));
+  return teacher.id;
+}
+
 export async function createSection(input: unknown) {
   return runAction(["section", "create"], async (ctx) => {
     const data = sectionSchema.parse(input);
@@ -225,8 +235,9 @@ export async function createSection(input: unknown) {
       entityType: "Section",
       run: async (tx) => {
         await must(tx.classGrade.findFirst({ where: { id: data.classId, tenantId: audit.tenantId } }));
+        const formTeacherId = await checkFormTeacher(tx, audit.tenantId, data.formTeacherId);
         const after = await tx.section.create({
-          data: { classId: data.classId, name: data.name, capacity: data.capacity ?? null, tenantId: audit.tenantId },
+          data: { classId: data.classId, name: data.name, capacity: data.capacity ?? null, formTeacherId, tenantId: audit.tenantId },
         });
         return { after };
       },
@@ -246,9 +257,10 @@ export async function updateSection(id: unknown, input: unknown) {
       entityType: "Section",
       run: async (tx) => {
         const before = await must(tx.section.findFirst({ where: { id: sectionId, tenantId: audit.tenantId } }));
+        const formTeacherId = await checkFormTeacher(tx, audit.tenantId, data.formTeacherId);
         const after = await tx.section.update({
           where: { id: before.id },
-          data: { name: data.name, capacity: data.capacity ?? null },
+          data: { name: data.name, capacity: data.capacity ?? null, formTeacherId },
         });
         return { before, after };
       },

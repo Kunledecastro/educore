@@ -194,4 +194,25 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
       withRls(tenantA.id, (tx) => tx.$executeRaw`UPDATE tenants SET settings = '{}' WHERE id = ${tenantA.id}`),
     ).rejects.toThrow(/permission denied/);
   });
+
+  // Migration 0009 (academic settings): new tenant-owned tables get the same RLS.
+  it("grade bands, terms and academic settings are invisible and unwritable across schools", async () => {
+    await withRls(tenantB.id, (tx) =>
+      tx.$executeRaw`INSERT INTO grade_bands (id, "tenantId", "minScore", grade) VALUES (${`gb-b-${Date.now()}`}, ${tenantB.id}, 0, 'F')`,
+    );
+    const seenByA = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM grade_bands WHERE "tenantId" = ${tenantB.id}`);
+    expect(seenByA).toHaveLength(0);
+
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO academic_settings (id, "tenantId", "updatedAt") VALUES (${`as-x-${Date.now()}`}, ${tenantB.id}, now())`,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO terms (id, "tenantId", "academicYearId", name, "order", "startDate", "endDate")
+                       VALUES (${`t-x-${Date.now()}`}, ${tenantB.id}, ${academicYearA.id}, 'X', 1, '2026-09-01', '2026-12-01')`,
+      ),
+    ).rejects.toThrow(/row-level security/);
+  });
 });

@@ -38,6 +38,8 @@ export const sectionSchema = z.object({
   classId: idSchema,
   name: textSchema(20),
   capacity: optionalIntSchema(1, 500),
+  /** Optional form (class) teacher; "" in the form means none. */
+  formTeacherId: z.preprocess((v) => (v === "" || v === null ? undefined : v), idSchema.optional()),
 });
 export type SectionInput = z.input<typeof sectionSchema>;
 

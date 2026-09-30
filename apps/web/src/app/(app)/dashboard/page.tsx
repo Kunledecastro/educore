@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/guard";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { formatMoney, formatNumber, todayInTimeZone } from "@/lib/format";
 import { loadOnboardingChecklist } from "@/lib/onboarding-data";
+import { getCurrentTerm } from "@/lib/current-term";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
   const num = (v: number) => formatNumber(v, settings);
 
   let stats: { label: string; value: string | number }[] = [];
+  const { year, term } = user.tenantId ? await getCurrentTerm(db, settings.timezone) : { year: null, term: null };
 
   // Setup checklist (milestone 1.4): school admins only. Shown until they hide
   // it; once hidden, a slim reminder stays while setup is unfinished.
@@ -116,7 +118,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{t("welcome", { name: user.name })}</h1>
+      <div>
+        <h1 className="text-2xl font-semibold">{t("welcome", { name: user.name })}</h1>
+        {year ? (
+          <p className="mt-1 text-sm text-muted-foreground">
+            {term ? t("yearAndTerm", { year: year.name, term: term.name }) : t("yearOnly", { year: year.name })}
+          </p>
+        ) : null}
+      </div>
       {onboarding && !onboarding.hidden ? <OnboardingChecklist checklist={onboarding.checklist} /> : null}
       {onboarding && onboarding.hidden && !onboarding.checklist.complete ? (
         <OnboardingReminder checklist={onboarding.checklist} />

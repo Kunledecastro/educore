@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Input } from "@educore/ui/input";
+import { Select } from "@educore/ui/select";
 import { FormField } from "@/components/form/form-field";
 import { FormDialogFooter } from "@/components/form/form-dialog";
 import { useServerForm } from "@/components/form/use-server-form";
@@ -42,16 +43,23 @@ export function ClassForm({
 export function SectionForm({
   classId,
   section,
+  teachers,
   onDone,
 }: {
   classId: string;
-  section?: { id: string; name: string; capacity: number | null };
+  section?: { id: string; name: string; capacity: number | null; formTeacherId: string | null };
+  teachers: { id: string; name: string }[];
   onDone: () => void;
 }) {
   const t = useTranslations("academics.sections");
   const { form, onSubmit, pending, fieldError } = useServerForm<SectionInput>({
     schema: sectionSchema,
-    defaultValues: { classId, name: section?.name ?? "", capacity: section?.capacity != null ? String(section.capacity) : "" },
+    defaultValues: {
+      classId,
+      name: section?.name ?? "",
+      capacity: section?.capacity != null ? String(section.capacity) : "",
+      formTeacherId: section?.formTeacherId ?? "",
+    },
     submit: (values) => (section ? updateSection(section.id, values) : createSection(values)),
     successMessage: section ? t("updated") : t("created"),
     onSuccess: onDone,
@@ -64,6 +72,16 @@ export function SectionForm({
       </FormField>
       <FormField label={t("capacity")} htmlFor="section-capacity" hint={t("capacityHint")} error={fieldError("capacity")}>
         <Input type="number" inputMode="numeric" min={1} max={500} {...form.register("capacity")} />
+      </FormField>
+      <FormField label={t("formTeacher")} htmlFor="section-form-teacher" hint={t("formTeacherHint")} error={fieldError("formTeacherId")}>
+        <Select {...form.register("formTeacherId")}>
+          <option value="">{t("noFormTeacherOption")}</option>
+          {teachers.map((tr) => (
+            <option key={tr.id} value={tr.id}>
+              {tr.name}
+            </option>
+          ))}
+        </Select>
       </FormField>
       <FormDialogFooter pending={pending} onCancel={onDone} />
     </form>

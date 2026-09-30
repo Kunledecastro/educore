@@ -123,5 +123,16 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     expect(studentScopeWhere(user(Role.STUDENT), { ownStudentId: "s9" })).toEqual({ id: "s9" });
     expect(studentScopeWhere(user(Role.STUDENT), {})).toEqual({ id: "__none__" });
   });
-});
 
+  it("academic settings (terms, grading scale, score components) are changed only by school admins", () => {
+    for (const action of ["create", "update", "delete"] as const) {
+      expect(can(Role.SCHOOL_ADMIN, "academicSettings", action)).toBe(true);
+      for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+        expect(can(role, "academicSettings", action), `${role} must not ${action} academicSettings`).toBe(false);
+      }
+    }
+    // Teachers need to read them to enter scores; families get results through their own screens.
+    expect(can(Role.TEACHER, "academicSettings", "read")).toBe(true);
+    expect(can(Role.PARENT, "academicSettings", "read")).toBe(false);
+  });
+});

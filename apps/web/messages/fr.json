@@ -79,7 +79,9 @@
     "results": "Vos résultats",
     "outstandingFees": "Frais impayés",
     "platformSchools": "Écoles sur la plateforme",
-    "platformActiveSubscriptions": "Abonnements actifs"
+    "platformActiveSubscriptions": "Abonnements actifs",
+    "yearAndTerm": "{year} · {term}",
+    "yearOnly": "{year}"
   },
   "list": {
     "searchPlaceholder": "Rechercher…",
@@ -248,7 +250,12 @@
       "updated": "Section enregistrée",
       "deleted": "Section supprimée",
       "deleteTitle": "Supprimer la section {name} ?",
-      "deleteDescription": "La section et ses affectations d'enseignants seront supprimées. Une section qui contient des élèves ou des données ne peut pas être supprimée."
+      "deleteDescription": "La section et ses affectations d'enseignants seront supprimées. Une section qui contient des élèves ou des données ne peut pas être supprimée.",
+      "formTeacher": "Professeur principal",
+      "formTeacherHint": "Fait l'appel quotidien et rédige les appréciations du bulletin pour cette section.",
+      "noFormTeacherOption": "Aucun professeur principal",
+      "formTeacherValue": "Professeur principal : {name}",
+      "noFormTeacher": "Aucun professeur principal"
     },
     "subjects": {
       "new": "Nouvelle matière",
@@ -666,6 +673,117 @@
         "action": "Inviter les enseignants",
         "secondaryAction": "Inviter le personnel"
       }
+    }
+  },
+  "settings": {
+    "title": "Paramètres de l'établissement",
+    "description": "Trimestres, notation et calcul des résultats de votre établissement.",
+    "tabs": {
+      "label": "Sections des paramètres",
+      "terms": "Trimestres",
+      "grading": "Barème",
+      "scores": "Composantes de la note",
+      "options": "Options"
+    },
+    "terms": {
+      "noYearTitle": "Créez d'abord une année scolaire",
+      "noYearDescription": "Les trimestres appartiennent à une année scolaire.",
+      "goToYears": "Aller aux années scolaires",
+      "emptyTitle": "Aucun trimestre pour {year}",
+      "emptyDescription": "Ajoutez les trois trimestres habituels avec des dates suggérées, puis ajustez-les, ou ajoutez les vôtres.",
+      "addSuggested": "Ajouter 3 trimestres",
+      "adding": "Ajout…",
+      "suggestedAdded": "Trois trimestres ajoutés à {year}. Vérifiez que les dates correspondent à votre calendrier.",
+      "new": "Nouveau trimestre",
+      "edit": "Modifier le trimestre",
+      "name": "Nom",
+      "namePlaceholder": "ex. Premier trimestre",
+      "startDate": "Début",
+      "endDate": "Fin",
+      "status": "Statut",
+      "actions": "Actions",
+      "current": "Trimestre en cours",
+      "inactiveYearNote": "Cette année n'est pas active : aucun de ses trimestres ne peut être le trimestre en cours.",
+      "setCurrent": "Définir comme en cours",
+      "setCurrentTitle": "Faire de {name} le trimestre en cours ?",
+      "setCurrentDescription": "Les présences, notes et résultats utiliseront {name} par défaut pour tout l'établissement.",
+      "setCurrentDone": "{name} est maintenant le trimestre en cours.",
+      "deleteTitle": "Supprimer {name} ?",
+      "deleteDescription": "Le trimestre est retiré de cette année scolaire.",
+      "deleted": "Trimestre supprimé.",
+      "created": "Trimestre ajouté.",
+      "updated": "Trimestre mis à jour.",
+      "withinYear": "Les dates doivent être comprises dans {year}, et les trimestres ne peuvent pas se chevaucher.",
+      "defaultNames": {
+        "first": "Premier trimestre",
+        "second": "Deuxième trimestre",
+        "third": "Troisième trimestre"
+      },
+      "errors": {
+        "endBeforeStart": "Le trimestre doit se terminer après son début.",
+        "outsideYear": "Le trimestre doit être compris dans l'année scolaire.",
+        "overlaps": "Ces dates chevauchent {name}.",
+        "tooMany": "Une année scolaire compte au plus 12 trimestres.",
+        "yearNotActive": "Activez d'abord cette année scolaire : seul un trimestre de l'année active peut être en cours.",
+        "alreadyHasTerms": "Cette année a déjà des trimestres."
+      }
+    },
+    "grading": {
+      "intro": "Une note totale au moins égale au score minimum obtient cette mention, jusqu'à la tranche suivante. Les totaux sont d'abord arrondis à une décimale : 69,95 compte comme 70.",
+      "startingPoint": "Voici un barème courant pour commencer : adaptez-le à votre établissement, puis enregistrez.",
+      "minScore": "À partir de (note)",
+      "grade": "Mention",
+      "remark": "Appréciation",
+      "remarkPlaceholder": "ex. Excellent",
+      "band": "tranche {n}",
+      "addBand": "Ajouter une tranche",
+      "useDefault": "Partir du barème par défaut",
+      "preview": "Notation des totaux",
+      "previewUnavailable": "Remplissez chaque ligne pour voir les intervalles.",
+      "range": "{min}–{max}",
+      "save": "Enregistrer le barème",
+      "saved": "Barème enregistré.",
+      "errors": {
+        "empty": "Ajoutez au moins une mention.",
+        "noZeroBand": "Une tranche doit commencer à 0 pour que chaque note ait une mention.",
+        "outOfRange": "Utilisez une note entre 0 et 100.",
+        "duplicateMin": "Deux tranches commencent à la même note.",
+        "duplicateGrade": "Cette mention est utilisée deux fois.",
+        "blankGrade": "Saisissez une mention."
+      }
+    },
+    "scores": {
+      "intro": "La composition de la note trimestrielle d'une matière. Les composantes doivent totaliser 100 — par exemple Contrôle 1 20 + Contrôle 2 20 + Examen 60.",
+      "startingPoint": "Voici des composantes courantes pour commencer : adaptez-les à votre établissement, puis enregistrez.",
+      "name": "Composante",
+      "namePlaceholder": "ex. Contrôle 1",
+      "weight": "Points",
+      "marks": "points",
+      "lockedHint": "Des notes ont été saisies pour cette composante : elle ne peut pas être supprimée. Vous pouvez toujours la renommer ou changer ses points.",
+      "component": "composante {n}",
+      "add": "Ajouter une composante",
+      "totalOk": "Total : 100 ✓",
+      "totalOff": "Total : {total} — doit être 100",
+      "save": "Enregistrer les composantes",
+      "saved": "Composantes enregistrées.",
+      "errors": {
+        "empty": "Ajoutez au moins une composante.",
+        "sumNot100": "Les composantes totalisent {sum} ; elles doivent totaliser 100.",
+        "badWeight": "Utilisez un nombre de points supérieur à 0, jusqu'à 100.",
+        "duplicateName": "Ce nom est utilisé deux fois.",
+        "blankName": "Saisissez un nom.",
+        "inUse": "{name} a déjà des notes saisies : elle ne peut pas être supprimée."
+      }
+    },
+    "options": {
+      "intro": "Choix communs à tout l'établissement pour les résultats et les présences.",
+      "resultsLegend": "Résultats et bulletins",
+      "showPosition": "Afficher le rang dans la classe",
+      "showPositionHint": "Ajoute le rang de chaque élève (ex. 3e sur 32) aux résultats et bulletins. Désactivé par défaut.",
+      "attendanceLegend": "Présences",
+      "editDays": "Les enseignants peuvent modifier un appel pendant (jours)",
+      "editDaysHint": "Ensuite, seuls les administrateurs peuvent le modifier. 0 = le jour même uniquement.",
+      "saved": "Options enregistrées."
     }
   }
 }

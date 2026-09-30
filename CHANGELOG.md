@@ -3,6 +3,50 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 2 — Daily academics (in progress)
+
+Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
+school (default 3); subject score = school-set components adding up to 100;
+position in class optional (off by default); attendance once a day per class.
+
+### Added (milestone 2.0 — academic settings)
+
+- **School settings** (`/settings`, school admins), four tabs:
+  - **Terms** per academic year: add, edit, delete, "make current" (one
+    current term per school, only in the active year). "Add 3 terms" fills
+    in suggested dates to adjust. Terms must sit inside the year and can't
+    overlap.
+  - **Grading scale**: bands "from score → grade + remark", starting from a
+    common default (A 70+ … F below 40); live preview of each grade's
+    range; must include a band from 0; no repeated minimums or grades.
+    Totals are rounded to one decimal place before grading (69.95 → A).
+  - **Score components** (e.g. CA1 20 + CA2 20 + Exam 60), with a running
+    total that must be exactly 100. A component with recorded scores can be
+    renamed or re-weighted but never removed (that would delete scores).
+  - **Options**: show position in class (off by default); how many days
+    teachers can change a register (default 7).
+- **Form teacher** per section (Academics → Classes → section).
+- **Current term** under the dashboard greeting ("2026/2027 · First term").
+- Grading and term rules as pure, tested functions (`lib/grading.ts`,
+  `lib/terms.ts`); every settings change audited.
+- RBAC: new `academicSettings` resource — admins change, teachers read.
+- Greenfield demo: three terms (First current), default scale, Midterm 40
+  + Exam 60, form teachers for both sections.
+
+### Changed (milestone 2.0)
+
+- `AssessmentType.weight` now means "marks out of 100" (was a fraction);
+  migration converts 0.4 → 40.
+
+### Security (milestone 2.0)
+
+- Migration `0009_academic_settings`: `terms`, `grade_bands`,
+  `academic_settings` with forced RLS and the standard tenant policy;
+  CHECK constraints (term dates, 0–100 scores, 0–60 edit days, weight
+  0–100) and a one-current-term-per-school index. Verified live: other
+  school's rows invisible, cross-school insert blocked, bad values refused.
+  School-editable options are kept off the `tenants` row on purpose.
+
 ## Phase 1 — Onboarding (2026-09-30)
 
 Spec: onboarding-first — foundations, academic structure, people, CSV

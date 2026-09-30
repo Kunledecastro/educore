@@ -34,9 +34,19 @@ export default async function ClassesPage({ searchParams }: { searchParams: { ye
     orderBy: [{ order: "asc" }, { name: "asc" }],
     include: {
       _count: { select: { students: true } },
-      sections: { orderBy: { name: "asc" }, include: { _count: { select: { students: true } } } },
+      sections: {
+        orderBy: { name: "asc" },
+        include: { _count: { select: { students: true } }, formTeacher: { select: { id: true, user: { select: { name: true } } } } },
+      },
     },
   });
+  const teachers = (
+    await db.teacher.findMany({
+      where: { user: { isActive: true } },
+      select: { id: true, user: { select: { name: true } } },
+      orderBy: { user: { name: "asc" } },
+    })
+  ).map((tr) => ({ id: tr.id, name: tr.user.name }));
 
   return (
     <div className="space-y-4">
@@ -55,6 +65,7 @@ export default async function ClassesPage({ searchParams }: { searchParams: { ye
           {classes.map((c) => (
             <ClassCard
               key={c.id}
+              teachers={teachers}
               cls={{
                 id: c.id,
                 academicYearId: c.academicYearId,
@@ -66,6 +77,8 @@ export default async function ClassesPage({ searchParams }: { searchParams: { ye
                   name: s.name,
                   capacity: s.capacity,
                   studentCount: s._count.students,
+                  formTeacherId: s.formTeacher?.id ?? null,
+                  formTeacherName: s.formTeacher?.user.name ?? null,
                 })),
               }}
             />

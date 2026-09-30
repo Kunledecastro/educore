@@ -146,9 +146,39 @@ async function main() {
     ],
   });
 
-  const assessmentType = await prisma.assessmentType.create({
-    data: { tenantId: tenant.id, name: "Midterm", weight: 0.4 },
+  // Form teachers (Phase 2): they take each section's daily register.
+  await prisma.section.update({ where: { id: grade5A.id }, data: { formTeacherId: teachers[0]!.id } });
+  await prisma.section.update({ where: { id: grade6A.id }, data: { formTeacherId: teachers[2]!.id } });
+
+  // -------------------------------------------------------------------
+  // Academic settings (Phase 2, milestone 2.0)
+  // -------------------------------------------------------------------
+  // Three terms; the first is current.
+  await prisma.term.createMany({
+    data: [
+      { name: "First term", order: 1, startDate: new Date("2026-09-07"), endDate: new Date("2026-12-18"), isCurrent: true },
+      { name: "Second term", order: 2, startDate: new Date("2027-01-05"), endDate: new Date("2027-04-09"), isCurrent: false },
+      { name: "Third term", order: 3, startDate: new Date("2027-04-26"), endDate: new Date("2027-07-23"), isCurrent: false },
+    ].map((t) => ({ ...t, tenantId: tenant.id, academicYearId: academicYear.id })),
   });
+  // Grading scale (same as DEFAULT_GRADE_BANDS in apps/web/src/lib/grading.ts).
+  await prisma.gradeBand.createMany({
+    data: [
+      { minScore: 70, grade: "A", remark: "Excellent" },
+      { minScore: 60, grade: "B", remark: "Very good" },
+      { minScore: 50, grade: "C", remark: "Good" },
+      { minScore: 45, grade: "D", remark: "Fair" },
+      { minScore: 40, grade: "E", remark: "Pass" },
+      { minScore: 0, grade: "F", remark: "Fail" },
+    ].map((b) => ({ ...b, tenantId: tenant.id })),
+  });
+  await prisma.academicSettings.create({ data: { tenantId: tenant.id } });
+
+  // Score components: weights are marks out of 100 and add up to 100.
+  const assessmentType = await prisma.assessmentType.create({
+    data: { tenantId: tenant.id, name: "Midterm", weight: 40, order: 0 },
+  });
+  await prisma.assessmentType.create({ data: { tenantId: tenant.id, name: "Exam", weight: 60, order: 1 } });
   const assessment = await prisma.assessment.create({
     data: {
       tenantId: tenant.id,
