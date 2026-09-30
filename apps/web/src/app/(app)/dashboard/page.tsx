@@ -1,9 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { Role } from "@educore/db";
+import { can } from "@educore/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { requireUser } from "@/lib/guard";
-import { getSettingsForUser } from "@/lib/tenant";
+import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { formatMoney, formatNumber, todayInTimeZone } from "@/lib/format";
+import { loadOnboardingChecklist } from "@/lib/onboarding-data";
+import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
+import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -26,6 +30,14 @@ export default async function DashboardPage() {
   const num = (v: number) => formatNumber(v, settings);
 
   let stats: { label: string; value: string | number }[] = [];
+
+  // Setup checklist (milestone 1.4): school admins only. Shown until they hide
+  // it; once hidden, a slim reminder stays while setup is unfinished.
+  let onboarding: { checklist: Checklist; hidden: boolean } | null = null;
+  if (user.tenantId && can(user.role, "onboarding", "read")) {
+    const [checklist, { tenant }] = await Promise.all([loadOnboardingChecklist(db, user.id), getTenantForUser(user.tenantId)]);
+    onboarding = { checklist, hidden: Boolean(tenant?.onboardingDismissedAt) };
+  }
 
   switch (user.role) {
     case Role.PLATFORM_ADMIN: {
@@ -105,6 +117,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">{t("welcome", { name: user.name })}</h1>
+      {onboarding && !onboarding.hidden ? <OnboardingChecklist checklist={onboarding.checklist} /> : null}
+      {onboarding && onboarding.hidden && !onboarding.checklist.complete ? (
+        <OnboardingReminder checklist={onboarding.checklist} />
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} />

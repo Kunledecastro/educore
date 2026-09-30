@@ -65,6 +65,10 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   Imports upsert on natural keys, so re-importing never duplicates.
 - **Exports** (`/api/exports/{students|staff|parents}`) use the list page's
   filters and row scope, and the same column names as the import templates.
+- **Onboarding checklist** (`lib/onboarding.ts`, pure + unit-tested): steps
+  are computed from counts gathered in `lib/onboarding-data.ts`, never
+  ticked by hand. To add a step: add its id, done-rule, prerequisites and
+  links there, plus `onboarding.steps.<id>` text in both message files.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 
@@ -101,6 +105,12 @@ pooling. The `postgres` role (which does bypass RLS on Supabase) is used only
 by `platformPrisma()` for audited platform-admin work, by Auth.js, and by
 migrations. Don't call `$transaction` on a `forTenant()` client — use
 `withRls()`.
+
+Platform tables (`tenants`, `subscriptions`) are read-only for a school's
+session, with one exception: `tenants."onboardingDismissedAt"` (column-level
+grant + own-row policy, migration `0008`). Anything else on a school's
+tenant row — plan, status, settings, branding — changes only through the
+audited platform path.
 
 ## RBAC
 

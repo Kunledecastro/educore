@@ -173,4 +173,25 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
     });
     expect(rows).toHaveLength(0);
   });
+
+  // Migration 0008 (onboarding checklist): the tenant row is writable from a
+  // school's session for ONE column only, and only on its own row.
+  it("a school can set its own onboarding flag — and nothing else on the tenant row", async () => {
+    const own = await withRls(tenantA.id, (tx) =>
+      tx.$executeRaw`UPDATE tenants SET "onboardingDismissedAt" = now(), "updatedAt" = now() WHERE id = ${tenantA.id}`,
+    );
+    expect(own).toBe(1);
+
+    const other = await withRls(tenantA.id, (tx) =>
+      tx.$executeRaw`UPDATE tenants SET "onboardingDismissedAt" = now() WHERE id = ${tenantB.id}`,
+    );
+    expect(other).toBe(0);
+
+    await expect(
+      withRls(tenantA.id, (tx) => tx.$executeRaw`UPDATE tenants SET plan = 'PREMIUM' WHERE id = ${tenantA.id}`),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      withRls(tenantA.id, (tx) => tx.$executeRaw`UPDATE tenants SET settings = '{}' WHERE id = ${tenantA.id}`),
+    ).rejects.toThrow(/permission denied/);
+  });
 });

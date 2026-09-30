@@ -604,5 +604,68 @@
       "changedSincePreview": "Cette ligne n'est plus valide (les données de l'école ont changé depuis la vérification)",
       "rowFailed": "Cette ligne n'a pas pu être enregistrée"
     }
+  },
+  "onboarding": {
+    "title": "Configurez votre établissement",
+    "description": "Quelques étapes pour préparer EduCore pour vos enseignants, élèves et parents. Chaque étape se coche d'elle-même au fur et à mesure.",
+    "completeTitle": "Votre établissement est configuré",
+    "completeDescription": "Toutes les étapes sont terminées. Vous pouvez masquer cette liste.",
+    "completeNext": "Prochaine étape : les enseignants peuvent se connecter et voir leurs classes. Invitez les parents depuis la page Parents quand vous le souhaitez.",
+    "progress": "{done} étape(s) sur {total} terminée(s)",
+    "progressLabel": "Progression de la configuration",
+    "hide": "Masquer la liste",
+    "show": "Afficher la liste",
+    "working": "Enregistrement…",
+    "reminder": "Configuration : {done} étape(s) sur {total} terminée(s).",
+    "reminderNext": "Suivante : {step}.",
+    "waitingFor": "Disponible après : {steps}.",
+    "status": {
+      "done": "Terminé",
+      "todo": "À faire",
+      "blocked": "Pas encore disponible"
+    },
+    "steps": {
+      "academicYear": {
+        "title": "Créez votre année scolaire",
+        "todo": "Tout dans EduCore — classes, élèves, présences — appartient à une année scolaire. Commencez par créer l'année en cours.",
+        "done": "Année active : {name}.",
+        "action": "Créer l'année scolaire"
+      },
+      "classes": {
+        "title": "Ajoutez classes et sections",
+        "todo": "Ajoutez chaque classe (ex. 6e) et ses sections (A, B …) pour cette année. Saisie manuelle ou import d'un fichier.",
+        "done": "{classes, plural, one {# classe} other {# classes}}, {sections, plural, one {# section} other {# sections}}.",
+        "action": "Ajouter des classes",
+        "secondaryAction": "Importer un fichier"
+      },
+      "staff": {
+        "title": "Ajoutez enseignants et personnel",
+        "todo": "Importez la liste du personnel depuis un tableur, ou ajoutez les enseignants un par un.",
+        "done": "{count, plural, one {# enseignant ajouté} other {# enseignants ajoutés}}.",
+        "action": "Importer le personnel",
+        "secondaryAction": "Ajouter un enseignant"
+      },
+      "assignments": {
+        "title": "Affectez les enseignants aux matières",
+        "todo": "Indiquez qui enseigne quelle matière dans chaque section. Les enseignants ne voient que les élèves de leurs sections.",
+        "done": "{count, plural, one {# affectation} other {# affectations}} sur {subjects, plural, one {# matière} other {# matières}}.",
+        "action": "Affecter les enseignants",
+        "secondaryAction": "Ajouter des matières"
+      },
+      "students": {
+        "title": "Ajoutez vos élèves",
+        "todo": "Importez la liste des élèves (avec un parent ou tuteur par élève), ou ajoutez-les un par un.",
+        "done": "{count, plural, one {# élève inscrit} other {# élèves inscrits}} cette année.",
+        "action": "Importer les élèves",
+        "secondaryAction": "Ajouter un élève"
+      },
+      "invites": {
+        "title": "Invitez le personnel à se connecter",
+        "todo": "Envoyez une invitation à chaque enseignant et membre du personnel pour qu'il définisse son mot de passe. {ready} sur {total} peuvent se connecter ou ont une invitation.",
+        "done": "Les {total} membres du personnel peuvent se connecter ou ont une invitation.",
+        "action": "Inviter les enseignants",
+        "secondaryAction": "Inviter le personnel"
+      }
+    }
   }
 }

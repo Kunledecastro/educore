@@ -138,6 +138,9 @@ model Tenant {
   status       TenantStatus @default(ACTIVE)
   settings     Json         @default("{}")
   branding     Json         @default("{}")
+  /// When a school admin hid the setup checklist (milestone 1.4). The ONLY
+  /// column a school's own session may write on this table — see migration 0008.
+  onboardingDismissedAt DateTime?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

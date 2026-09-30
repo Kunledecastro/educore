@@ -3,10 +3,39 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 1 — Onboarding (in progress)
+## Phase 1 — Onboarding (2026-09-30)
 
 Spec: onboarding-first — foundations, academic structure, people, CSV
 import/export, onboarding checklist. Inngest for jobs, Supabase Storage.
+
+### Added (milestone 1.4 — onboarding checklist)
+
+- **Setup checklist on the school admin's dashboard**, in order: academic
+  year → classes & sections → teachers & staff → teacher assignments →
+  students → invite staff. Each step **ticks itself off from real data**
+  (nothing is checked by hand, so it can't drift: remove the last student
+  and the step goes back to to-do), shows what's there ("2 classes, 2
+  sections"), and links to the right screen — with a second route where
+  there is one (type it in, or import a file).
+- Steps that depend on earlier ones show **"Available after: …"**; the next
+  step to do is highlighted. The invite step is done when every staff
+  account can sign in or has a live invite (parents are left out on
+  purpose — schools usually invite them later).
+- **Hide / show**: admins can hide the checklist; while setup is unfinished
+  a one-line reminder with a "Show checklist" button stays on the
+  dashboard. Hiding is audited (`Tenant` UPDATE).
+- RBAC: new `onboarding` resource — school admins only (read/update).
+- English and French text.
+
+### Security (milestone 1.4)
+
+- Migration `0008_onboarding_dismissed`: new `tenants.onboardingDismissedAt`.
+  The tenant row was read-only for a school's session; it now has exactly
+  one writable column. `educore_app`'s table-wide UPDATE on `tenants` is
+  revoked, replaced by a column grant on `onboardingDismissedAt` /
+  `updatedAt` plus an RLS policy limited to the school's own row. Verified
+  live: own flag writable; other school's row 0 rows; `plan` and `settings`
+  refused. Added to the tenant-isolation integration suite.
 
 ### Added (milestone 1.3 — import & export)
 

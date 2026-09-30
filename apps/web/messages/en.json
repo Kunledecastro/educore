@@ -604,5 +604,68 @@
       "changedSincePreview": "This row is no longer valid (the school's data changed since the file was checked)",
       "rowFailed": "This row couldn't be saved"
     }
+  },
+  "onboarding": {
+    "title": "Set up your school",
+    "description": "A few steps to get EduCore ready for your teachers, students and parents. Each step ticks itself off as you go.",
+    "completeTitle": "Your school is set up",
+    "completeDescription": "Every setup step is done. You can hide this checklist now.",
+    "completeNext": "Next: teachers can sign in and see their classes. You can invite parents from the Parents page whenever you're ready.",
+    "progress": "{done} of {total} steps done",
+    "progressLabel": "Setup progress",
+    "hide": "Hide checklist",
+    "show": "Show checklist",
+    "working": "Saving…",
+    "reminder": "School setup: {done} of {total} steps done.",
+    "reminderNext": "Next: {step}.",
+    "waitingFor": "Available after: {steps}.",
+    "status": {
+      "done": "Done",
+      "todo": "To do",
+      "blocked": "Not available yet"
+    },
+    "steps": {
+      "academicYear": {
+        "title": "Create your academic year",
+        "todo": "Everything in EduCore — classes, students, attendance — belongs to a school year. Start by creating the current one.",
+        "done": "Active year: {name}.",
+        "action": "Create academic year"
+      },
+      "classes": {
+        "title": "Add classes and sections",
+        "todo": "Add each class (e.g. JSS 1) and its sections (A, B …) for this year. You can type them in or import a file.",
+        "done": "{classes, plural, one {# class} other {# classes}}, {sections, plural, one {# section} other {# sections}}.",
+        "action": "Add classes",
+        "secondaryAction": "Import from a file"
+      },
+      "staff": {
+        "title": "Add your teachers and staff",
+        "todo": "Import your staff list from a spreadsheet, or add teachers one by one.",
+        "done": "{count, plural, one {# teacher} other {# teachers}} added.",
+        "action": "Import staff",
+        "secondaryAction": "Add a teacher"
+      },
+      "assignments": {
+        "title": "Assign teachers to subjects",
+        "todo": "Say who teaches which subject in each section. Teachers only see the students in sections they teach.",
+        "done": "{count, plural, one {# assignment} other {# assignments}} across {subjects, plural, one {# subject} other {# subjects}}.",
+        "action": "Assign teachers",
+        "secondaryAction": "Add subjects"
+      },
+      "students": {
+        "title": "Add your students",
+        "todo": "Import your student list (with a parent or guardian per student), or add students one by one.",
+        "done": "{count, plural, one {# student} other {# students}} enrolled this year.",
+        "action": "Import students",
+        "secondaryAction": "Add a student"
+      },
+      "invites": {
+        "title": "Invite your staff to sign in",
+        "todo": "Send each teacher and staff member an invite so they can set a password. {ready} of {total} can sign in or have an invite.",
+        "done": "All {total} staff can sign in or have an invite.",
+        "action": "Invite teachers",
+        "secondaryAction": "Invite other staff"
+      }
+    }
   }
 }

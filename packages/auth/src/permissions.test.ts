@@ -84,6 +84,17 @@ describe("RBAC permission matrix", () => {
     }
   });
 
+  it("only school admins see and hide the onboarding checklist", () => {
+    expect(can(Role.SCHOOL_ADMIN, "onboarding", "read")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "onboarding", "update")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "onboarding", "delete")).toBe(false);
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+      expect(can(role, "onboarding", "read"), `${role} must not read onboarding`).toBe(false);
+      expect(can(role, "onboarding", "update"), `${role} must not update onboarding`).toBe(false);
+    }
+    // Hiding the checklist must not open up the rest of the school record.
+    expect(can(Role.SCHOOL_ADMIN, "tenant", "update")).toBe(false);
+  });
 });
 
 describe("studentScopeWhere (row-level: which students a user may see)", () => {

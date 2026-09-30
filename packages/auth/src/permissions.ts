@@ -42,6 +42,7 @@ export const RESOURCES = [
   "payment",
   "message",
   "auditLog",
+  "onboarding",
 ] as const;
 
 export type Resource = (typeof RESOURCES)[number];
@@ -91,6 +92,7 @@ export const PERMISSION_MATRIX: Matrix = {
     payment: RE,
     message: RW,
     auditLog: R, // read-only, immutable — even for SCHOOL_ADMIN
+    onboarding: ["read", "update"], // setup checklist on the dashboard; update = hide/show it
   },
 
   [Role.ACCOUNTANT]: {
