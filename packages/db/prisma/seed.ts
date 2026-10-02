@@ -401,6 +401,30 @@ async function main() {
       data: { tenantId: tenant.id, studentId: id, academicYearId: academicYear.id, termId: firstTerm.id, teacherComment: demoComments[n]! },
     });
   }
+
+  // Phase 2.4 demo: default bell schedule and a starter week for both sections.
+  const bell = [
+    ["1", "08:00", "08:40", false], ["2", "08:40", "09:20", false], ["3", "09:20", "10:00", false], ["Break", "10:00", "10:20", true],
+    ["4", "10:20", "11:00", false], ["5", "11:00", "11:40", false], ["6", "11:40", "12:20", false], ["Lunch", "12:20", "13:00", true],
+    ["7", "13:00", "13:40", false], ["8", "13:40", "14:20", false],
+  ] as const;
+  await prisma.timetablePeriod.createMany({
+    data: bell.map(([label, startTime, endTime, isBreak], i) => ({ tenantId: tenant.id, number: i + 1, label, startTime, endTime, isBreak })),
+  });
+  const lesson = (section: typeof grade5A, classId: string, subjectId: string, teacherId: string, days: number[], period: number, room: string | null = null) =>
+    days.map((dayOfWeek) => ({
+      tenantId: tenant.id, classId, sectionId: section.id, subjectId, teacherId, academicYearId: academicYear.id, dayOfWeek, period,
+      startTime: bell[period - 1]![1], endTime: bell[period - 1]![2], room,
+    }));
+  await prisma.timetableEntry.createMany({
+    data: [
+      ...lesson(grade5A, grade5.id, math.id, teachers[0]!.id, [1, 2, 3, 4, 5], 1),
+      ...lesson(grade5A, grade5.id, english.id, teachers[1]!.id, [1, 2, 3, 4, 5], 2),
+      ...lesson(grade5A, grade5.id, math.id, teachers[0]!.id, [1, 3, 5], 5),
+      ...lesson(grade6A, grade6.id, science.id, teachers[2]!.id, [1, 2, 3, 4, 5], 1, "Science Lab"),
+      ...lesson(grade6A, grade6.id, science.id, teachers[2]!.id, [2, 4], 3, "Science Lab"),
+    ],
+  });
   console.log("Seed complete.");
   console.log(`Tenant subdomain: ${tenant.subdomain}`);
   console.log(`Demo password for all seeded users: ${DEMO_PASSWORD}`);

@@ -88,6 +88,9 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   function; PDFs are drawn from snapshots (`lib/report-card-pdf.tsx`, Noto
   Sans in `assets/fonts`). Never render a card from live data. Families may
   only download when the class's term results are published.
+- **Timetable**: clash and bell-schedule rules are in `lib/timetable.ts`;
+  the database enforces the same slot rules (migration 0013), so map a
+  unique-violation (P2002) on save to "just booked by someone else".
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 

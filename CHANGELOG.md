@@ -3,11 +3,45 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 2 — Daily academics (in progress)
+## Phase 2 — Daily academics (2026-10-02)
 
 Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
 school (default 3); subject score = school-set components adding up to 100;
 position in class optional (off by default); attendance once a day per class.
+
+### Added (milestone 2.4 — timetable)
+
+- **Bell schedule** (`/timetable/periods`, admins): the school day's
+  periods and breaks with start/end times, starting from a common default
+  (8 periods, break, lunch). No overlaps; numbered by start time; can't
+  remove or turn into a break a period that has lessons.
+- **Class timetables** (admins): pick a class, click any slot, choose the
+  subject + teacher (only this class's teacher assignments) and an optional
+  room; change or remove (confirmed). Every change audited.
+- **Clash detection**: a teacher or room can't be in two places at once,
+  and a class can't have two lessons in one slot — a clear message names
+  the other class ("Chinedu Eze is already teaching Grade 6 A then"), and
+  the database enforces the same rules so two people saving at once can't
+  double-book. Room names match ignoring case and spacing.
+- **Views**: admins can view any teacher's week; teachers see **My
+  timetable** (all their classes); students their class; parents their
+  child's class (child picker for several children; Timetable added to the
+  parent sidebar). Today's column is highlighted. **Print** gives a clean
+  page without the sidebar.
+- **Dashboard**: the teacher's "Today's classes" now counts only the
+  active year's lessons.
+- ASSUMPTION: one bell schedule per school; school days Monday–Friday.
+- Greenfield demo: default bell schedule; starter week for Grade 5 A
+  (Mathematics, English) and Grade 6 A (Science in the Science Lab).
+
+### Security (milestone 2.4)
+
+- Migration `0013_timetable` (additive): `timetable_periods` (forced RLS,
+  HH:MM and end-after-start CHECKs); `timetable_entries.academicYearId` plus
+  unique slot rules for section, teacher and normalised room, and a day /
+  period CHECK. Verified live: teacher, room and class double-bookings,
+  bad times and cross-school writes all refused. Added to the isolation
+  suite; RBAC test (only admins edit timetables).
 
 ### Added (milestone 2.3 — report cards)
 

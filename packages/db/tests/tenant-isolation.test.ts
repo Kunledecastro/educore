@@ -242,4 +242,15 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
       ),
     ).rejects.toThrow(/row-level security|foreign key/);
   });
+
+  // Migration 0013: bell schedules stay inside their school.
+  it("a school can't create or see another school's bell schedule", async () => {
+    const seen = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM timetable_periods WHERE "tenantId" = ${tenantB.id}`);
+    expect(seen).toHaveLength(0);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO timetable_periods (id, "tenantId", number, label, "startTime", "endTime") VALUES (${`tp-x-${Date.now()}`}, ${tenantB.id}, 1, '1', '08:00', '08:40')`,
+      ),
+    ).rejects.toThrow(/row-level security/);
+  });
 });

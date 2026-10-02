@@ -1076,5 +1076,78 @@
       "generated": "Généré le {date} · EduCore",
       "page": "Page {page} sur {total}"
     }
+  },
+  "timetable": {
+    "title": "Emploi du temps",
+    "description": "Les cours hebdomadaires de chaque classe. Enseignants et salles ne peuvent pas être réservés deux fois.",
+    "myTitle": "Mon emploi du temps",
+    "myDescription": "Vos cours de la semaine, toutes classes confondues.",
+    "childTitle": "Emploi du temps de {name}",
+    "tabs": {
+      "label": "Sections de l'emploi du temps",
+      "sections": "Emplois du temps des classes",
+      "teachers": "Emplois du temps des enseignants",
+      "periods": "Horaires"
+    },
+    "noYearTitle": "Aucune année scolaire active",
+    "noYearDescription": "Les emplois du temps appartiennent à l'année scolaire active.",
+    "noPeriodsTitle": "Aucun horaire défini",
+    "noPeriodsAdmin": "Définissez d'abord les créneaux de la journée ; vous pourrez ensuite construire la semaine de chaque classe.",
+    "noPeriodsOther": "Votre établissement n'a pas encore défini son emploi du temps.",
+    "setUpPeriods": "Définir les horaires",
+    "noSections": "Aucune section cette année",
+    "noSectionsHint": "Ajoutez d'abord des classes et des sections dans Scolarité.",
+    "noTeachers": "Aucun enseignant actif",
+    "noChildSection": "Aucun emploi du temps à afficher",
+    "section": "Classe",
+    "teacher": "Enseignant",
+    "child": "Enfant",
+    "period": "Créneau",
+    "print": "Imprimer",
+    "editHint": "Cliquez sur un créneau pour ajouter ou modifier un cours.",
+    "noAssignmentsSection": "Aucune matière n'est affectée à cette classe. Affectez d'abord des enseignants dans Scolarité → Affectations.",
+    "noAssignments": "Aucune matière n'est affectée à cette classe.",
+    "sectionCaption": "Emploi du temps hebdomadaire de {section}",
+    "teacherCaption": "Emploi du temps hebdomadaire de {teacher}",
+    "lessonsPerWeek": "{count, plural, one {# cours} other {# cours}} par semaine",
+    "addSlot": "Ajouter un cours le {day}, créneau {period}",
+    "editSlot": "{subject} le {day}, créneau {period} — modifier",
+    "slotTitle": "{section} · {day}, créneau {period} ({time})",
+    "subjectTeacher": "Matière et enseignant",
+    "subjectTeacherHint": "Seules les matières affectées à cette classe sont listées, avec leur enseignant.",
+    "room": "Salle (facultatif)",
+    "roomPlaceholder": "ex. Labo 1",
+    "clear": "Retirer le cours",
+    "clearConfirm": "Cliquez à nouveau pour retirer",
+    "saved": "Cours enregistré.",
+    "cleared": "Cours retiré.",
+    "errors": {
+      "yearNotActive": "Cette classe appartient à une année scolaire inactive.",
+      "teacherBusy": "{teacher} enseigne déjà en {section} à ce moment-là.",
+      "roomBusy": "{room} est déjà utilisée par {section} à ce moment-là.",
+      "justTaken": "Cet enseignant ou cette salle vient d'être réservé pour ce créneau par quelqu'un d'autre. Actualisez et réessayez.",
+      "periods": {
+        "empty": "Ajoutez au moins un créneau.",
+        "badTime": "Utilisez des heures comme 08:00.",
+        "endBeforeStart": "Un créneau doit se terminer après son début.",
+        "overlaps": "Ce créneau chevauche un autre.",
+        "blankLabel": "Donnez un nom à chaque créneau.",
+        "noTeaching": "Au moins un créneau doit être un cours (pas une pause).",
+        "inUse": "{count, plural, one {# cours se trouve} other {# cours se trouvent}} dans un créneau que vous retirez ou transformez en pause. Déplacez ou retirez d'abord ces cours."
+      }
+    },
+    "periods": {
+      "intro": "La journée scolaire : créneaux de cours et pauses, dans l'ordre. Toutes les classes utilisent les mêmes horaires.",
+      "startingPoint": "Voici une journée type pour commencer : ajustez-la, puis enregistrez.",
+      "label": "Nom",
+      "start": "Début",
+      "end": "Fin",
+      "isBreak": "Pause",
+      "periodN": "créneau {n}",
+      "add": "Ajouter un créneau",
+      "save": "Enregistrer les horaires",
+      "saved": "Horaires enregistrés.",
+      "orderNote": "Les créneaux sont numérotés par heure de début à l'enregistrement. Les cours gardent leur numéro de créneau : vérifiez les emplois du temps après un réordonnancement."
+    }
   }
 }

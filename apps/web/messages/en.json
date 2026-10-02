@@ -1076,5 +1076,78 @@
       "generated": "Generated {date} · EduCore",
       "page": "Page {page} of {total}"
     }
+  },
+  "timetable": {
+    "title": "Timetable",
+    "description": "Each class's weekly lessons. Teachers and rooms can't be double-booked.",
+    "myTitle": "My timetable",
+    "myDescription": "Your lessons this week, across all your classes.",
+    "childTitle": "{name}'s timetable",
+    "tabs": {
+      "label": "Timetable sections",
+      "sections": "Class timetables",
+      "teachers": "Teacher timetables",
+      "periods": "Bell schedule"
+    },
+    "noYearTitle": "No active academic year",
+    "noYearDescription": "Timetables belong to the active academic year.",
+    "noPeriodsTitle": "No bell schedule yet",
+    "noPeriodsAdmin": "Set up the school day's periods first; then you can build each class's week.",
+    "noPeriodsOther": "Your school hasn't set up its timetable yet.",
+    "setUpPeriods": "Set up the bell schedule",
+    "noSections": "No class sections this year",
+    "noSectionsHint": "Add classes and sections under Academics first.",
+    "noTeachers": "No active teachers",
+    "noChildSection": "No timetable to show yet",
+    "section": "Class",
+    "teacher": "Teacher",
+    "child": "Child",
+    "period": "Period",
+    "print": "Print",
+    "editHint": "Click a slot to add or change a lesson.",
+    "noAssignmentsSection": "No subjects are assigned to this class yet. Assign teachers under Academics → Teacher assignments first.",
+    "noAssignments": "No subjects are assigned to this class yet.",
+    "sectionCaption": "Weekly timetable for {section}",
+    "teacherCaption": "Weekly timetable for {teacher}",
+    "lessonsPerWeek": "{count, plural, one {# lesson} other {# lessons}} a week",
+    "addSlot": "Add a lesson on {day}, period {period}",
+    "editSlot": "{subject} on {day}, period {period} — change",
+    "slotTitle": "{section} · {day}, period {period} ({time})",
+    "subjectTeacher": "Subject and teacher",
+    "subjectTeacherHint": "Only subjects assigned to this class are listed, each with its teacher.",
+    "room": "Room (optional)",
+    "roomPlaceholder": "e.g. Lab 1",
+    "clear": "Remove lesson",
+    "clearConfirm": "Click again to remove",
+    "saved": "Lesson saved.",
+    "cleared": "Lesson removed.",
+    "errors": {
+      "yearNotActive": "This class belongs to an academic year that isn't active.",
+      "teacherBusy": "{teacher} is already teaching {section} then.",
+      "roomBusy": "{room} is already in use by {section} then.",
+      "justTaken": "That teacher or room was just booked for this slot by someone else. Refresh and try again.",
+      "periods": {
+        "empty": "Add at least one period.",
+        "badTime": "Use times like 08:00.",
+        "endBeforeStart": "A period must end after it starts.",
+        "overlaps": "This period overlaps another one.",
+        "blankLabel": "Give every period a name.",
+        "noTeaching": "At least one period must be for lessons (not a break).",
+        "inUse": "{count, plural, one {# lesson is} other {# lessons are}} in a period you're removing or turning into a break. Move or remove those lessons first."
+      }
+    },
+    "periods": {
+      "intro": "The school day: lesson periods and breaks, in order. Every class uses the same bell schedule.",
+      "startingPoint": "This is a common school day to start from — adjust it, then save.",
+      "label": "Name",
+      "start": "Starts",
+      "end": "Ends",
+      "isBreak": "Break",
+      "periodN": "period {n}",
+      "add": "Add period",
+      "save": "Save bell schedule",
+      "saved": "Bell schedule saved.",
+      "orderNote": "Periods are numbered by start time when you save. Lessons keep their period number, so check timetables after reordering."
+    }
   }
 }

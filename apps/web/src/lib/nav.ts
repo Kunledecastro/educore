@@ -69,6 +69,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
   if (role === Role.PARENT) {
     items.push(
       { labelKey: "myChildren", href: "/students", icon: "Users" },
+      { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },

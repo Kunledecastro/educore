@@ -173,6 +173,7 @@ model Tenant {
   subscription      Subscription?
   importJobs        ImportJob[]
   terms             Term[]
+  timetablePeriods  TimetablePeriod[]
   gradeBands        GradeBand[]
   academicSettings  AcademicSettings?
   resultPublications ResultPublication[]
@@ -285,6 +286,7 @@ model AcademicYear {
 
   classes          ClassGrade[]
   terms            Term[]
+  timetableEntries TimetableEntry[]
   students         Student[]
   attendance       Attendance[]
   assessments      Assessment[]
@@ -632,12 +634,23 @@ model TimetableEntry {
   subject    Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   teacherId  String
   teacher    Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  dayOfWeek  Int // 0=Sunday .. 6=Saturday
+  /// Year the lesson belongs to (Phase 2.4) — clash rules apply within a year.
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int // 0=Sunday .. 6=Saturday (school days Mon–Fri)
+  /// TimetablePeriod.number
   period     Int
+  /// Copied from the bell schedule when the lesson is saved (for quick display).
   startTime  String // "08:00"
   endTime    String // "08:45"
   room       String?
 
+  // Clash rules, enforced in migration 0013 as well as in the app:
+  //   - one lesson per section per slot (below)
+  //   - a teacher in one place per slot per year (below)
+  //   - a room in use once per slot per year (expression index on the normalised room name)
+  @@unique([tenantId, sectionId, dayOfWeek, period])
+  @@unique([tenantId, academicYearId, teacherId, dayOfWeek, period])
   @@index([tenantId])
   @@index([tenantId, sectionId, dayOfWeek])
   @@map("timetable_entries")
@@ -973,4 +986,22 @@ model ReportCardRun {
   @@index([tenantId])
   @@index([tenantId, termId, sectionId, createdAt])
   @@map("report_card_runs")
+}
+
+/// The school's bell schedule (Phase 2.4): one row per period, numbered in
+/// time order. Breaks are shown on timetables but take no lessons.
+model TimetablePeriod {
+  id        String  @id @default(cuid())
+  tenantId  String
+  tenant    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  number    Int
+  label     String
+  startTime String // "HH:MM"
+  endTime   String
+  isBreak   Boolean @default(false)
+
+  // Also enforced in migration 0013: HH:MM format, endTime > startTime, number >= 1
+  @@unique([tenantId, number])
+  @@index([tenantId])
+  @@map("timetable_periods")
 }

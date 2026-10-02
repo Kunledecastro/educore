@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       const todayDate = todayInTimeZone(settings.timezone);
       const { teacherId, formSectionIds } = await teacherSectionIds(db, user.id);
       const classesToday = teacherId
-        ? await db.timetableEntry.count({ where: { teacherId, dayOfWeek: todayDate.getUTCDay() } })
+        ? await db.timetableEntry.count({ where: { teacherId, dayOfWeek: todayDate.getUTCDay(), academicYear: { isActive: true } } })
         : 0;
       // Registers are the form teacher's job (decision 4); count only their sections.
       const pending = isSchoolDay(todayDate) ? await incompleteRegisters(db, todayDate, formSectionIds) : null;

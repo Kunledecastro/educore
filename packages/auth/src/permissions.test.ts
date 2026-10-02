@@ -180,4 +180,14 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
       if (role !== Role.PLATFORM_ADMIN) expect(can(role, "reportCard", "delete"), `${role} must not delete report cards`).toBe(false);
     }
   });
+
+  it("timetable: only school admins build it; teachers, parents and students read it", () => {
+    for (const action of ["create", "update", "delete"] as const) {
+      expect(can(Role.SCHOOL_ADMIN, "timetable", action)).toBe(true);
+      for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+        expect(can(role, "timetable", action), `${role} must not ${action} timetable`).toBe(false);
+      }
+    }
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT]) expect(can(role, "timetable", "read")).toBe(true);
+  });
 });
