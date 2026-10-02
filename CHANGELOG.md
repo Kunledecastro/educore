@@ -9,6 +9,57 @@ Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
 school (default 3); subject score = school-set components adding up to 100;
 position in class optional (off by default); attendance once a day per class.
 
+### Added (milestone 2.3 — report cards)
+
+- **Report cards** (`/report-cards`, admins and form teachers): per term,
+  every section with results published / not, comments written, cards
+  generated and cards changed since generating.
+- **Comments** (`/report-cards/[sectionId]`): the form teacher writes a
+  comment per student; admins also write the principal's comment, with
+  "apply to all blank principal's comments". Up to 600 characters, saved
+  together, each change audited. Teachers can never set the principal's
+  comment (ignored server-side) and only see their form sections.
+- **Generate** (admins): needs the class's results for the term to be
+  published. Runs in the background (Inngest, 20 students per step, one
+  generation per school at a time) with a live progress bar. Each card's
+  contents are **frozen** at generation — results with component marks,
+  grade and remark, class averages, average, position (if the school shows
+  it), term attendance, both comments, next term's start date and the
+  grading key — so a card never changes afterwards. Regenerate to update.
+  Unpublishing results resets the class's cards to "not generated".
+- **PDF**: A4, one card per student, school name, in the school's language
+  (English or French), with Noto Sans bundled so names like Adébáyọ̀
+  Ọlábísí print correctly. Download one card, or a whole section as one
+  PDF for printing (admins / form teacher).
+- **Parents and students** download their child's card from the results
+  card on the profile once results are published and the card exists.
+  Same access rules as the profile — other children's cards answer 404.
+- Greenfield demo: form-teacher comments for four Grade 5 A students.
+
+### Changed (milestone 2.3)
+
+- Teachers get **Report cards** in the sidebar. Admins can create/update
+  report cards (generate, comments); teachers update (comments) and export
+  their form sections; nobody deletes them.
+- Deleting a term with report cards is refused.
+
+### Decision (milestone 2.3)
+
+- **PDFs are not stored in Supabase Storage** (the spec's plan). Storing
+  them needs a Supabase service-role secret in Vercel (security setup is
+  parked). Instead each card's contents are frozen in the database at
+  generation and the PDF is drawn from them on download, behind the app's
+  permission checks — same "never changes" guarantee, far less space, and
+  no file URL that could leak. Storage can be added later.
+
+### Security (milestone 2.3)
+
+- Migration `0012_report_cards` (additive only): `report_cards.termId`
+  (RESTRICT), comments (CHECK ≤ 600 chars), `snapshot`, `updatedAt`, unique
+  (tenant, student, term); old free-text `term` column kept but unused;
+  `report_card_runs` with forced RLS. Verified live: cross-school runs and
+  cards refused, over-long comments refused. Added to the isolation suite.
+
 ### Added (milestone 2.2 — assessments & scores)
 
 - **Gradebooks** (`/assessments`): one per section + subject + term, listed

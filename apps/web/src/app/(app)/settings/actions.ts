@@ -115,6 +115,9 @@ export async function deleteTerm(id: unknown) {
         if ((await tx.assessment.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
           throw new InUseError(["assessments"]);
         }
+        if ((await tx.reportCard.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
+          throw new InUseError(["reportCards"]);
+        }
         await tx.term.delete({ where: { id: before.id } });
         return { before, after: before };
       },

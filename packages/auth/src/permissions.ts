@@ -86,7 +86,7 @@ export const PERMISSION_MATRIX: Matrix = {
     attendance: [...RW, "export"], // corrects registers (audited); never deletes them
     assessment: CRUDE,
     mark: [...RW, "export"], // can correct scores while results are unpublished (audited)
-    reportCard: RE,
+    reportCard: [...RW, "export"], // create = generate; update = comments; export = section PDF
     timetable: CRUDE,
     announcement: CRUDE,
     feeStructure: CRUDE,
@@ -119,7 +119,7 @@ export const PERMISSION_MATRIX: Matrix = {
     attendance: [...RW, "export"], // only sections they teach or are form teacher of, within the edit window
     assessment: RW, // only for subjects they teach
     mark: [...RW, "export"], // only for subjects they teach, while results are unpublished
-    reportCard: R,
+    reportCard: ["read", "update", "export"], // form teacher: comments + print their own sections' cards
     timetable: R,
     academicSettings: R, // needs the terms, scale and components to enter scores
     results: R, // class results for sections they teach

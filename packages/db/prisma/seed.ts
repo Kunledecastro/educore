@@ -388,6 +388,19 @@ async function main() {
     }
   }
 
+
+  // Phase 2.3 demo: form teacher comments for four Grade 5 A students (First term). No cards generated.
+  const demoComments = [
+    "Works hard and takes part well in class discussions.",
+    "A careful, steady worker. Should read more at home.",
+    "Bright and curious; needs to hand homework in on time.",
+    "Has improved steadily this term. Keep it up.",
+  ];
+  for (const [n, { id }] of seededStudents.filter((x) => x.i < 4).entries()) {
+    await prisma.reportCard.create({
+      data: { tenantId: tenant.id, studentId: id, academicYearId: academicYear.id, termId: firstTerm.id, teacherComment: demoComments[n]! },
+    });
+  }
   console.log("Seed complete.");
   console.log(`Tenant subdomain: ${tenant.subdomain}`);
   console.log(`Demo password for all seeded users: ${DEMO_PASSWORD}`);

@@ -7,7 +7,11 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@educore/db", "@educore/auth", "@educore/ui"],
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2", "exceljs"],
+    serverComponentsExternalPackages: ["@prisma/client", "@node-rs/argon2", "exceljs", "@react-pdf/renderer"],
+    // Report-card PDFs embed Noto Sans (lib/report-card-pdf.tsx); ship the font files with those routes.
+    outputFileTracingIncludes: {
+      "/api/report-cards/**": ["./assets/fonts/**"],
+    },
     // CSV uploads go through a Server Action: 2 MB file limit + form overhead.
     serverActions: { bodySizeLimit: "3mb" },
   },

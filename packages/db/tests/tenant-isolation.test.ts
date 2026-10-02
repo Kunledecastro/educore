@@ -226,4 +226,20 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
       ),
     ).rejects.toThrow(/row-level security|foreign key/);
   });
+
+  // Migration 0012: report cards and generation runs.
+  it("report cards and generation runs can't be created for, or seen in, another school", async () => {
+    const seen = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM report_card_runs WHERE "tenantId" = ${tenantB.id}`);
+    expect(seen).toHaveLength(0);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO report_card_runs (id, "tenantId", "termId", "sectionId") VALUES (${`rr-x-${Date.now()}`}, ${tenantB.id}, 'x', 'y')`,
+      ),
+    ).rejects.toThrow(/row-level security|foreign key/);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO report_cards (id, "tenantId", "studentId", "academicYearId", "termId") VALUES (${`rc-x-${Date.now()}`}, ${tenantB.id}, ${studentB.id}, 'x', 'y')`,
+      ),
+    ).rejects.toThrow(/row-level security|foreign key/);
+  });
 });

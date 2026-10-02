@@ -165,4 +165,19 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
       if (role !== Role.PLATFORM_ADMIN) expect(can(role, "mark", "delete"), `${role} must not delete marks wholesale`).toBe(false);
     }
   });
+
+  it("report cards: admins generate; teachers comment; families only read; nobody deletes", () => {
+    expect(can(Role.SCHOOL_ADMIN, "reportCard", "create")).toBe(true);
+    expect(can(Role.TEACHER, "reportCard", "create")).toBe(false);
+    expect(can(Role.TEACHER, "reportCard", "update")).toBe(true);
+    for (const role of [Role.PARENT, Role.STUDENT]) {
+      expect(can(role, "reportCard", "read")).toBe(true);
+      expect(can(role, "reportCard", "update")).toBe(false);
+      expect(can(role, "reportCard", "export")).toBe(false);
+    }
+    expect(can(Role.ACCOUNTANT, "reportCard", "read")).toBe(false);
+    for (const role of Object.values(Role)) {
+      if (role !== Role.PLATFORM_ADMIN) expect(can(role, "reportCard", "delete"), `${role} must not delete report cards`).toBe(false);
+    }
+  });
 });

@@ -2,7 +2,10 @@ import { getTranslations } from "next-intl/server";
 import { Role, type TenantScopedClient } from "@educore/db";
 import { Badge } from "@educore/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
+import { Download } from "lucide-react";
+import { buttonVariants } from "@educore/ui/button";
 import { loadClassResults } from "@/lib/class-results";
+import { cardState } from "@/lib/report-card";
 import { formatNumber, todayInTimeZone } from "@/lib/format";
 import type { TenantSettings } from "@/lib/tenant-settings";
 import { resolveCurrentTerm } from "@/lib/terms";
@@ -51,10 +54,14 @@ export async function StudentResultsCard({
     );
   }
 
-  const [results, options] = await Promise.all([
+  const [results, options, card] = await Promise.all([
     loadClassResults(db, student.classId, term.id, student.id),
     db.academicSettings.findFirst({ select: { showPosition: true } }),
+    db.reportCard.findFirst({ where: { studentId: student.id, termId: term.id } }),
   ]);
+  const t2 = await getTranslations("reportCards");
+  // Families only reach a published term here, so a generated card is theirs to download.
+  const downloadable = card && cardState(card) !== "notGenerated" ? card.id : null;
   const me = results.students[0];
   const isPublished = publishedIds.has(term.id);
   const num = (n: number | null) => (n === null ? "—" : formatNumber(n, settings));
@@ -124,6 +131,14 @@ export async function StudentResultsCard({
             {me.incomplete > 0 ? <p className="text-xs text-muted-foreground">{t("incompleteNote")}</p> : null}
           </>
         )}
+        {downloadable ? (
+          <a href={`/api/report-cards/${downloadable}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Download className="h-4 w-4" aria-hidden="true" />
+            {t2("familyDownload")}
+          </a>
+        ) : family && isPublished ? (
+          <p className="text-xs text-muted-foreground">{t2("familyNotReady")}</p>
+        ) : null}
       </CardContent>
     </Card>
   );

@@ -50,6 +50,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
       { labelKey: "myStudents", href: "/students", icon: "Users" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
+      { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },

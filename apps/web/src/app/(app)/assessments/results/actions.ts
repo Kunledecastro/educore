@@ -38,7 +38,11 @@ export async function publishResults(input: unknown) {
   });
 }
 
-/** Take results back down (e.g. to correct a score). Families stop seeing them; scores unlock. Audited. */
+/**
+ * Take results back down (e.g. to correct a score). Families stop seeing
+ * them, scores unlock, and the class's report cards for the term must be
+ * regenerated. Audited.
+ */
 export async function unpublishResults(input: unknown) {
   return runAction(["results", "update"], async (ctx) => {
     const { classId, termId } = schema.parse(input);
@@ -50,6 +54,12 @@ export async function unpublishResults(input: unknown) {
         const before = await tx.resultPublication.findFirst({ where: { tenantId: audit.tenantId, termId, classId } });
         if (!before) throw new NotFoundError();
         await tx.resultPublication.delete({ where: { id: before.id } });
+        // Scores may now change, so the class's generated report cards are no
+        // longer trustworthy: back to "not generated" until regenerated.
+        await tx.reportCard.updateMany({
+          where: { tenantId: audit.tenantId, termId, student: { classId }, status: "READY" },
+          data: { status: "PENDING" },
+        });
         return { before, after: before };
       },
     });

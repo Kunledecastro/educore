@@ -1,6 +1,7 @@
 import "server-only";
 import type { TenantScopedClient } from "@educore/db";
-import { gradeForTotal, rank, stats, studentAverage, subjectTotal, type Stats, type SubjectTotal } from "./results";
+import { roundScore } from "./grading";
+import { contribution, gradeForTotal, rank, stats, studentAverage, subjectTotal, type Stats, type SubjectTotal } from "./results";
 
 export interface StudentResult {
   id: string;
@@ -9,7 +10,15 @@ export interface StudentResult {
   admissionNo: string;
   sectionId: string | null;
   sectionName: string | null;
-  subjects: Record<string, { total: SubjectTotal; grade: { grade: string; remark: string | null } | null }>;
+  subjects: Record<
+    string,
+    {
+      total: SubjectTotal;
+      grade: { grade: string; remark: string | null } | null;
+      /** Each component's marks out of its weight (1 d.p.), in `components` order; null = not scored. */
+      parts: (number | null)[];
+    }
+  >;
   average: number | null;
   /** Complete subjects counted in the average. */
   subjectCount: number;
@@ -22,6 +31,8 @@ export interface StudentResult {
 
 export interface ClassResults {
   subjects: { id: string; name: string; code: string }[];
+  /** The school's score components, in order (columns of `parts`). */
+  components: { id: string; name: string; weight: number }[];
   students: StudentResult[];
   subjectStats: Record<string, Stats>;
   /** Scores still missing across the class (student × subject × component). */
@@ -81,7 +92,11 @@ export async function loadClassResults(db: TenantScopedClient, classId: string, 
       });
       const total = subjectTotal(cells);
       const g = gradeForTotal(total, bands);
-      perSubject[subj.id] = { total, grade: g ? { grade: g.grade, remark: g.remark } : null };
+      const parts = cells.map((c) => {
+        const v = contribution(c);
+        return v === null ? null : roundScore(v);
+      });
+      perSubject[subj.id] = { total, grade: g ? { grade: g.grade, remark: g.remark } : null, parts };
     }
     const avg = studentAverage(Object.values(perSubject).map((x) => x.total));
     return {
@@ -122,6 +137,7 @@ export async function loadClassResults(db: TenantScopedClient, classId: string, 
 
   return {
     subjects,
+    components: components.map((c) => ({ id: c.id, name: c.name, weight: c.weight })),
     students: onlyStudentId ? results.filter((r) => r.id === onlyStudentId) : results,
     subjectStats,
     missingScores,

@@ -176,6 +176,7 @@ model Tenant {
   gradeBands        GradeBand[]
   academicSettings  AcademicSettings?
   resultPublications ResultPublication[]
+  reportCardRuns     ReportCardRun[]
 
   @@map("tenants")
 }
@@ -232,6 +233,7 @@ model User {
   auditLogEntries    AuditLog[]       @relation("AuditActor")
   importJobs         ImportJob[]      @relation("ImportCreatedBy")
   resultsPublished   ResultPublication[] @relation("ResultPublishedBy")
+  reportCardRuns     ReportCardRun[]     @relation("ReportCardRunBy")
 
   @@index([tenantId])
   @@map("users")
@@ -337,6 +339,7 @@ model Section {
   attendance           Attendance[]
   assessments          Assessment[]
   timetableEntries     TimetableEntry[]
+  reportCardRuns       ReportCardRun[]
 
   // Also enforced in migration 0006: CHECK (capacity IS NULL OR capacity > 0)
   @@unique([tenantId, classId, name])
@@ -590,15 +593,26 @@ model ReportCard {
   student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   academicYearId String
   academicYear   AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  term           String
+  /// Term the card reports on (Phase 2.3; replaces the old free-text `term`).
+  termId         String
+  term           Term             @relation(fields: [termId], references: [id], onDelete: Restrict)
   templateConfig Json             @default("{}")
+  /// Reserved for stored PDFs (Supabase Storage) — unused: PDFs are drawn from `snapshot` on download.
   fileUrl        String?
+  /// Form teacher's comment (written before generating).
+  teacherComment   String?
+  /// Principal / head's comment (school admins).
+  principalComment String?
+  /// Frozen contents of the card at generation time (versioned JSON, lib/report-card.ts).
+  /// The PDF is always drawn from this, so a downloaded card never changes after generation.
+  snapshot       Json?
   status         ReportCardStatus @default(PENDING)
   generatedAt    DateTime?
   createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
 
   @@index([tenantId])
-  @@unique([tenantId, studentId, academicYearId, term])
+  @@unique([tenantId, studentId, termId])
   @@map("report_cards")
 }
 
@@ -866,6 +880,8 @@ model Term {
 
   assessments  Assessment[]
   publications ResultPublication[]
+  reportCards  ReportCard[]
+  reportCardRuns ReportCardRun[]
 
   // Also enforced in migration 0009:
   //   - partial unique index: at most one isCurrent = true per tenant
@@ -927,4 +943,34 @@ model ResultPublication {
   @@unique([tenantId, termId, classId])
   @@index([tenantId])
   @@map("result_publications")
+}
+
+enum ReportCardRunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+/// One background generation of a section's report cards for a term, with progress (Phase 2.3).
+model ReportCardRun {
+  id          String              @id @default(cuid())
+  tenantId    String
+  tenant      Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  termId      String
+  term        Term                @relation(fields: [termId], references: [id], onDelete: Cascade)
+  sectionId   String
+  section     Section             @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  status      ReportCardRunStatus @default(QUEUED)
+  total       Int                 @default(0)
+  done        Int                 @default(0)
+  error       String?
+  createdById String?
+  createdBy   User?               @relation("ReportCardRunBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime            @default(now())
+  finishedAt  DateTime?
+
+  @@index([tenantId])
+  @@index([tenantId, termId, sectionId, createdAt])
+  @@map("report_card_runs")
 }

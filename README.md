@@ -83,6 +83,11 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   `lib/class-results.ts` (a class's term results — also for report cards).
   Families may only see a term that has a `ResultPublication` row. Write
   scores only through `saveScores` (audited, refuses published terms).
+- **Report cards**: a card's contents are frozen into `ReportCard.snapshot`
+  (versioned, `lib/report-card.ts`) by the `generate-report-cards` Inngest
+  function; PDFs are drawn from snapshots (`lib/report-card-pdf.tsx`, Noto
+  Sans in `assets/fonts`). Never render a card from live data. Families may
+  only download when the class's term results are published.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 
