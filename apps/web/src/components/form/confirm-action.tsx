@@ -32,6 +32,7 @@ export function ConfirmAction({
   successMessage,
   open: controlledOpen,
   onOpenChange,
+  onSuccess,
 }: {
   /** Omit when opening it yourself via `open`/`onOpenChange` (e.g. from a dropdown menu item). */
   trigger?: React.ReactNode;
@@ -43,6 +44,8 @@ export function ConfirmAction({
   successMessage: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Runs after a successful action (e.g. close the dialog this sits in). */
+  onSuccess?: () => void;
 }) {
   const t = useTranslations("common");
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
@@ -70,6 +73,7 @@ export function ConfirmAction({
                 if (result.ok) {
                   toast.success(successMessage);
                   setOpen(false);
+                  onSuccess?.();
                 } else {
                   toast.error(result.error);
                 }

@@ -91,6 +91,11 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
 - **Timetable**: clash and bell-schedule rules are in `lib/timetable.ts`;
   the database enforces the same slot rules (migration 0013), so map a
   unique-violation (P2002) on save to "just booked by someone else".
+- **Money**: never use floats or `parseFloat` for amounts. Parse with
+  `toMinor()` and compute in integer minor units (kobo/cents) with
+  `lib/fees.ts`; store with `fromMinor()`; display with `formatMoney()`.
+  What a student is billed for a term comes only from `computeBill()` via
+  `billFor()` (`lib/fees-data.ts`) — invoicing (3.1) uses the same path.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 
@@ -160,7 +165,8 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for how to get a free Postgres database
 
 The seed script creates one demo school, **Greenfield Academy**, with the
 2026/2027 academic year, 2 classes (Grade 5-A, Grade 6-A), 12 students, 3
-teachers, 1 school admin, 1 parent, plus a platform admin. Every seeded user
+teachers, 1 school admin, 1 bursar, 1 parent, plus a platform admin — and
+fee items, a three-term fee schedule, discounts and bus/lunch sign-ups. Every seeded user
 shares the password `Passw0rd!23`.
 
 | Role | Email |
@@ -168,6 +174,7 @@ shares the password `Passw0rd!23`.
 | Platform admin | `platform.admin@educore.dev` |
 | School admin | `admin@greenfield.edu` |
 | Teacher | `c.eze@greenfield.edu` |
+| Bursar (accountant) | `bursar@greenfield.edu` |
 | Parent | `parent@example.com` |
 
 ## Tests

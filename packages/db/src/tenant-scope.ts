@@ -41,6 +41,9 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "ResultPublication",
   "ReportCardRun",
   "TimetablePeriod",
+  "Discount",
+  "StudentDiscount",
+  "FeeSignup",
 ]);
 
 const READ_ACTIONS = new Set([

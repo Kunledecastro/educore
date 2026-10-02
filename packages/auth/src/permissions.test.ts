@@ -190,4 +190,19 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     }
     for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT]) expect(can(role, "timetable", "read")).toBe(true);
   });
+
+  it("fee setup (items, schedule, discounts, sign-ups): school admins and accountants only", () => {
+    for (const role of [Role.SCHOOL_ADMIN, Role.ACCOUNTANT]) {
+      for (const action of ["create", "read", "update", "delete"] as const) expect(can(role, "feeStructure", action)).toBe(true);
+    }
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT]) {
+      for (const action of ["create", "read", "update", "delete"] as const) {
+        expect(can(role, "feeStructure", action), `${role} must not ${action} fee setup`).toBe(false);
+      }
+    }
+    // Finance staff manage fees but still can't touch academics.
+    expect(can(Role.ACCOUNTANT, "academicSettings", "read")).toBe(false);
+    expect(can(Role.ACCOUNTANT, "classGrade", "update")).toBe(false);
+  });
 });
+

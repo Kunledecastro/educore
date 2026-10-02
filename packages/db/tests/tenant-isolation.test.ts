@@ -253,4 +253,30 @@ describe("tenant isolation (database RLS layer, no app-level filter)", () => {
       ),
     ).rejects.toThrow(/row-level security/);
   });
+
+  // Migration 0014: discounts, student discounts and optional-item sign-ups.
+  it("a school can't create or see another school's discounts, discount assignments or sign-ups", async () => {
+    await withRls(tenantB.id, (tx) =>
+      tx.$executeRaw`INSERT INTO discounts (id, "tenantId", name, kind, value) VALUES (${`d-b-${Date.now()}`}, ${tenantB.id}, 'Sibling', 'PERCENT', 10)`,
+    );
+    const seen = await withRls(tenantA.id, (tx) => tx.$queryRaw<{ id: string }[]>`SELECT id FROM discounts`);
+    expect(seen).toHaveLength(0);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO discounts (id, "tenantId", name, kind, value) VALUES (${`d-x-${Date.now()}`}, ${tenantB.id}, 'Spoof', 'FIXED', 5)`,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO student_discounts (id, "tenantId", "studentId", "discountId", "academicYearId") VALUES (${`sd-x-${Date.now()}`}, ${tenantB.id}, ${studentB.id}, 'x', 'y')`,
+      ),
+    ).rejects.toThrow(/row-level security|foreign key/);
+    await expect(
+      withRls(tenantA.id, (tx) =>
+        tx.$executeRaw`INSERT INTO fee_signups (id, "tenantId", "studentId", "feeTypeId", "termId") VALUES (${`fs-x-${Date.now()}`}, ${tenantB.id}, ${studentB.id}, 'x', 'y')`,
+      ),
+    ).rejects.toThrow(/row-level security|foreign key/);
+    // And through the app's scoped client, B's discount simply doesn't exist for A.
+    expect(await forTenant(tenantA.id).discount.count()).toBe(0);
+  });
 });

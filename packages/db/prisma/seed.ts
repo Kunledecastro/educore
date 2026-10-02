@@ -214,12 +214,14 @@ async function main() {
   });
 
   const feeType = await prisma.feeType.create({
-    data: { tenantId: tenant.id, name: "Tuition", description: "Termly tuition fee" },
+    data: { tenantId: tenant.id, name: "Tuition", description: "Termly tuition", order: 1 },
   });
   const feeStructure = await prisma.feeStructure.create({
     data: {
       tenantId: tenant.id,
       academicYearId: academicYear.id,
+      termId: firstTerm.id,
+      classId: grade5.id,
       feeTypeId: feeType.id,
       amount: 150000,
       frequency: "TERMLY",
@@ -425,6 +427,48 @@ async function main() {
       ...lesson(grade6A, grade6.id, science.id, teachers[2]!.id, [2, 4], 3, "Science Lab"),
     ],
   });
+  // Phase 3.0 demo: fee items, a schedule for all three terms, discounts,
+  // optional sign-ups, and a bursar (ACCOUNTANT) login.
+  await prisma.user.create({
+    data: { tenantId: tenant.id, email: "bursar@greenfield.edu", name: "Grace Ade (Bursar)", role: Role.ACCOUNTANT, passwordHash, isActive: true },
+  });
+  const item = (name: string, description: string, order: number, isOptional = false, isOneOff = false) =>
+    prisma.feeType.create({ data: { tenantId: tenant.id, name, description, order, isOptional, isOneOff } });
+  const devLevy = await item("Development levy", "Building and facilities", 2);
+  const books = await item("Books & materials", "Textbooks and workbooks", 3);
+  await item("Admission fee", "New students only", 4, false, true);
+  const bus = await item("School bus", "Morning and afternoon routes", 5, true);
+  const lunch = await item("Lunch", "Hot lunch, Monday–Friday", 6, true);
+  const terms = await prisma.term.findMany({ where: { tenantId: tenant.id, academicYearId: academicYear.id }, orderBy: { order: "asc" } });
+  const schedule: { tenantId: string; academicYearId: string; termId: string; classId: string; feeTypeId: string; amount: number }[] = [];
+  for (const term of terms) {
+    for (const [cls, tuition] of [[grade5, 150000], [grade6, 165000]] as const) {
+      const rows: [string, number][] = [[feeType.id, tuition], [devLevy.id, 25000], [bus.id, 30000], [lunch.id, 45000]];
+      if (term.order === 1) rows.push([books.id, 18000]);
+      for (const [feeTypeId, amount] of rows) {
+        if (term.id === firstTerm.id && cls.id === grade5.id && feeTypeId === feeType.id) continue; // created above
+        schedule.push({ tenantId: tenant.id, academicYearId: academicYear.id, termId: term.id, classId: cls.id, feeTypeId, amount });
+      }
+    }
+  }
+  await prisma.feeStructure.createMany({ data: schedule });
+  const sibling = await prisma.discount.create({ data: { tenantId: tenant.id, name: "Sibling discount", kind: "PERCENT", value: 10 } });
+  const staffChild = await prisma.discount.create({ data: { tenantId: tenant.id, name: "Staff child", kind: "PERCENT", value: 50, feeTypeId: feeType.id } });
+  const merit = await prisma.discount.create({ data: { tenantId: tenant.id, name: "Merit scholarship", kind: "FIXED", value: 75000 } });
+  const st = (i: number) => seededStudents.find((x) => x.i === i)!.id;
+  await prisma.studentDiscount.createMany({
+    data: [
+      { tenantId: tenant.id, studentId: st(4), discountId: staffChild.id, academicYearId: academicYear.id, note: "Child of Mr C. Eze (staff)" },
+      { tenantId: tenant.id, studentId: st(1), discountId: sibling.id, academicYearId: academicYear.id, note: "Sibling in Grade 6" },
+      { tenantId: tenant.id, studentId: st(10), discountId: merit.id, academicYearId: academicYear.id, termId: firstTerm.id, note: "2025/26 top of class" },
+    ],
+  });
+  await prisma.feeSignup.createMany({
+    data: [
+      [0, bus.id], [2, bus.id], [4, bus.id], [0, lunch.id], [1, lunch.id], [7, bus.id], [9, lunch.id],
+    ].map(([i, feeTypeId]) => ({ tenantId: tenant.id, studentId: st(i as number), feeTypeId: feeTypeId as string, termId: firstTerm.id })),
+  });
+
   console.log("Seed complete.");
   console.log(`Tenant subdomain: ${tenant.subdomain}`);
   console.log(`Demo password for all seeded users: ${DEMO_PASSWORD}`);

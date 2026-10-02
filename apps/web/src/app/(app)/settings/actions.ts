@@ -118,6 +118,13 @@ export async function deleteTerm(id: unknown) {
         if ((await tx.reportCard.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
           throw new InUseError(["reportCards"]);
         }
+        // Fee schedules and term discounts point at the term too (ON DELETE RESTRICT).
+        if ((await tx.feeStructure.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
+          throw new InUseError(["feeStructures"]);
+        }
+        if ((await tx.studentDiscount.count({ where: { tenantId: audit.tenantId, termId: before.id } })) > 0) {
+          throw new InUseError(["discounts"]);
+        }
         await tx.term.delete({ where: { id: before.id } });
         return { before, after: before };
       },

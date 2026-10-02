@@ -128,56 +128,59 @@ enum SubscriptionStatus {
 // ---------------------------------------------------------------------------
 
 model Tenant {
-  id           String       @id @default(cuid())
-  name         String
-  slug         String       @unique
-  subdomain    String       @unique
-  customDomain String?      @unique
-  logoUrl      String?
-  plan         Plan         @default(FREE_TRIAL)
-  status       TenantStatus @default(ACTIVE)
-  settings     Json         @default("{}")
-  branding     Json         @default("{}")
+  id                    String       @id @default(cuid())
+  name                  String
+  slug                  String       @unique
+  subdomain             String       @unique
+  customDomain          String?      @unique
+  logoUrl               String?
+  plan                  Plan         @default(FREE_TRIAL)
+  status                TenantStatus @default(ACTIVE)
+  settings              Json         @default("{}")
+  branding              Json         @default("{}")
   /// When a school admin hid the setup checklist (milestone 1.4). The ONLY
   /// column a school's own session may write on this table — see migration 0008.
   onboardingDismissedAt DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
 
-  users             User[]
-  academicYears     AcademicYear[]
-  classes           ClassGrade[]
-  sections          Section[]
-  subjects          Subject[]
+  users                User[]
+  academicYears        AcademicYear[]
+  classes              ClassGrade[]
+  sections             Section[]
+  subjects             Subject[]
   classSectionSubjects ClassSectionSubject[]
-  students          Student[]
-  guardians         Guardian[]
-  studentGuardians  StudentGuardian[]
-  teachers          Teacher[]
-  staff             Staff[]
-  attendance        Attendance[]
-  assessmentTypes   AssessmentType[]
-  assessments       Assessment[]
-  marks             Mark[]
-  reportCards       ReportCard[]
-  timetableEntries  TimetableEntry[]
-  announcements     Announcement[]
-  feeTypes          FeeType[]
-  feeStructures     FeeStructure[]
-  invoices          Invoice[]
-  invoiceLines      InvoiceLine[]
-  payments          Payment[]
-  messageThreads    MessageThread[]
-  messages          Message[]
-  auditLogs         AuditLog[]
-  subscription      Subscription?
-  importJobs        ImportJob[]
-  terms             Term[]
-  timetablePeriods  TimetablePeriod[]
-  gradeBands        GradeBand[]
-  academicSettings  AcademicSettings?
-  resultPublications ResultPublication[]
-  reportCardRuns     ReportCardRun[]
+  students             Student[]
+  guardians            Guardian[]
+  studentGuardians     StudentGuardian[]
+  teachers             Teacher[]
+  staff                Staff[]
+  attendance           Attendance[]
+  assessmentTypes      AssessmentType[]
+  assessments          Assessment[]
+  marks                Mark[]
+  reportCards          ReportCard[]
+  timetableEntries     TimetableEntry[]
+  announcements        Announcement[]
+  feeTypes             FeeType[]
+  discounts            Discount[]
+  studentDiscounts     StudentDiscount[]
+  feeSignups           FeeSignup[]
+  feeStructures        FeeStructure[]
+  invoices             Invoice[]
+  invoiceLines         InvoiceLine[]
+  payments             Payment[]
+  messageThreads       MessageThread[]
+  messages             Message[]
+  auditLogs            AuditLog[]
+  subscription         Subscription?
+  importJobs           ImportJob[]
+  terms                Term[]
+  timetablePeriods     TimetablePeriod[]
+  gradeBands           GradeBand[]
+  academicSettings     AcademicSettings?
+  resultPublications   ResultPublication[]
+  reportCardRuns       ReportCardRun[]
 
   @@map("tenants")
 }
@@ -221,18 +224,18 @@ model User {
 
   accounts Account[]
 
-  teacherProfile Teacher?
-  staffProfile   Staff?
-  studentProfile Student?
+  teacherProfile  Teacher?
+  staffProfile    Staff?
+  studentProfile  Student?
   guardianProfile Guardian?
 
-  attendanceMarked   Attendance[]     @relation("AttendanceMarkedBy")
-  marksEntered       Mark[]           @relation("MarkEnteredBy")
-  announcementsMade  Announcement[]   @relation("AnnouncementPublishedBy")
-  messagesSent       Message[]        @relation("MessageSender")
+  attendanceMarked   Attendance[]        @relation("AttendanceMarkedBy")
+  marksEntered       Mark[]              @relation("MarkEnteredBy")
+  announcementsMade  Announcement[]      @relation("AnnouncementPublishedBy")
+  messagesSent       Message[]           @relation("MessageSender")
   threadParticipants ThreadParticipant[]
-  auditLogEntries    AuditLog[]       @relation("AuditActor")
-  importJobs         ImportJob[]      @relation("ImportCreatedBy")
+  auditLogEntries    AuditLog[]          @relation("AuditActor")
+  importJobs         ImportJob[]         @relation("ImportCreatedBy")
   resultsPublished   ResultPublication[] @relation("ResultPublishedBy")
   reportCardRuns     ReportCardRun[]     @relation("ReportCardRunBy")
 
@@ -293,6 +296,7 @@ model AcademicYear {
   reportCards      ReportCard[]
   feeStructures    FeeStructure[]
   invoices         Invoice[]
+  studentDiscounts StudentDiscount[]
 
   // Also enforced in migration 0006 (not expressible in Prisma schema):
   //   - partial unique index: at most one isActive = true per tenant
@@ -304,18 +308,18 @@ model AcademicYear {
 }
 
 model ClassGrade {
-  id       String @id @default(cuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   academicYearId String
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  name     String // e.g. "Grade 5"
-  order    Int    @default(0)
+  name           String // e.g. "Grade 5"
+  order          Int          @default(0)
 
-  sections         Section[]
-  students         Student[]
-  feeStructures    FeeStructure[]
-  timetableEntries TimetableEntry[]
+  sections           Section[]
+  students           Student[]
+  feeStructures      FeeStructure[]
+  timetableEntries   TimetableEntry[]
   resultPublications ResultPublication[]
 
   @@unique([tenantId, academicYearId, name])
@@ -325,16 +329,16 @@ model ClassGrade {
 }
 
 model Section {
-  id       String @id @default(cuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  classId  String
-  class    ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
-  name     String // e.g. "A"
-  capacity Int?   @default(40)
+  id            String     @id @default(cuid())
+  tenantId      String
+  tenant        Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  classId       String
+  class         ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
+  name          String // e.g. "A"
+  capacity      Int?       @default(40)
   /// Optional form (class) teacher: takes the daily register and writes report-card comments (Phase 2).
   formTeacherId String?
-  formTeacher   Teacher? @relation("FormTeacher", fields: [formTeacherId], references: [id], onDelete: SetNull)
+  formTeacher   Teacher?   @relation("FormTeacher", fields: [formTeacherId], references: [id], onDelete: SetNull)
 
   students             Student[]
   classSectionSubjects ClassSectionSubject[]
@@ -361,8 +365,8 @@ model Subject {
   assessments          Assessment[]
   timetableEntries     TimetableEntry[]
 
-  @@index([tenantId])
   @@unique([tenantId, code])
+  @@index([tenantId])
   @@map("subjects")
 }
 
@@ -378,8 +382,8 @@ model ClassSectionSubject {
   teacherId String
   teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
-  @@index([tenantId])
   @@unique([tenantId, sectionId, subjectId])
+  @@index([tenantId])
   @@map("class_section_subjects")
 }
 
@@ -410,26 +414,28 @@ model Student {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  guardians        StudentGuardian[]
-  attendance       Attendance[]
-  marks            Mark[]
-  reportCards      ReportCard[]
-  invoices         Invoice[]
-  messageThreads   MessageThread[]
+  guardians      StudentGuardian[]
+  attendance     Attendance[]
+  marks          Mark[]
+  reportCards    ReportCard[]
+  invoices       Invoice[]
+  discounts      StudentDiscount[]
+  feeSignups     FeeSignup[]
+  messageThreads MessageThread[]
 
+  @@unique([tenantId, admissionNo])
   @@index([tenantId])
   @@index([tenantId, classId, sectionId])
-  @@unique([tenantId, admissionNo])
   @@map("students")
 }
 
 model Guardian {
-  id       String  @id @default(cuid())
-  tenantId String
-  tenant   Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  userId   String  @unique
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone    String?
+  id         String  @id @default(cuid())
+  tenantId   String
+  tenant     Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId     String  @unique
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone      String?
   occupation String?
 
   students StudentGuardian[]
@@ -439,18 +445,18 @@ model Guardian {
 }
 
 model StudentGuardian {
-  id          String   @id @default(cuid())
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  guardianId  String
-  guardian    Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
-  relationship String  // FATHER, MOTHER, GUARDIAN, OTHER
-  isPrimary   Boolean  @default(false)
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  guardianId   String
+  guardian     Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+  relationship String // FATHER, MOTHER, GUARDIAN, OTHER
+  isPrimary    Boolean  @default(false)
 
-  @@index([tenantId])
   @@unique([tenantId, studentId, guardianId])
+  @@index([tenantId])
   @@map("student_guardians")
 }
 
@@ -467,10 +473,10 @@ model Teacher {
 
   classSectionSubjects ClassSectionSubject[]
   timetableEntries     TimetableEntry[]
-  formSections         Section[] @relation("FormTeacher")
+  formSections         Section[]             @relation("FormTeacher")
 
-  @@index([tenantId])
   @@unique([tenantId, employeeId])
+  @@index([tenantId])
   @@map("teachers")
 }
 
@@ -485,8 +491,8 @@ model Staff {
   department  String?
   joiningDate DateTime @default(now())
 
-  @@index([tenantId])
   @@unique([tenantId, employeeId])
+  @@index([tenantId])
   @@map("staff")
 }
 
@@ -513,9 +519,9 @@ model Attendance {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now()) @updatedAt
 
+  @@unique([tenantId, studentId, date])
   @@index([tenantId])
   @@index([tenantId, sectionId, date])
-  @@unique([tenantId, studentId, date])
   @@map("attendance")
 }
 
@@ -582,39 +588,39 @@ model Mark {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  @@index([tenantId])
   @@unique([tenantId, assessmentId, studentId])
+  @@index([tenantId])
   @@map("marks")
 }
 
 model ReportCard {
-  id             String           @id @default(cuid())
-  tenantId       String
-  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  studentId      String
-  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  academicYearId String
-  academicYear   AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  id               String           @id @default(cuid())
+  tenantId         String
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId        String
+  student          Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYearId   String
+  academicYear     AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
   /// Term the card reports on (Phase 2.3; replaces the old free-text `term`).
-  termId         String
-  term           Term             @relation(fields: [termId], references: [id], onDelete: Restrict)
-  templateConfig Json             @default("{}")
+  termId           String
+  term             Term             @relation(fields: [termId], references: [id], onDelete: Restrict)
+  templateConfig   Json             @default("{}")
   /// Reserved for stored PDFs (Supabase Storage) — unused: PDFs are drawn from `snapshot` on download.
-  fileUrl        String?
+  fileUrl          String?
   /// Form teacher's comment (written before generating).
   teacherComment   String?
   /// Principal / head's comment (school admins).
   principalComment String?
   /// Frozen contents of the card at generation time (versioned JSON, lib/report-card.ts).
   /// The PDF is always drawn from this, so a downloaded card never changes after generation.
-  snapshot       Json?
-  status         ReportCardStatus @default(PENDING)
-  generatedAt    DateTime?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now()) @updatedAt
+  snapshot         Json?
+  status           ReportCardStatus @default(PENDING)
+  generatedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
 
-  @@index([tenantId])
   @@unique([tenantId, studentId, termId])
+  @@index([tenantId])
   @@map("report_cards")
 }
 
@@ -623,27 +629,27 @@ model ReportCard {
 // ---------------------------------------------------------------------------
 
 model TimetableEntry {
-  id         String     @id @default(cuid())
-  tenantId   String
-  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  classId    String
-  class      ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
-  sectionId  String
-  section    Section    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  subjectId  String
-  subject    Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  teacherId  String
-  teacher    Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  classId        String
+  class          ClassGrade   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sectionId      String
+  section        Section      @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subjectId      String
+  subject        Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacherId      String
+  teacher        Teacher      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   /// Year the lesson belongs to (Phase 2.4) — clash rules apply within a year.
   academicYearId String
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  dayOfWeek  Int // 0=Sunday .. 6=Saturday (school days Mon–Fri)
+  dayOfWeek      Int // 0=Sunday .. 6=Saturday (school days Mon–Fri)
   /// TimetablePeriod.number
-  period     Int
+  period         Int
   /// Copied from the bell schedule when the lesson is saved (for quick display).
-  startTime  String // "08:00"
-  endTime    String // "08:45"
-  room       String?
+  startTime      String // "08:00"
+  endTime        String // "08:45"
+  room           String?
 
   // Clash rules, enforced in migration 0013 as well as in the app:
   //   - one lesson per section per slot (below)
@@ -702,16 +708,16 @@ model ThreadParticipant {
 }
 
 model Message {
-  id        String        @id @default(cuid())
-  tenantId  String
-  tenant    Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  threadId  String
-  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  senderId  String
-  sender    User          @relation("MessageSender", fields: [senderId], references: [id])
-  body      String
-  attachments Json        @default("[]")
-  sentAt    DateTime      @default(now())
+  id          String        @id @default(cuid())
+  tenantId    String
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  threadId    String
+  thread      MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User          @relation("MessageSender", fields: [senderId], references: [id])
+  body        String
+  attachments Json          @default("[]")
+  sentAt      DateTime      @default(now())
 
   @@index([tenantId])
   @@index([tenantId, threadId])
@@ -722,15 +728,25 @@ model Message {
 // Fees & payments
 // ---------------------------------------------------------------------------
 
+// "Fee items" in the UI (3.0). Optional items are billed only to students
+// signed up for them that term; one-off items (e.g. admission fee) only on a
+// student's first invoice that includes them.
 model FeeType {
   id          String  @id @default(cuid())
   tenantId    String
   tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   name        String
   description String?
+  isOptional  Boolean @default(false)
+  isOneOff    Boolean @default(false)
+  isActive    Boolean @default(true)
+  order       Int     @default(0)
 
   feeStructures FeeStructure[]
+  discounts     Discount[]
+  signups       FeeSignup[]
 
+  @@unique([tenantId, name])
   @@index([tenantId])
   @@map("fee_types")
 }
@@ -745,13 +761,87 @@ model FeeStructure {
   class          ClassGrade?  @relation(fields: [classId], references: [id], onDelete: SetNull)
   feeTypeId      String
   feeType        FeeType      @relation(fields: [feeTypeId], references: [id], onDelete: Cascade)
+  // The fee schedule (3.0): one amount per item, class and term. Rows without
+  // a term predate Phase 3 and are never billed.
+  termId         String?
+  term           Term?        @relation(fields: [termId], references: [id], onDelete: Restrict)
   amount         Decimal      @db.Decimal(12, 2)
   frequency      FeeFrequency @default(TERMLY)
 
   invoiceLines InvoiceLine[]
 
+  @@unique([tenantId, termId, classId, feeTypeId])
   @@index([tenantId])
+  @@index([tenantId, termId])
   @@map("fee_structures")
+}
+
+enum DiscountKind {
+  PERCENT
+  FIXED
+}
+
+// A school's named discounts (sibling 10%, staff child, scholarship). Value is
+// a percentage (0–100] for PERCENT or an amount for FIXED; feeTypeId limits it
+// to one fee item, otherwise it applies to the whole bill.
+model Discount {
+  id        String       @id @default(cuid())
+  tenantId  String
+  tenant    Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  kind      DiscountKind
+  value     Decimal      @db.Decimal(12, 2)
+  feeTypeId String?
+  feeType   FeeType?     @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  students StudentDiscount[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("discounts")
+}
+
+// Who gets which discount: for one term, or the whole year (termId null).
+// Uniqueness per (student, discount, year, term-or-year) is an expression
+// index in migration 0014.
+model StudentDiscount {
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  discountId     String
+  discount       Discount     @relation(fields: [discountId], references: [id], onDelete: Restrict)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  termId         String?
+  term           Term?        @relation(fields: [termId], references: [id], onDelete: Restrict)
+  note           String?
+  createdAt      DateTime     @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, academicYearId])
+  @@map("student_discounts")
+}
+
+// Optional fee items a student is signed up for in a term (bus, lunch…).
+model FeeSignup {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feeTypeId String
+  feeType   FeeType  @relation(fields: [feeTypeId], references: [id], onDelete: Cascade)
+  termId    String
+  term      Term     @relation(fields: [termId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, studentId, feeTypeId, termId])
+  @@index([tenantId, termId])
+  @@map("fee_signups")
 }
 
 model Invoice {
@@ -774,8 +864,8 @@ model Invoice {
   lines    InvoiceLine[]
   payments Payment[]
 
-  @@index([tenantId])
   @@unique([tenantId, invoiceNo])
+  @@index([tenantId])
   @@map("invoices")
 }
 
@@ -891,10 +981,13 @@ model Term {
   isCurrent      Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
-  assessments  Assessment[]
-  publications ResultPublication[]
-  reportCards  ReportCard[]
-  reportCardRuns ReportCardRun[]
+  assessments      Assessment[]
+  publications     ResultPublication[]
+  reportCards      ReportCard[]
+  reportCardRuns   ReportCardRun[]
+  feeStructures    FeeStructure[]
+  studentDiscounts StudentDiscount[]
+  feeSignups       FeeSignup[]
 
   // Also enforced in migration 0009:
   //   - partial unique index: at most one isCurrent = true per tenant

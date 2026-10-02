@@ -3,6 +3,56 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 3 — Fees & payments (in progress)
+
+Spec: `claude/phase-3-spec.md` (confirmed 2026-10-02): billed per term;
+discounts per student (% or fixed, whole bill or one item); optional items
+opt-in per student per term; parents pay online with **Paystack** (test
+mode) in 3.3, alongside bursar-recorded cash/transfer/POS/cheque payments.
+
+### Added (milestone 3.0 — fee setup, 2026-10-02)
+
+- **Fees** area for school admins and accountants (`/fees`), five tabs:
+  - **Fee items** — what the school charges for, in invoice order; optional
+    (bus, lunch) and one-off (admission fee) flags; deactivate instead of
+    deleting once billed.
+  - **Fee schedule** — one grid per term: items down, classes across, type
+    each class's amount; blank = not charged; live totals per student
+    (compulsory, plus optional). **Copy from another term** (classes matched
+    by name, so next year can start from this year's fees). Terms of the
+    active year and the next year are offered.
+  - **Discounts** — named % or fixed discounts, for the whole bill or one
+    item (e.g. Staff child 50% off tuition); give them to students for one
+    term or the whole year, with a note.
+  - **Optional items** — tick-list of a class's students signed up for an
+    item in a term.
+  - **Bill preview** — exactly what a student would be charged for a term,
+    with discount lines and why any item was left out.
+- **Fee maths** (`lib/fees.ts`, 19 tests): integer minor units only (no
+  floats); discounts never compound (each works on its own base), item
+  discounts first, never below zero; one-off items billed once.
+- Demo bursar login (`bursar@greenfield.edu`, ACCOUNTANT).
+- Greenfield demo: 6 fee items; schedule for all three terms (Grade 5
+  ₦150,000 / Grade 6 ₦165,000 tuition, levy, books in first term, bus and
+  lunch); Sibling 10%, Staff child 50% tuition, Merit ₦75,000; three
+  students with discounts; seven bus/lunch sign-ups.
+- ASSUMPTION: Paystack replaces Stripe for school-fee collection only;
+  Stripe stays for EduCore's own subscriptions (Phase 4).
+
+### Security (milestone 3.0)
+
+- Migration `0014_fee_setup` (additive): `discounts`, `student_discounts`,
+  `fee_signups` with **forced RLS** (verified live: other school's rows
+  invisible, cross-school insert refused); fee item names unique per
+  school; non-negative amounts; percentages ≤ 100; one schedule amount per
+  item/class/term; a term with fees or discounts can't be deleted.
+- Every fee-setup change is audited (FeeType, FeeSchedule with each changed
+  cell, Discount, StudentDiscount, FeeSignup). Every id from the browser is
+  re-checked against the school; schedule cells must belong to the term's
+  year.
+- Tests: RBAC (only admins/accountants manage fees; accountants still
+  can't touch academics); tenant-isolation test for the three new tables.
+
 ## Phase 2 — Daily academics (2026-10-02)
 
 Spec: `claude/phase-2-spec.md` (confirmed 2026-09-30): terms set per
