@@ -8,7 +8,7 @@ import { Label } from "@educore/ui/label";
 import { Select } from "@educore/ui/select";
 import { ConfirmAction } from "@/components/form/confirm-action";
 import { FormDialog } from "@/components/form/form-dialog";
-import { copySchedule } from "./actions";
+import { copySchedule } from "../actions";
 
 /** Fill this term's schedule from another term (replacing what's there, after confirmation). */
 export function CopyScheduleButton({ toTerm, terms, hasAmounts }: { toTerm: { id: string; name: string }; terms: { id: string; name: string }[]; hasAmounts: boolean }) {

@@ -8,6 +8,7 @@ import { Badge } from "@educore/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { StudentAttendanceCard } from "@/components/attendance/student-attendance-card";
 import { StudentResultsCard } from "@/components/results/student-results-card";
+import { StudentFeesCard } from "@/components/fees/student-fees-card";
 import { AccountStatusBadge } from "@/components/people/account-status-badge";
 import { PageHeader } from "@/components/page-header";
 import { formatDateOnly } from "@/lib/format";
@@ -199,6 +200,9 @@ export default async function StudentProfilePage({ params }: { params: { id: str
             settings={settings}
           />
         ) : null}
+
+        {/* Families get their own fees page (3.3); here it's for finance staff and admins. */}
+        {can(user.role, "feeStructure", "read") && user.role !== Role.PLATFORM_ADMIN ? <StudentFeesCard db={db} studentId={student.id} settings={settings} /> : null}
       </div>
     </div>
   );

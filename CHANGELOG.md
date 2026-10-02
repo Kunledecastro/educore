@@ -10,6 +10,75 @@ discounts per student (% or fixed, whole bill or one item); optional items
 opt-in per student per term; parents pay online with **Paystack** (test
 mode) in 3.3, alongside bursar-recorded cash/transfer/POS/cheque payments.
 
+### Added (milestones 3.1 invoicing and 3.2 payments & receipts, 2026-10-02)
+
+- **Invoices** (`/fees`, now the first Fees tab): per-term totals (billed,
+  collected with collection rate, outstanding, overdue) and a list with
+  search (invoice no., student, admission no.), class and status filters
+  (not fully paid, overdue, unpaid, part paid, paid, cancelled), sorting,
+  pagination and CSV/Excel export.
+- **Bill the term** (`/fees/billing`): per class, students, already billed,
+  to bill and the amount — worked out exactly as the invoices will be —
+  then a due date and one confirmation. Runs in the background (Inngest,
+  50 students per step) with live progress; re-running only bills students
+  who still have no invoice for the term, so it's safe after admissions.
+- **Invoice page**: lines (fees, "Less:" discounts, adjustments), total, paid,
+  balance; payments with receipts; **add adjustment** (extra charge, or a
+  credit with a minus sign); **cancel** (only with nothing paid, reason
+  required — the student can then be billed again); **invoice PDF**.
+- **Record payment** (bursar): amount (defaults to the balance), date, cash /
+  bank transfer / POS / cheque, reference (required except for cash), note.
+  Never more than the balance; a reference already recorded is refused.
+  Every payment gets a **receipt number** (`RCT-2026-00001`) and a
+  **receipt PDF** (A5).
+- **Reverse a payment** (bounced transfer, mistake): reason required; the
+  original stays, a reversal row is added, the balance goes back up.
+- **Payments** (`/payments`): every payment and reversal for today / this
+  week / this month / all time with the net total, search, method filter,
+  export; **bank-statement import** (CSV: amount, date, reference, invoice
+  no. or admission no. — the oldest unpaid invoice is used), with the usual
+  validation report; a re-imported statement never pays twice.
+- Invoice numbers `INV-2026-00001` and receipt numbers per school and year,
+  gap-free; prefixes are school settings (`invoicePrefix`, `receiptPrefix`),
+  default due date = term start (or today) + `paymentTermDays` (14).
+- Student profile: **Fees** card (balance owed, recent invoices) for finance
+  staff and admins. Dashboards: admin — fees collected this term "X of Y";
+  bursar — collected this term, outstanding, overdue, collected today;
+  parent — fees due is now the real outstanding balance.
+- DECISION (segregation of duties): school admins see every payment but only
+  the bursar (ACCOUNTANT) records, reverses or imports payments. One-line
+  change in `packages/auth/src/permissions.ts` if a school wants otherwise.
+- ASSUMPTIONS: overpayment isn't accepted on an invoice (a family paying
+  two invoices records two payments); student credit balances come with
+  online payments in 3.3. Invoices are issued directly (no draft step) —
+  the billing preview is the review; a wrong invoice is cancelled and re-billed.
+- Greenfield demo: the 11 unpaid pre-Phase-3 tuition-only demo invoices were
+  cancelled (audited) so First term can be billed from the schedule; the one
+  paid example stays as history.
+
+### Security (milestones 3.1 / 3.2)
+
+- Migration `0015_invoices_payments` (additive): invoices gain term, discount
+  total, amount paid, cancellation, billing run; **one live invoice per
+  student per term** (partial unique index); money CHECKs (paid ≤ total,
+  cancelled ⇒ nothing paid); invoice lines carry kind / fee item / discount;
+  payments gain kind (PAYMENT / REVERSAL), student, reversal link (once),
+  recorder; **payments are append-only for the app role** (UPDATE and
+  DELETE revoked); `number_sequences` and `billing_runs` with forced RLS.
+- Money changes lock the invoice row first (`SELECT … FOR UPDATE`): two
+  bursars paying the same balance at once — exactly one succeeds (tested).
+- Invoice and receipt PDFs and the invoice page use the student row scope
+  (ready for parents in 3.3); other families' ids answer 404.
+- Tests: `lib/invoicing.ts` (12 unit tests); **22 integration tests against
+  a real Postgres** (`invoicing.integration.test.ts`): billing maths, gap-free
+  numbers, no double billing (also across re-runs), one-off items once,
+  payments/receipts, overpayment and future-date refusal, concurrent
+  payments, reversal once, append-only payments, adjustments, cancellation and
+  re-billing, statement import (balances across rows, duplicates, re-import),
+  and tenant isolation for invoices, payments, counters and billing runs.
+  The `packages/db` tenant-isolation suite now also runs locally (29 passing).
+  RBAC tests for invoices and payments.
+
 ### Added (milestone 3.0 — fee setup, 2026-10-02)
 
 - **Fees** area for school admins and accountants (`/fees`), five tabs:

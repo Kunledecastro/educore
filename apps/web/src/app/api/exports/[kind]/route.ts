@@ -13,6 +13,11 @@ import { NotFoundError } from "@/lib/run-action";
 import { resolveTermRange } from "@/lib/term-range";
 import { loadGradebook } from "@/lib/gradebook";
 import { STUDENT_STATUSES } from "@/lib/validation/people";
+import { feeTerms } from "@/lib/fees-data";
+import { toMinor } from "@/lib/fees";
+import { invoiceListQuery } from "@/lib/invoice-list";
+import { displayStatus, type StoredInvoiceStatus } from "@/lib/invoicing";
+import { paymentListQuery } from "@/lib/payment-list";
 
 export const dynamic = "force-dynamic";
 
@@ -150,6 +155,62 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
           r.total.total ?? "",
           r.grade?.grade ?? "",
           r.grade?.remark ?? "",
+        ]),
+      };
+    },
+  },
+  invoices: {
+    permission: "invoice",
+    async build(ctx, sp) {
+      const settings = await getSettingsForUser(ctx.user.tenantId ?? null);
+      const today = todayInTimeZone(settings.timezone);
+      const { selected: term } = await feeTerms(ctx.db, settings.timezone, sp.get("term") ?? undefined);
+      if (!term) throw new NotFoundError();
+      const { where, orderBy } = await invoiceListQuery(ctx.db, sp, { termId: term.id, academicYearId: term.academicYearId, today, scope: await studentScopeFor(ctx) });
+      const invoices = await ctx.db.invoice.findMany({
+        where,
+        orderBy,
+        take: MAX_EXPORT_ROWS,
+        include: { student: { select: { admissionNo: true, firstName: true, lastName: true, class: { select: { name: true } }, section: { select: { name: true } } } } },
+      });
+      const money = (v: { toString(): string }) => ((toMinor(v) ?? 0) / 100).toFixed(2);
+      return {
+        sheetName: "Invoices",
+        headers: ["invoice_no", "admission_no", "first_name", "last_name", "class", "section", "term", "issue_date", "due_date", "subtotal", "discounts", "total", "paid", "balance", "status"],
+        rows: invoices.map((i) => {
+          const balance = i.status === "CANCELLED" ? 0 : (toMinor(i.totalDue) ?? 0) - (toMinor(i.amountPaid) ?? 0);
+          return [
+            i.invoiceNo, i.student.admissionNo, i.student.firstName, i.student.lastName, i.student.class?.name, i.student.section?.name, term.name,
+            iso(i.issueDate), iso(i.dueDate), money(i.subtotal), money(i.discountTotal), money(i.totalDue), money(i.amountPaid), (balance / 100).toFixed(2),
+            displayStatus({ status: i.status as StoredInvoiceStatus, dueDate: i.dueDate }, today).toLowerCase(),
+          ];
+        }),
+      };
+    },
+  },
+  payments: {
+    permission: "payment",
+    async build(ctx, sp) {
+      const settings = await getSettingsForUser(ctx.user.tenantId ?? null);
+      const { where, orderBy } = paymentListQuery(sp, todayInTimeZone(settings.timezone));
+      const payments = await ctx.db.payment.findMany({
+        where,
+        orderBy,
+        take: MAX_EXPORT_ROWS,
+        include: {
+          student: { select: { admissionNo: true, firstName: true, lastName: true } },
+          invoice: { select: { invoiceNo: true } },
+          recordedBy: { select: { name: true } },
+          reverses: { select: { receiptNo: true } },
+        },
+      });
+      // Column names match the bank-statement import where they overlap.
+      return {
+        sheetName: "Payments",
+        headers: ["date", "receipt_no", "kind", "invoice_no", "admission_no", "first_name", "last_name", "amount", "method", "reference", "note", "recorded_by"],
+        rows: payments.map((p) => [
+          iso(p.paidAt), p.receiptNo ?? p.reverses?.receiptNo ?? "", p.kind.toLowerCase(), p.invoice.invoiceNo, p.student.admissionNo, p.student.firstName, p.student.lastName,
+          p.amount.toFixed(2), p.method.toLowerCase(), p.reference, p.note, p.recordedBy?.name ?? "",
         ]),
       };
     },

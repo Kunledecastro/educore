@@ -91,7 +91,7 @@ export const PERMISSION_MATRIX: Matrix = {
     announcement: CRUDE,
     feeStructure: CRUDE,
     invoice: [...CRUDE, "import"],
-    payment: RE,
+    payment: RE, // sees every payment; recording and reversing money is the bursar's job (segregation of duties)
     message: RW,
     auditLog: R, // read-only, immutable — even for SCHOOL_ADMIN
     onboarding: ["read", "update"], // setup checklist on the dashboard; update = hide/show it
@@ -104,7 +104,7 @@ export const PERMISSION_MATRIX: Matrix = {
     guardian: R,
     feeStructure: CRUDE,
     invoice: [...CRUDE, "import"],
-    payment: [...RW, "export"],
+    payment: [...RW, "export", "import"], // records payments and reversals; imports bank statements
     announcement: R,
     auditLog: R,
   },

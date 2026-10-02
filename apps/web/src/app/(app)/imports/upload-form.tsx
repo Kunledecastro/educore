@@ -12,7 +12,7 @@ import { Select } from "@educore/ui/select";
 import { FormField } from "@/components/form/form-field";
 import { uploadImport } from "./actions";
 
-const SLUG = { STUDENTS: "students", STAFF: "staff", CLASSES: "classes" } as const;
+const SLUG = { STUDENTS: "students", STAFF: "staff", CLASSES: "classes", PAYMENTS: "payments" } as const;
 
 export function UploadCard({
   kind,
@@ -20,7 +20,7 @@ export function UploadCard({
   years,
   defaultYearId,
 }: {
-  kind: "STUDENTS" | "STAFF" | "CLASSES";
+  kind: "STUDENTS" | "STAFF" | "CLASSES" | "PAYMENTS";
   needsYear: boolean;
   years: { id: string; name: string; isActive: boolean }[];
   defaultYearId: string | null;

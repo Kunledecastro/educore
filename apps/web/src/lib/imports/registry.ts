@@ -1,4 +1,5 @@
 import { classesImporter } from "./importers/classes";
+import { paymentsImporter } from "./importers/payments";
 import { staffImporter } from "./importers/staff";
 import { studentsImporter } from "./importers/students";
 import type { ImportKindKey, Importer } from "./types";
@@ -8,6 +9,7 @@ export const IMPORTERS: Record<ImportKindKey, Importer<any, any>> = {
   STUDENTS: studentsImporter,
   STAFF: staffImporter,
   CLASSES: classesImporter,
+  PAYMENTS: paymentsImporter,
 };
 
 export const IMPORT_KINDS = Object.keys(IMPORTERS) as ImportKindKey[];

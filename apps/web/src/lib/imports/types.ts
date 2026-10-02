@@ -2,7 +2,7 @@ import type { Action, Resource } from "@educore/auth";
 import type { PrismaClient } from "@educore/db";
 import type { ColumnDef } from "./csv";
 
-export type ImportKindKey = "STUDENTS" | "STAFF" | "CLASSES";
+export type ImportKindKey = "STUDENTS" | "STAFF" | "CLASSES" | "PAYMENTS";
 
 /**
  * One problem with one row. `message` is an i18n key (validation.* or

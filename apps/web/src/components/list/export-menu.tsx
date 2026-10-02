@@ -7,7 +7,7 @@ import { Button } from "@educore/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@educore/ui/dropdown-menu";
 
 /** "Export ▾ CSV / Excel" — passes the page's current search and filters, so you export what you see. */
-export function ExportMenu({ kind }: { kind: "students" | "staff" | "parents" }) {
+export function ExportMenu({ kind }: { kind: "students" | "staff" | "parents" | "invoices" | "payments" }) {
   const t = useTranslations("imports");
   const searchParams = useSearchParams();
   const href = (format: "csv" | "xlsx") => {

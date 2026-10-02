@@ -49,10 +49,10 @@ export function CancelImportButton({ jobId }: { jobId: string }) {
   );
 }
 
-export function UploadAgainLink() {
+export function UploadAgainLink({ href = "/imports" }: { href?: string }) {
   const t = useTranslations("imports.report");
   return (
-    <Link href="/imports" className={buttonVariants({ variant: "ghost" })}>
+    <Link href={href} className={buttonVariants({ variant: "ghost" })}>
       <Upload className="h-4 w-4" aria-hidden="true" />
       {t("uploadAnother")}
     </Link>

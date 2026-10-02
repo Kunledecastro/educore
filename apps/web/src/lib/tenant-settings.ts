@@ -40,6 +40,9 @@ export const DEFAULT_TENANT_SETTINGS = {
   dateStyle: "medium",
   gradingScale: "letter",
   features: {} as Record<string, boolean>,
+  invoicePrefix: "INV",
+  receiptPrefix: "RCT",
+  paymentTermDays: 14,
 } as const;
 
 export const tenantSettingsSchema = z.object({
@@ -67,6 +70,11 @@ export const tenantSettingsSchema = z.object({
   gradingScale: z.string().catch(DEFAULT_TENANT_SETTINGS.gradingScale).default(DEFAULT_TENANT_SETTINGS.gradingScale),
   /** Per-school feature switches (plan limits land in Phase 4). */
   features: z.record(z.boolean()).catch({}).default({}),
+  /** Invoice and receipt number prefixes: INV-2026-00001, RCT-2026-00001. */
+  invoicePrefix: z.string().regex(/^[A-Z0-9]{1,8}$/).catch(DEFAULT_TENANT_SETTINGS.invoicePrefix).default(DEFAULT_TENANT_SETTINGS.invoicePrefix),
+  receiptPrefix: z.string().regex(/^[A-Z0-9]{1,8}$/).catch(DEFAULT_TENANT_SETTINGS.receiptPrefix).default(DEFAULT_TENANT_SETTINGS.receiptPrefix),
+  /** Default days from billing to the due date. */
+  paymentTermDays: z.number().int().min(0).max(120).catch(DEFAULT_TENANT_SETTINGS.paymentTermDays).default(DEFAULT_TENANT_SETTINGS.paymentTermDays),
 });
 
 export type TenantSettings = z.infer<typeof tenantSettingsSchema>;

@@ -20,6 +20,7 @@ export default async function ImportsPage() {
   const [years, jobs] = await Promise.all([
     db.academicYear.findMany({ orderBy: { startDate: "desc" }, select: { id: true, name: true, isActive: true } }),
     db.importJob.findMany({
+      where: { kind: { not: "PAYMENTS" } }, // bank statements are on the Payments page
       orderBy: { createdAt: "desc" },
       take: 20,
       select: {

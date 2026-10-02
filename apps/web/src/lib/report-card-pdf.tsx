@@ -34,6 +34,12 @@ function ensureFonts() {
   fontFamily = "NotoSans";
 }
 
+/** The PDF font family to use (Noto Sans when deployed, else Helvetica). Shared with fee documents. */
+export function pdfFontFamily(): string {
+  ensureFonts();
+  return fontFamily;
+}
+
 const INK = "#1f2937";
 const MUTED = "#6b7280";
 const RULE = "#d1d5db";

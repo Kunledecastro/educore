@@ -6,7 +6,9 @@ import { useTranslations } from "next-intl";
 import { cn } from "@educore/ui/utils";
 
 const TABS = [
-  { href: "/fees", key: "schedule" },
+  { href: "/fees", key: "invoices" },
+  { href: "/fees/billing", key: "billing" },
+  { href: "/fees/schedule", key: "schedule" },
   { href: "/fees/items", key: "items" },
   { href: "/fees/discounts", key: "discounts" },
   { href: "/fees/optional", key: "optional" },
@@ -19,7 +21,7 @@ export function FeesTabs() {
   return (
     <nav aria-label={t("label")} className="-mx-1 mb-6 flex gap-1 overflow-x-auto border-b print:hidden">
       {TABS.map((tab) => {
-        const active = tab.href === "/fees" ? pathname === tab.href : pathname.startsWith(tab.href);
+        const active = tab.href === "/fees" ? pathname === tab.href || pathname.startsWith("/fees/invoices") : pathname.startsWith(tab.href);
         return (
           <Link
             key={tab.href}

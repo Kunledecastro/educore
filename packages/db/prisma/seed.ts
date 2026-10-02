@@ -312,43 +312,7 @@ async function main() {
       }
     }
 
-    const invoice = await prisma.invoice.create({
-      data: {
-        tenantId: tenant.id,
-        studentId: student.id,
-        academicYearId: academicYear.id,
-        invoiceNo: `INV-${admissionNo}`,
-        dueDate: new Date("2026-10-15"),
-        status: i === 0 ? "PAID" : "ISSUED",
-        subtotal: 150000,
-        totalDue: i === 0 ? 0 : 150000,
-        currency: "NGN",
-        lines: {
-          create: [
-            {
-              tenantId: tenant.id,
-              feeStructureId: feeStructure.id,
-              description: "Tuition — Term 1",
-              amount: 150000,
-              quantity: 1,
-            },
-          ],
-        },
-      },
-    });
-
-    if (i === 0) {
-      await prisma.payment.create({
-        data: {
-          tenantId: tenant.id,
-          invoiceId: invoice.id,
-          amount: 150000,
-          method: "BANK_TRANSFER",
-          reference: "SEED-DEMO-0001",
-          receiptNo: "RCPT-0001",
-        },
-      });
-    }
+    // No invoices here: billing the term is part of the demo (Fees → Bill the term).
   }
 
   await prisma.announcement.create({

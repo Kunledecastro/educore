@@ -204,5 +204,26 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     expect(can(Role.ACCOUNTANT, "academicSettings", "read")).toBe(false);
     expect(can(Role.ACCOUNTANT, "classGrade", "update")).toBe(false);
   });
-});
 
+  it("invoices and payments: admins bill and adjust; only the bursar handles money; families only read; nobody deletes a payment", () => {
+    for (const role of [Role.SCHOOL_ADMIN, Role.ACCOUNTANT]) {
+      for (const action of ["create", "read", "update", "export"] as const) expect(can(role, "invoice", action)).toBe(true);
+    }
+    // Segregation of duties: the admin sees payments but doesn't record or reverse them.
+    expect(can(Role.SCHOOL_ADMIN, "payment", "read")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "payment", "create")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "payment", "update")).toBe(false);
+    for (const action of ["create", "read", "update", "export", "import"] as const) expect(can(Role.ACCOUNTANT, "payment", action)).toBe(true);
+    for (const role of Object.values(Role)) {
+      if (role !== Role.PLATFORM_ADMIN) expect(can(role, "payment", "delete"), `${role} must not delete payments`).toBe(false);
+    }
+    for (const role of [Role.PARENT, Role.STUDENT]) {
+      expect(can(role, "invoice", "read")).toBe(true);
+      expect(can(role, "invoice", "update")).toBe(false);
+      expect(can(role, "payment", "update")).toBe(false);
+      expect(can(role, "payment", "import")).toBe(false);
+    }
+    expect(can(Role.TEACHER, "invoice", "read")).toBe(false);
+    expect(can(Role.TEACHER, "payment", "read")).toBe(false);
+  });
+});

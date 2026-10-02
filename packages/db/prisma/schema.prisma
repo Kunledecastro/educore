@@ -79,6 +79,21 @@ enum PaymentMethod {
   BANK_TRANSFER
   CARD
   STRIPE
+  POS
+  CHEQUE
+  PAYSTACK
+}
+
+enum PaymentKind {
+  PAYMENT
+  REVERSAL
+}
+
+enum BillingRunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
 }
 
 enum AnnouncementAudience {
@@ -104,6 +119,7 @@ enum ImportKind {
   STUDENTS
   STAFF
   CLASSES
+  PAYMENTS
 }
 
 enum ImportStatus {
@@ -181,6 +197,8 @@ model Tenant {
   academicSettings     AcademicSettings?
   resultPublications   ResultPublication[]
   reportCardRuns       ReportCardRun[]
+  numberSequences      NumberSequence[]
+  billingRuns          BillingRun[]
 
   @@map("tenants")
 }
@@ -238,6 +256,9 @@ model User {
   importJobs         ImportJob[]         @relation("ImportCreatedBy")
   resultsPublished   ResultPublication[] @relation("ResultPublishedBy")
   reportCardRuns     ReportCardRun[]     @relation("ReportCardRunBy")
+  invoicesCreated    Invoice[]           @relation("InvoiceCreatedBy")
+  paymentsRecorded   Payment[]           @relation("PaymentRecordedBy")
+  billingRuns        BillingRun[]        @relation("BillingRunBy")
 
   @@index([tenantId])
   @@map("users")
@@ -422,6 +443,7 @@ model Student {
   discounts      StudentDiscount[]
   feeSignups     FeeSignup[]
   messageThreads MessageThread[]
+  payments       Payment[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -745,6 +767,7 @@ model FeeType {
   feeStructures FeeStructure[]
   discounts     Discount[]
   signups       FeeSignup[]
+  invoiceLines  InvoiceLine[]
 
   @@unique([tenantId, name])
   @@index([tenantId])
@@ -796,7 +819,8 @@ model Discount {
   isActive  Boolean      @default(true)
   createdAt DateTime     @default(now())
 
-  students StudentDiscount[]
+  students     StudentDiscount[]
+  invoiceLines InvoiceLine[]
 
   @@unique([tenantId, name])
   @@index([tenantId])
@@ -844,6 +868,11 @@ model FeeSignup {
   @@map("fee_signups")
 }
 
+// Phase 3.1: one live (not cancelled) invoice per student per term — a
+// partial unique index in migration 0015. totalDue is the invoice total;
+// amountPaid is the sum of its payments (net of reversals), updated in the
+// same transaction as every payment. Balance = totalDue − amountPaid.
+// OVERDUE is shown, not stored: ISSUED/PARTIALLY_PAID past dueDate.
 model Invoice {
   id             String        @id @default(cuid())
   tenantId       String
@@ -852,23 +881,37 @@ model Invoice {
   student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   academicYearId String
   academicYear   AcademicYear  @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  termId         String?
+  term           Term?         @relation(fields: [termId], references: [id], onDelete: Restrict)
   invoiceNo      String
   issueDate      DateTime      @default(now())
   dueDate        DateTime
   status         InvoiceStatus @default(DRAFT)
   subtotal       Decimal       @db.Decimal(12, 2)
+  discountTotal  Decimal       @default(0) @db.Decimal(12, 2)
   totalDue       Decimal       @db.Decimal(12, 2)
+  amountPaid     Decimal       @default(0) @db.Decimal(12, 2)
   currency       String        @default("NGN")
+  cancelledAt    DateTime?
+  cancelReason   String?
+  billingRunId   String?
+  billingRun     BillingRun?   @relation(fields: [billingRunId], references: [id], onDelete: SetNull)
+  createdById    String?
+  createdBy      User?         @relation("InvoiceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
 
   lines    InvoiceLine[]
   payments Payment[]
 
   @@unique([tenantId, invoiceNo])
   @@index([tenantId])
+  @@index([tenantId, termId, status])
+  @@index([tenantId, studentId])
   @@map("invoices")
 }
 
+// kind: FEE (≥ 0), DISCOUNT (≤ 0) or ADJUSTMENT (either sign) — CHECK in 0015.
 model InvoiceLine {
   id             String        @id @default(cuid())
   tenantId       String
@@ -877,29 +920,90 @@ model InvoiceLine {
   invoice        Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   feeStructureId String?
   feeStructure   FeeStructure? @relation(fields: [feeStructureId], references: [id], onDelete: SetNull)
+  kind           String        @default("FEE")
+  feeTypeId      String?
+  feeType        FeeType?      @relation(fields: [feeTypeId], references: [id], onDelete: SetNull)
+  discountId     String?
+  discount       Discount?     @relation(fields: [discountId], references: [id], onDelete: SetNull)
   description    String
   amount         Decimal       @db.Decimal(12, 2)
   quantity       Int           @default(1)
+  position       Int           @default(0)
 
   @@index([tenantId])
+  @@index([tenantId, invoiceId])
   @@map("invoice_lines")
 }
 
+// Phase 3.2: append-only (the app role has no UPDATE/DELETE grant). A
+// REVERSAL row (negative amount) undoes a PAYMENT, once (reversesId unique).
 model Payment {
   id                    String        @id @default(cuid())
   tenantId              String
   tenant                Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   invoiceId             String
   invoice               Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  studentId             String
+  student               Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind                  PaymentKind   @default(PAYMENT)
   amount                Decimal       @db.Decimal(12, 2)
   method                PaymentMethod
   reference             String?
   receiptNo             String?
+  note                  String?
   stripePaymentIntentId String?       @unique
+  reversesId            String?       @unique
+  reverses              Payment?      @relation("PaymentReversal", fields: [reversesId], references: [id], onDelete: Restrict)
+  reversedBy            Payment?      @relation("PaymentReversal")
+  recordedById          String?
+  recordedBy            User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
   paidAt                DateTime      @default(now())
+  createdAt             DateTime      @default(now())
 
   @@index([tenantId])
+  @@index([tenantId, paidAt])
+  @@index([tenantId, invoiceId])
+  @@index([tenantId, studentId])
   @@map("payments")
+}
+
+// Per-school counters for invoice and receipt numbers (key e.g. "invoice:2026").
+model NumberSequence {
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  key      String
+  value    Int    @default(0)
+
+  @@id([tenantId, key])
+  @@map("number_sequences")
+}
+
+// One background "bill the term" run (3.1), with progress for the UI.
+model BillingRun {
+  id          String           @id @default(cuid())
+  tenantId    String
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  termId      String
+  term        Term             @relation(fields: [termId], references: [id], onDelete: Cascade)
+  classIds    Json             @default("[]")
+  dueDate     DateTime         @db.Date
+  status      BillingRunStatus @default(QUEUED)
+  total       Int              @default(0)
+  done        Int              @default(0)
+  created     Int              @default(0)
+  skipped     Int              @default(0)
+  amount      Decimal          @default(0) @db.Decimal(14, 2)
+  error       String?
+  createdById String?
+  createdBy   User?            @relation("BillingRunBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime         @default(now())
+  finishedAt  DateTime?
+
+  invoices Invoice[]
+
+  @@index([tenantId])
+  @@index([tenantId, termId, createdAt])
+  @@map("billing_runs")
 }
 
 // ---------------------------------------------------------------------------
@@ -988,6 +1092,8 @@ model Term {
   feeStructures    FeeStructure[]
   studentDiscounts StudentDiscount[]
   feeSignups       FeeSignup[]
+  invoices         Invoice[]
+  billingRuns      BillingRun[]
 
   // Also enforced in migration 0009:
   //   - partial unique index: at most one isCurrent = true per tenant

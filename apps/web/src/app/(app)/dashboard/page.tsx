@@ -10,6 +10,7 @@ import { getCurrentTerm } from "@/lib/current-term";
 import { isSchoolDay } from "@/lib/attendance";
 import { incompleteRegisters } from "@/lib/attendance-data";
 import { teacherSectionIds } from "@/lib/teacher-sections";
+import { feeTotals } from "@/lib/fee-summary";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 
@@ -58,10 +59,10 @@ export default async function DashboardPage() {
     }
     case Role.SCHOOL_ADMIN: {
       const today = todayInTimeZone(settings.timezone);
-      const [studentCount, presentToday, feeAgg, registers] = await Promise.all([
+      const [studentCount, presentToday, fees, registers] = await Promise.all([
         db.student.count({ where: { status: "ACTIVE" } }),
         db.attendance.count({ where: { date: today, status: { in: ["PRESENT", "LATE"] } } }),
-        db.payment.aggregate({ _sum: { amount: true } }),
+        term ? feeTotals(db, { termId: term.id }, today) : Promise.resolve(null),
         isSchoolDay(today) ? incompleteRegisters(db, today, "all") : Promise.resolve(null),
       ]);
       stats = [
@@ -71,18 +72,24 @@ export default async function DashboardPage() {
           label: t("registersNotTaken"),
           value: registers ? t("registersValue", { incomplete: registers.incomplete, total: registers.total }) : t("noSchoolToday"),
         },
-        { label: t("feeCollection"), value: money(feeAgg._sum.amount) },
+        {
+          label: t("feeCollectionTerm"),
+          value: fees && fees.count ? t("collectedOf", { paid: money(fees.paid / 100), billed: money(fees.billed / 100) }) : t("notBilledYet"),
+        },
       ];
       break;
     }
     case Role.ACCOUNTANT: {
-      const [outstanding, collected] = await Promise.all([
-        db.invoice.aggregate({ _sum: { totalDue: true }, where: { status: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] } } }),
-        db.payment.aggregate({ _sum: { amount: true } }),
+      const today = todayInTimeZone(settings.timezone);
+      const [fees, collectedToday] = await Promise.all([
+        term ? feeTotals(db, { termId: term.id }, today) : Promise.resolve(null),
+        db.payment.aggregate({ _sum: { amount: true }, where: { paidAt: today } }),
       ]);
       stats = [
-        { label: t("outstandingFees"), value: money(outstanding._sum.totalDue) },
-        { label: t("feeCollection"), value: money(collected._sum.amount) },
+        { label: t("feeCollectionTerm"), value: fees && fees.count ? t("collectedOf", { paid: money(fees.paid / 100), billed: money(fees.billed / 100) }) : t("notBilledYet") },
+        { label: t("outstandingFees"), value: money((fees?.outstanding ?? 0) / 100) },
+        { label: t("overdueFees"), value: money((fees?.overdue ?? 0) / 100) },
+        { label: t("collectedToday"), value: money(collectedToday._sum.amount) },
       ];
       break;
     }
@@ -108,12 +115,10 @@ export default async function DashboardPage() {
       });
       const childCount = guardian?.students.length ?? 0;
       const studentIds = guardian?.students.map((s) => s.studentId) ?? [];
-      const feesDue = studentIds.length
-        ? await db.invoice.aggregate({ _sum: { totalDue: true }, where: { studentId: { in: studentIds } } })
-        : { _sum: { totalDue: null } };
+      const fees = studentIds.length ? await feeTotals(db, { studentId: { in: studentIds } }, todayInTimeZone(settings.timezone)) : null;
       stats = [
         { label: t("childrenOverview"), value: childCount },
-        { label: t("feesDue"), value: money(feesDue._sum.totalDue) },
+        { label: t("feesDue"), value: money((fees?.outstanding ?? 0) / 100) },
       ];
       break;
     }

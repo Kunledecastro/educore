@@ -11,7 +11,7 @@ import { cn } from "@educore/ui/utils";
 import { useServerForm } from "@/components/form/use-server-form";
 import { toMinor } from "@/lib/fees";
 import type { ScheduleInput } from "@/lib/validation/fees";
-import { saveSchedule } from "./actions";
+import { saveSchedule } from "../actions";
 
 type Item = { id: string; name: string; isOptional: boolean; isOneOff: boolean; isActive: boolean };
 type ClassCol = { id: string; name: string; students: number };

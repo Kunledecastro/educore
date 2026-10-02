@@ -8,6 +8,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     // Playwright specs live in tests/e2e and run with `pnpm test:e2e`, not Vitest.
-    exclude: ["tests/e2e/**", "node_modules/**", ".next/**"],
+    // *.integration.test.ts need a real Postgres: `pnpm test:integration`.
+    exclude: ["tests/e2e/**", "node_modules/**", ".next/**", "src/**/*.integration.test.ts"],
   },
 });

@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/guard";
 
 export const dynamic = "force-dynamic";
 
-const KIND_BY_SLUG = { students: "STUDENTS", staff: "STAFF", classes: "CLASSES" } as const;
+const KIND_BY_SLUG = { students: "STUDENTS", staff: "STAFF", classes: "CLASSES", payments: "PAYMENTS" } as const;
 
 /** GET /api/imports/template/{students|staff|classes} — header row + one example row. */
 export async function GET(_req: Request, { params }: { params: { kind: string } }) {

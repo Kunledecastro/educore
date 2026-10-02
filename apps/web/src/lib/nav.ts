@@ -41,6 +41,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
+      { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
     );
   }

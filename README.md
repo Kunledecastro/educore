@@ -95,7 +95,16 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   `toMinor()` and compute in integer minor units (kobo/cents) with
   `lib/fees.ts`; store with `fromMinor()`; display with `formatMoney()`.
   What a student is billed for a term comes only from `computeBill()` via
-  `billFor()` (`lib/fees-data.ts`) — invoicing (3.1) uses the same path.
+  `billsFor()` (`lib/fees-data.ts`) — the bill preview, the billing preview
+  and the background billing run all use it.
+- **Invoices and payments** are written only through `lib/invoice-writer.ts`
+  (`createInvoice`, `recordPayment`, `reversePayment`, `cancelInvoice`,
+  `addAdjustment`) inside the school's RLS transaction: it locks the invoice
+  row, issues gap-free numbers from `number_sequences`, recomputes
+  `amountPaid`/status from the payments and writes the audit entry. Rules are
+  pure in `lib/invoicing.ts`. Payments are append-only in the database (the
+  app role has no UPDATE/DELETE): a mistake is undone with a reversal row.
+  OVERDUE is derived (`displayStatus`), never stored.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 
@@ -174,15 +183,22 @@ shares the password `Passw0rd!23`.
 | Platform admin | `platform.admin@educore.dev` |
 | School admin | `admin@greenfield.edu` |
 | Teacher | `c.eze@greenfield.edu` |
-| Bursar (accountant) | `bursar@greenfield.edu` |
+| Bursar (accountant) | `bursar@greenfield.edu` — fees, billing, payments |
 | Parent | `parent@example.com` |
 
 ## Tests
 
 ```bash
 pnpm test          # Vitest — RBAC permission matrix, tenant-isolation, business logic
+pnpm --filter web test:integration   # invoicing & payments end to end (needs DATABASE_URL)
 pnpm test:e2e       # Playwright — login + dashboard smoke tests
 ```
+
+Database-backed suites (`packages/db/tests/*`, `apps/web/src/**/*.integration.test.ts`)
+need a Postgres with every migration in `packages/db/prisma/migrations`
+applied, reached through `DATABASE_URL` as the database owner. A throwaway
+local Postgres 16 is enough: `createdb educore_test`, then
+`for f in packages/db/prisma/migrations/0*/migration.sql; do psql educore_test -f "$f"; done`.
 
 The tenant-isolation suite (`packages/db/tests/tenant-isolation.test.ts`) is
 the most important test in this repo: it proves Tenant A cannot read or

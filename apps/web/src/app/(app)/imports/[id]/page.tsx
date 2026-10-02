@@ -40,6 +40,8 @@ export default async function ImportReportPage({ params }: { params: { id: strin
     getTranslations("roles"),
     getSettingsForUser(ctx.user.tenantId ?? null),
   ]);
+  // Bank-statement imports live on the Payments page (finance staff can't open /imports).
+  const home = job.kind === "PAYMENTS" ? "/payments" : "/imports";
   const yearId = (job.options as ImportOptions).academicYearId;
   const year = yearId ? await ctx.db.academicYear.findUnique({ where: { id: yearId }, select: { name: true } }) : null;
 
@@ -117,9 +119,9 @@ export default async function ImportReportPage({ params }: { params: { id: strin
   return (
     <div className="space-y-6">
       <AutoRefresh active={running} />
-      <Link href="/imports" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link href={home} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        {t("report.back")}
+        {job.kind === "PAYMENTS" ? t("report.backPayments") : t("report.back")}
       </Link>
       <PageHeader
         title={`${t(`kinds.${job.kind}`)} · ${job.fileName}`}
@@ -152,7 +154,7 @@ export default async function ImportReportPage({ params }: { params: { id: strin
           ) : null}
           <div className="flex flex-wrap gap-2">
             {job.validRows > 0 ? <StartImportButton jobId={job.id} count={job.validRows} /> : null}
-            <UploadAgainLink />
+            <UploadAgainLink href={home} />
             <CancelImportButton jobId={job.id} />
           </div>
           {issueTable(validationIssues, t("report.issuesTitle"))}
@@ -194,7 +196,7 @@ export default async function ImportReportPage({ params }: { params: { id: strin
               {stat(t("report.failed"), n(job.failedRows), job.failedRows ? "warn" : undefined)}
             </div>
           ) : null}
-          <UploadAgainLink />
+          <UploadAgainLink href={home} />
           {job.status === "COMPLETED" ? issueTable(importIssues, t("report.importIssuesTitle")) : null}
           {validationIssues.length ? issueTable(validationIssues, t("report.issuesTitle")) : null}
         </>

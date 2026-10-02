@@ -71,53 +71,79 @@ export function toDiscountRule(d: { id: string; name: string; kind: "PERCENT" | 
 }
 
 /**
- * What a student would be billed for a term, from the schedule of their
+ * What students would be billed for a term, from the schedule of their
  * class, their optional sign-ups, one-off items already invoiced to them,
- * and their discounts in force that term. Null if the student isn't found
- * or isn't in a class of that term's year.
+ * and their discounts in force that term. Students not in a class of that
+ * term's year are left out. Bulk: a fixed number of queries for any number
+ * of students — used by the bill preview, the billing preview and the
+ * background billing run alike, so all three always agree.
  */
+export async function billsFor(
+  db: TenantScopedClient,
+  term: { id: string; academicYearId: string },
+  studentIds: string[],
+): Promise<Map<string, Bill & { classId: string }>> {
+  const out = new Map<string, Bill & { classId: string }>();
+  if (studentIds.length === 0) return out;
+  const students = await db.student.findMany({
+    where: { id: { in: studentIds }, class: { academicYearId: term.academicYearId } },
+    select: { id: true, classId: true },
+  });
+  const classIds = [...new Set(students.flatMap((s) => (s.classId ? [s.classId] : [])))];
+  const ids = students.map((s) => s.id);
+
+  const [schedule, signups, billedLines, assigned] = await Promise.all([
+    db.feeStructure.findMany({
+      where: { termId: term.id, classId: { in: classIds }, feeType: { isActive: true } },
+      select: { classId: true, amount: true, feeType: { select: { id: true, name: true, isOptional: true, isOneOff: true, order: true } } },
+    }),
+    db.feeSignup.findMany({ where: { termId: term.id, studentId: { in: ids } }, select: { studentId: true, feeTypeId: true } }),
+    db.invoiceLine.findMany({
+      where: { kind: "FEE", invoice: { studentId: { in: ids }, status: { not: "CANCELLED" } }, feeType: { isOneOff: true } },
+      select: { feeTypeId: true, invoice: { select: { studentId: true } } },
+    }),
+    db.studentDiscount.findMany({
+      where: { studentId: { in: ids }, academicYearId: term.academicYearId, discount: { isActive: true } },
+      select: { studentId: true, termId: true, academicYearId: true, discount: { select: { id: true, name: true, kind: true, value: true, feeTypeId: true } } },
+    }),
+  ]);
+
+  const itemsByClass = new Map<string, ScheduleItem[]>();
+  for (const s of [...schedule].sort((a, b) => a.feeType.order - b.feeType.order || a.feeType.name.localeCompare(b.feeType.name))) {
+    const list = itemsByClass.get(s.classId!) ?? [];
+    list.push({ feeTypeId: s.feeType.id, name: s.feeType.name, amountMinor: toMinor(s.amount) ?? 0, isOptional: s.feeType.isOptional, isOneOff: s.feeType.isOneOff });
+    itemsByClass.set(s.classId!, list);
+  }
+  const group = <T,>(rows: T[], key: (r: T) => string) => {
+    const m = new Map<string, T[]>();
+    for (const r of rows) m.set(key(r), [...(m.get(key(r)) ?? []), r]);
+    return m;
+  };
+  const signupsBy = group(signups, (r) => r.studentId);
+  const billedBy = group(billedLines, (r) => r.invoice.studentId);
+  const discountsBy = group(assigned, (r) => r.studentId);
+
+  for (const st of students) {
+    if (!st.classId) continue;
+    // The same discount assigned for the term AND the year still applies once.
+    const discounts = new Map<string, DiscountRule>();
+    for (const a of discountsBy.get(st.id) ?? []) if (discountAppliesToTerm(a, term)) discounts.set(a.discount.id, toDiscountRule(a.discount));
+    const bill = computeBill({
+      items: itemsByClass.get(st.classId) ?? [],
+      signedUp: new Set((signupsBy.get(st.id) ?? []).map((s) => s.feeTypeId)),
+      alreadyBilledOneOff: new Set((billedBy.get(st.id) ?? []).flatMap((l) => (l.feeTypeId ? [l.feeTypeId] : []))),
+      discounts: [...discounts.values()],
+    });
+    out.set(st.id, { ...bill, classId: st.classId });
+  }
+  return out;
+}
+
+/** One student's bill for a term (see billsFor). Null if they aren't in a class of that year. */
 export async function billFor(
   db: TenantScopedClient,
   studentId: string,
   term: { id: string; academicYearId: string },
 ): Promise<(Bill & { classId: string }) | null> {
-  const student = await db.student.findFirst({ where: { id: studentId }, select: { id: true, classId: true, class: { select: { academicYearId: true } } } });
-  if (!student?.classId || student.class?.academicYearId !== term.academicYearId) return null;
-
-  const [schedule, signups, billedLines, assigned] = await Promise.all([
-    db.feeStructure.findMany({
-      where: { termId: term.id, classId: student.classId, feeType: { isActive: true } },
-      select: { amount: true, feeType: { select: { id: true, name: true, isOptional: true, isOneOff: true, order: true } } },
-    }),
-    db.feeSignup.findMany({ where: { termId: term.id, studentId }, select: { feeTypeId: true } }),
-    db.invoiceLine.findMany({
-      where: { invoice: { studentId, status: { not: "CANCELLED" } }, feeStructure: { feeType: { isOneOff: true } } },
-      select: { feeStructure: { select: { feeTypeId: true } } },
-    }),
-    db.studentDiscount.findMany({
-      where: { studentId, academicYearId: term.academicYearId, discount: { isActive: true } },
-      select: { termId: true, academicYearId: true, discount: { select: { id: true, name: true, kind: true, value: true, feeTypeId: true } } },
-    }),
-  ]);
-
-  const items: ScheduleItem[] = schedule
-    .sort((a, b) => a.feeType.order - b.feeType.order || a.feeType.name.localeCompare(b.feeType.name))
-    .map((s) => ({
-      feeTypeId: s.feeType.id,
-      name: s.feeType.name,
-      amountMinor: toMinor(s.amount) ?? 0,
-      isOptional: s.feeType.isOptional,
-      isOneOff: s.feeType.isOneOff,
-    }));
-  // The same discount assigned for the term AND the year still applies once.
-  const discounts = new Map<string, DiscountRule>();
-  for (const a of assigned) if (discountAppliesToTerm(a, term)) discounts.set(a.discount.id, toDiscountRule(a.discount));
-
-  const bill = computeBill({
-    items,
-    signedUp: new Set(signups.map((s) => s.feeTypeId)),
-    alreadyBilledOneOff: new Set(billedLines.flatMap((l) => (l.feeStructure ? [l.feeStructure.feeTypeId] : []))),
-    discounts: [...discounts.values()],
-  });
-  return { ...bill, classId: student.classId };
+  return (await billsFor(db, term, [studentId])).get(studentId) ?? null;
 }

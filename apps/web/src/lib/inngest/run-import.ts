@@ -136,5 +136,7 @@ export const runImport = inngest.createFunction(
 
 // Every background function is registered once, in app/api/inngest/route.ts via FUNCTIONS.
 export { generateReportCards } from "./generate-report-cards";
+export { billTerm } from "./bill-term";
+import { billTerm } from "./bill-term";
 import { generateReportCards } from "./generate-report-cards";
-export const FUNCTIONS = [runImport, generateReportCards];
+export const FUNCTIONS = [runImport, generateReportCards, billTerm];
