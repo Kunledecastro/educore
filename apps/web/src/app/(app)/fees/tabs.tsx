@@ -8,6 +8,7 @@ import { cn } from "@educore/ui/utils";
 const TABS = [
   { href: "/fees", key: "invoices" },
   { href: "/fees/billing", key: "billing" },
+  { href: "/fees/reports", key: "reports" },
   { href: "/fees/schedule", key: "schedule" },
   { href: "/fees/items", key: "items" },
   { href: "/fees/discounts", key: "discounts" },

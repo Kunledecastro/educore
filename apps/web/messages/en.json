@@ -1201,7 +1201,8 @@
       "optional": "Optional items",
       "preview": "Bill preview",
       "invoices": "Invoices",
-      "billing": "Bill the term"
+      "billing": "Bill the term",
+      "reports": "Reports"
     },
     "errors": {
       "invalidAmount": "Enter an amount like 150000 or 150,000.50",
@@ -1580,6 +1581,78 @@
       "balanceAfter": "Balance after",
       "recordedBy": "Received by",
       "reversedStamp": "REVERSED — this payment was undone"
+    },
+    "online": {
+      "title": "Pay online · {number}",
+      "pay": "Pay online",
+      "amount": "Amount to pay",
+      "amountHint": "Balance: {balance}. You can pay part of it.",
+      "explain": "You'll go to Paystack's secure page to pay by card, bank transfer or USSD, then come back here. Your receipt appears as soon as Paystack confirms the payment.",
+      "continue": "Continue to Paystack",
+      "redirecting": "Taking you to Paystack…",
+      "errors": {
+        "parentsOnly": "Only parents can pay online.",
+        "notConfigured": "Online payment isn't switched on for this school yet. Please pay at the bursary.",
+        "cancelled": "This invoice is cancelled.",
+        "currency": "Online payment isn't available in {currency}.",
+        "invalid": "Enter a valid amount",
+        "tooSmall": "The smallest online payment is ₦100",
+        "moreThanBalance": "That's more than the balance on this invoice",
+        "startFailed": "We couldn't reach Paystack just now. Please try again in a minute.",
+        "checkFailed": "Couldn't reach Paystack just now. Try again shortly."
+      },
+      "outcome": {
+        "paid": "Payment received — thank you. Your receipt is below.",
+        "pending": "Paystack hasn't confirmed this payment yet. It will appear here as soon as it does.",
+        "failed": "The payment didn't go through. No money was taken; you can try again.",
+        "abandoned": "The payment was cancelled before it finished. You can try again.",
+        "review": "Paystack took the payment, but it couldn't be applied automatically (for example, the invoice was already settled). The bursary has been alerted and will sort it out.",
+        "unknown": "We couldn't find that payment. If money left your account, contact the bursary with your Paystack receipt.",
+        "checking": "We're confirming your payment with Paystack. Check back in a few minutes."
+      }
+    },
+    "family": {
+      "title": "Fees",
+      "descriptionParent": "Your children's invoices and payments. Pay online or at the bursary.",
+      "descriptionStudent": "Your invoices and payments.",
+      "emptyTitle": "No invoices yet",
+      "emptyDescription": "When the school bills the term, the invoices appear here.",
+      "owed": "Owed now",
+      "due": "due {date}",
+      "summary": "Total {total} · paid {paid}",
+      "downloadInvoice": "Download invoice {number}",
+      "recentPayments": "Recent payments",
+      "receipt": "Receipt {number}",
+      "payAtBursary": "Online payment isn't switched on for this school yet — please pay at the bursary and keep your receipt."
+    },
+    "reports": {
+      "noTermsTitle": "No terms yet",
+      "noTermsDescription": "Add the terms of your academic year in Settings first.",
+      "term": "Term",
+      "emptyTitle": "Nothing billed for {term} yet",
+      "emptyDescription": "Reports fill in once the term is billed.",
+      "byClass": "By class",
+      "class": "Class",
+      "invoices": "Invoices",
+      "billed": "Billed",
+      "collected": "Collected",
+      "outstanding": "Outstanding",
+      "rate": "Collected %",
+      "daily": "Money in, last 30 days",
+      "dailyCaption": "Payments received per day over the last 30 days, net of reversals",
+      "date": "Date",
+      "amount": "Amount",
+      "byMethod": "By payment method (this term)",
+      "method": "Method",
+      "entries": "Entries",
+      "noPayments": "No payments yet this term.",
+      "debtors": "Largest balances",
+      "debtorsIntro": "The 15 largest unpaid balances this term. Export gives the full list with parents' contacts.",
+      "noDebtors": "Nobody owes anything for this term.",
+      "student": "Student",
+      "invoice": "Invoice",
+      "balance": "Balance",
+      "overdue": "overdue"
     }
   },
   "payments": {
@@ -1619,6 +1692,35 @@
     "amount": "Amount",
     "system": "Automatic",
     "reversalOf": "Reversal of {receipt}",
-    "reversed": "(reversed)"
+    "reversed": "(reversed)",
+    "online": {
+      "title": "Online payments needing attention",
+      "intro": "Paystack took these payments but they couldn't be applied automatically, or they're still unconfirmed after 30 minutes. Check again, or settle them by hand (record the payment on another invoice, or refund it in Paystack).",
+      "reasons": {
+        "amountMismatch": "Amount paid differs from the amount asked",
+        "currencyMismatch": "Paid in a different currency",
+        "referenceMismatch": "Reference mismatch",
+        "invoicePaid": "Invoice was already fully paid",
+        "moreThanBalance": "More than the invoice's balance by the time it arrived",
+        "invoiceCancelled": "Invoice was cancelled",
+        "futureDate": "Payment date problem",
+        "notPositive": "Invalid amount",
+        "other": "Needs a look"
+      },
+      "status": {
+        "PENDING": "Unconfirmed",
+        "NEEDS_REVIEW": "Needs review"
+      },
+      "checkAgain": "Check again",
+      "checking": "Checking…",
+      "recheck": {
+        "paid": "Confirmed — payment recorded",
+        "pending": "Still waiting for Paystack",
+        "failed": "Paystack says it failed",
+        "abandoned": "The parent didn't finish paying",
+        "review": "Paid, but needs review",
+        "unknown": "Paystack doesn't know this payment"
+      }
+    }
   }
 }

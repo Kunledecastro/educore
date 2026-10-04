@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { CalendarRange, FileText, Receipt } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { can } from "@educore/auth";
 import { buttonVariants } from "@educore/ui/button";
 import { EmptyState } from "@educore/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@educore/ui/table";
-import { ComingSoon } from "@/components/coming-soon";
+import { FamilyFees } from "@/components/fees/family-fees";
 import { ExportMenu } from "@/components/list/export-menu";
 import { ListFilter } from "@/components/list/list-filter";
 import { ListPagination } from "@/components/list/list-pagination";
@@ -27,10 +28,13 @@ import { getSettingsForUser } from "@/lib/tenant";
 import { InvoiceStatusBadge } from "./status-badge";
 
 /** Invoices for a term (milestone 3.1): totals, then a searchable, filterable list. */
-export default async function InvoicesPage({ searchParams }: { searchParams: SearchParamsInput & { term?: string | string[] } }) {
+export default async function InvoicesPage({ searchParams }: { searchParams: SearchParamsInput & { term?: string | string[]; online?: string | string[] } }) {
   const ctx = await requireUser();
-  // Families get their own fees page in 3.3.
-  if (!can(ctx.user.role, "feeStructure", "read")) return <ComingSoon navKey="fees" phase="phase3" />;
+  // Families: their children's fees and online payment (3.3).
+  if (!can(ctx.user.role, "feeStructure", "read")) {
+    if (!can(ctx.user.role, "invoice", "read") || ctx.isPlatformAdmin) redirect("/dashboard");
+    return <FamilyFees ctx={ctx} online={Array.isArray(searchParams.online) ? searchParams.online[0] : searchParams.online} />;
+  }
   const { user, db } = ctx;
   const [t, tl, settings] = await Promise.all([getTranslations("fees.invoices"), getTranslations("list"), getSettingsForUser(user.tenantId ?? null)]);
   const requested = Array.isArray(searchParams.term) ? searchParams.term[0] : searchParams.term;

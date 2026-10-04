@@ -114,3 +114,13 @@ export const reversalSchema = z.object({
   reason: textSchema(200),
 });
 export type ReversalInput = z.input<typeof reversalSchema>;
+
+// ---------------------------------------------------------------------------
+// Online payments (3.3)
+// ---------------------------------------------------------------------------
+
+export const onlinePaymentSchema = z.object({
+  invoiceId: idSchema,
+  amount: z.string({ required_error: V.required }).trim().min(1, V.required).max(20, V.tooLong),
+});
+export type OnlinePaymentInput = z.input<typeof onlinePaymentSchema>;

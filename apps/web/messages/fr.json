@@ -1201,7 +1201,8 @@
       "optional": "Options",
       "preview": "Aperçu de facture",
       "invoices": "Factures",
-      "billing": "Facturer le trimestre"
+      "billing": "Facturer le trimestre",
+      "reports": "Rapports"
     },
     "errors": {
       "invalidAmount": "Saisissez un montant comme 150000 ou 150,000.50",
@@ -1580,6 +1581,78 @@
       "balanceAfter": "Solde après",
       "recordedBy": "Reçu par",
       "reversedStamp": "ANNULÉ — ce paiement a été annulé"
+    },
+    "online": {
+      "title": "Payer en ligne · {number}",
+      "pay": "Payer en ligne",
+      "amount": "Montant à payer",
+      "amountHint": "Solde : {balance}. Vous pouvez en payer une partie.",
+      "explain": "Vous allez sur la page sécurisée de Paystack pour payer par carte, virement ou USSD, puis revenez ici. Votre reçu apparaît dès que Paystack confirme le paiement.",
+      "continue": "Continuer vers Paystack",
+      "redirecting": "Redirection vers Paystack…",
+      "errors": {
+        "parentsOnly": "Seuls les parents peuvent payer en ligne.",
+        "notConfigured": "Le paiement en ligne n'est pas encore activé pour cette école. Veuillez payer à l'économat.",
+        "cancelled": "Cette facture est annulée.",
+        "currency": "Le paiement en ligne n'est pas disponible en {currency}.",
+        "invalid": "Saisissez un montant valide",
+        "tooSmall": "Le paiement en ligne minimum est de 100 ₦",
+        "moreThanBalance": "C'est plus que le solde de cette facture",
+        "startFailed": "Impossible de joindre Paystack pour l'instant. Réessayez dans une minute.",
+        "checkFailed": "Impossible de joindre Paystack pour l'instant. Réessayez bientôt."
+      },
+      "outcome": {
+        "paid": "Paiement reçu — merci. Votre reçu est ci-dessous.",
+        "pending": "Paystack n'a pas encore confirmé ce paiement. Il apparaîtra ici dès que ce sera fait.",
+        "failed": "Le paiement n'a pas abouti. Aucun montant n'a été prélevé ; vous pouvez réessayer.",
+        "abandoned": "Le paiement a été annulé avant la fin. Vous pouvez réessayer.",
+        "review": "Paystack a encaissé le paiement, mais il n'a pas pu être appliqué automatiquement (par exemple, la facture était déjà réglée). L'économat est prévenu et s'en occupe.",
+        "unknown": "Paiement introuvable. Si votre compte a été débité, contactez l'économat avec votre reçu Paystack.",
+        "checking": "Nous confirmons votre paiement auprès de Paystack. Revenez dans quelques minutes."
+      }
+    },
+    "family": {
+      "title": "Frais de scolarité",
+      "descriptionParent": "Les factures et paiements de vos enfants. Payez en ligne ou à l'économat.",
+      "descriptionStudent": "Vos factures et paiements.",
+      "emptyTitle": "Aucune facture",
+      "emptyDescription": "Les factures apparaîtront ici quand l'école facturera le trimestre.",
+      "owed": "Dû actuellement",
+      "due": "échéance {date}",
+      "summary": "Total {total} · payé {paid}",
+      "downloadInvoice": "Télécharger la facture {number}",
+      "recentPayments": "Paiements récents",
+      "receipt": "Reçu {number}",
+      "payAtBursary": "Le paiement en ligne n'est pas encore activé — veuillez payer à l'économat et garder votre reçu."
+    },
+    "reports": {
+      "noTermsTitle": "Aucun trimestre",
+      "noTermsDescription": "Ajoutez d'abord les trimestres dans Paramètres.",
+      "term": "Trimestre",
+      "emptyTitle": "Rien de facturé pour {term}",
+      "emptyDescription": "Les rapports se remplissent une fois le trimestre facturé.",
+      "byClass": "Par classe",
+      "class": "Classe",
+      "invoices": "Factures",
+      "billed": "Facturé",
+      "collected": "Encaissé",
+      "outstanding": "Reste dû",
+      "rate": "% encaissé",
+      "daily": "Encaissements, 30 derniers jours",
+      "dailyCaption": "Paiements reçus par jour sur les 30 derniers jours, nets des annulations",
+      "date": "Date",
+      "amount": "Montant",
+      "byMethod": "Par mode de paiement (ce trimestre)",
+      "method": "Mode",
+      "entries": "Écritures",
+      "noPayments": "Aucun paiement ce trimestre.",
+      "debtors": "Plus gros soldes",
+      "debtorsIntro": "Les 15 plus gros soldes impayés du trimestre. L'export donne la liste complète avec les contacts des parents.",
+      "noDebtors": "Personne ne doit rien pour ce trimestre.",
+      "student": "Élève",
+      "invoice": "Facture",
+      "balance": "Solde",
+      "overdue": "en retard"
     }
   },
   "payments": {
@@ -1619,6 +1692,35 @@
     "amount": "Montant",
     "system": "Automatique",
     "reversalOf": "Annulation de {receipt}",
-    "reversed": "(annulé)"
+    "reversed": "(annulé)",
+    "online": {
+      "title": "Paiements en ligne à vérifier",
+      "intro": "Paystack a encaissé ces paiements mais ils n'ont pas pu être appliqués automatiquement, ou ils ne sont pas confirmés après 30 minutes. Vérifiez à nouveau, ou réglez-les à la main (enregistrer le paiement sur une autre facture, ou rembourser dans Paystack).",
+      "reasons": {
+        "amountMismatch": "Le montant payé diffère du montant demandé",
+        "currencyMismatch": "Payé dans une autre devise",
+        "referenceMismatch": "Référence différente",
+        "invoicePaid": "La facture était déjà entièrement payée",
+        "moreThanBalance": "Plus que le solde de la facture à son arrivée",
+        "invoiceCancelled": "La facture était annulée",
+        "futureDate": "Problème de date de paiement",
+        "notPositive": "Montant invalide",
+        "other": "À vérifier"
+      },
+      "status": {
+        "PENDING": "Non confirmé",
+        "NEEDS_REVIEW": "À vérifier"
+      },
+      "checkAgain": "Vérifier à nouveau",
+      "checking": "Vérification…",
+      "recheck": {
+        "paid": "Confirmé — paiement enregistré",
+        "pending": "Toujours en attente de Paystack",
+        "failed": "Paystack indique un échec",
+        "abandoned": "Le parent n'a pas terminé le paiement",
+        "review": "Payé, mais à vérifier",
+        "unknown": "Paystack ne connaît pas ce paiement"
+      }
+    }
   }
 }

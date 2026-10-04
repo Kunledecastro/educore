@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
+import { can } from "@educore/auth";
 import { auditedMutation, withRls } from "@educore/db";
 import { toMinor } from "@/lib/fees";
 import { todayInTimeZone } from "@/lib/format";
-import { auditContextFor } from "@/lib/guard";
+import { auditContextFor, ForbiddenError } from "@/lib/guard";
 import { inngest } from "@/lib/inngest/client";
 import { addAdjustment, cancelInvoice, FeeRuleError, findDuplicateReference, recordPayment, reversePayment } from "@/lib/invoice-writer";
 import { toSignedMinor } from "@/lib/invoicing";
@@ -104,6 +105,9 @@ export async function addAdjustmentAction(input: unknown) {
 
 export async function recordPaymentAction(input: unknown) {
   return runAction(["payment", "create"], async (ctx) => {
+    // Parents also hold payment:create — for ONLINE checkout only (3.3). Recording money
+    // received at the bursary is finance staff's job: never let a family mark itself paid.
+    if (!can(ctx.user.role, "feeStructure", "update")) throw new ForbiddenError();
     const data = paymentSchema.parse(input);
     const t = await getTranslations("fees.rules");
     const settings = await getSettingsForUser(ctx.user.tenantId ?? null);

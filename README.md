@@ -105,6 +105,13 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   pure in `lib/invoicing.ts`. Payments are append-only in the database (the
   app role has no UPDATE/DELETE): a mistake is undone with a reversal row.
   OVERDUE is derived (`displayStatus`), never stored.
+- **Online payments** (`lib/payments/`): `startOnlineCheckout` records the
+  attempt, then sends the parent to Paystack; money is applied ONLY by
+  `settleOnlinePayment(reference)`, which asks Paystack server-to-server and
+  is idempotent (the return page, the signed webhook and "check again" can
+  all call it). Rules are pure in `settle-rules.ts`. Anything that doesn't
+  match exactly — or arrives after the invoice was settled — becomes
+  NEEDS_REVIEW for the bursar instead of being applied.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 

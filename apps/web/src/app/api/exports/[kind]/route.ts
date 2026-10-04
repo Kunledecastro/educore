@@ -188,6 +188,41 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
       };
     },
   },
+  debtors: {
+    permission: "invoice",
+    async build(ctx, sp) {
+      const settings = await getSettingsForUser(ctx.user.tenantId ?? null);
+      const today = todayInTimeZone(settings.timezone);
+      const { selected: term } = await feeTerms(ctx.db, settings.timezone, sp.get("term") ?? undefined);
+      if (!term) throw new NotFoundError();
+      const open = await ctx.db.invoice.findMany({
+        where: { termId: term.id, status: { in: ["ISSUED", "PARTIALLY_PAID"] } },
+        take: MAX_EXPORT_ROWS,
+        include: {
+          student: {
+            select: {
+              admissionNo: true, firstName: true, lastName: true, class: { select: { name: true } }, section: { select: { name: true } },
+              guardians: { orderBy: { isPrimary: "desc" }, take: 1, include: { guardian: { include: { user: { select: { name: true, email: true } } } } } },
+            },
+          },
+        },
+      });
+      const m = (v: { toString(): string }) => toMinor(v) ?? 0;
+      const rows = open.map((i) => ({ i, balance: m(i.totalDue) - m(i.amountPaid) })).sort((a, b) => b.balance - a.balance);
+      return {
+        sheetName: "Debtors",
+        headers: ["admission_no", "first_name", "last_name", "class", "section", "invoice_no", "term", "due_date", "total", "paid", "balance", "overdue", "guardian_name", "guardian_email", "guardian_phone"],
+        rows: rows.map(({ i, balance }) => {
+          const g = i.student.guardians[0]?.guardian;
+          return [
+            i.student.admissionNo, i.student.firstName, i.student.lastName, i.student.class?.name, i.student.section?.name, i.invoiceNo, term.name, iso(i.dueDate),
+            (m(i.totalDue) / 100).toFixed(2), (m(i.amountPaid) / 100).toFixed(2), (balance / 100).toFixed(2), i.dueDate < today ? "yes" : "no",
+            g?.user?.name ?? "", g?.user?.email ?? "", g?.phone ?? "",
+          ];
+        }),
+      };
+    },
+  },
   payments: {
     permission: "payment",
     async build(ctx, sp) {

@@ -3,12 +3,62 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 3 — Fees & payments (in progress)
+## Phase 3 — Fees & payments (2026-10-04)
 
 Spec: `claude/phase-3-spec.md` (confirmed 2026-10-02): billed per term;
 discounts per student (% or fixed, whole bill or one item); optional items
 opt-in per student per term; parents pay online with **Paystack** (test
 mode) in 3.3, alongside bursar-recorded cash/transfer/POS/cheque payments.
+
+### Added (milestone 3.3 — online payments, families and reports, 2026-10-04)
+
+- **Fees for families** (`/fees` for parents and students): each child's
+  invoices with what's owed, paid and due, invoice PDFs and recent receipts.
+- **Pay online with Paystack** (parents): full or part of the balance
+  (minimum ₦100) → Paystack's secure checkout (card, transfer, USSD) → back to
+  the invoice with the outcome. The payment, receipt number and receipt PDF
+  appear as soon as Paystack confirms it; it shows in Payments as "Paystack
+  (online)", recorded by the parent.
+- **Confirmed only by Paystack itself**: the return page and the webhook
+  (`/api/webhooks/paystack`, HMAC-SHA512 signature required) only prompt a
+  server-to-server check of the reference; nothing in a URL or body is
+  trusted. Settling is idempotent — return page + webhook + "check again"
+  record the money once.
+- **Needs attention** (Payments page, bursar): online payments taken but not
+  applied (amount/currency mismatch, invoice settled at the bursary
+  meanwhile — never overpaid) and checkouts unconfirmed after 30 minutes,
+  with **Check again**.
+- **Reports** (`/fees/reports`): term totals, by class (billed, collected,
+  outstanding, %), by payment method, money in over the last 30 days (bar
+  chart with an accessible table), the 15 largest balances; **debtors
+  export** (CSV/Excel) with parents' contacts for follow-up.
+- `PAYSTACK_SECRET_KEY` (test) set in Vercel by Kunle; without it parents
+  simply don't see "Pay online".
+- ASSUMPTIONS: one Paystack account (from the environment) for the demo —
+  per-school keys or Paystack subaccounts come with the platform admin in
+  Phase 4, so each school's money goes to its own account. Paystack's
+  transaction fee is borne by the school (not added to the parent's amount).
+  Email reminders to debtors wait for Resend (parked); the debtors export
+  covers follow-up for now.
+
+### Security (milestone 3.3)
+
+- Migration `0016_online_payments` (additive): `online_payments` with forced
+  RLS, the provider reference unique across schools (how a session-less
+  webhook finds its school), at most one Payment per attempt, SUCCEEDED ⇔
+  linked payment (CHECK), no DELETE for the app role.
+- The attempt row is locked while settling; the return URL only ever points
+  at our own hosts; references are random (`EDU-` + 80 bits) and anything
+  else is ignored.
+- Fixed before release: parents hold `payment:create` (for online checkout),
+  so the bursary "record payment" action now also requires finance-staff
+  rights — a family can never mark its own invoice paid.
+- Tests: settlement rules, signature check and amount checks (9 unit tests);
+  **8 integration tests against a real Postgres with a fake Paystack**
+  (checkout recorded first, paid once however often confirmed, return page +
+  webhook racing, amount mismatch → review, failed/abandoned, invoice settled
+  meanwhile → review not overpayment, unknown references, tenant isolation
+  and no deletes); RBAC test for who can pay online.
 
 ### Added (milestones 3.1 invoicing and 3.2 payments & receipts, 2026-10-02)
 

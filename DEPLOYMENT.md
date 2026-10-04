@@ -101,7 +101,8 @@ data.
 | Service | Free tier | Env vars |
 |---|---|---|
 | Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
-| Stripe (payments, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
+| Paystack (school fees online) | free account; fees per transaction | `PAYSTACK_SECRET_KEY` (Test Secret Key, `sk_test_…`, Sensitive, Production + Preview). In Paystack → Settings → API Keys & Webhooks (Test mode) set **Test Webhook URL** to `https://<your-domain>/api/webhooks/paystack`. Without the key, parents don't see "Pay online"; bursary payments are unaffected. Money goes to the account that owns the key. |
+| Stripe (EduCore subscriptions, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Cloudflare R2 (file storage) | 10GB free | `STORAGE_*` |
 | Inngest (background jobs — CSV imports) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`. Install **Inngest from the Vercel Marketplace** (Integrations → Inngest → Install → choose the project); it sets both variables and syncs the app from `/api/inngest` on every deploy. Required for imports — without it the "Import" button reports the importer is unavailable. |
 | Upstash Redis (rate limiting) | free tier | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`. Omit to fall back to an in-memory limiter, which works per server instance only — **set Upstash up before real schools go live** so login limits are shared across all instances. |

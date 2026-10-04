@@ -226,4 +226,13 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
     expect(can(Role.TEACHER, "invoice", "read")).toBe(false);
     expect(can(Role.TEACHER, "payment", "read")).toBe(false);
   });
+
+  it("online payment: parents may start one; students, teachers can't", () => {
+    expect(can(Role.PARENT, "payment", "create")).toBe(true);
+    expect(can(Role.STUDENT, "payment", "create")).toBe(false);
+    expect(can(Role.TEACHER, "payment", "create")).toBe(false);
+    // Starting a checkout never lets a parent touch the money afterwards.
+    expect(can(Role.PARENT, "payment", "update")).toBe(false);
+  });
 });
+

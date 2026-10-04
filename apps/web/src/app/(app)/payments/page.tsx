@@ -20,6 +20,7 @@ import type { SearchParamsInput } from "@/lib/list-params";
 import { PAYMENT_METHOD_FILTERS, PAYMENT_PERIODS, paymentListQuery } from "@/lib/payment-list";
 import { getSettingsForUser } from "@/lib/tenant";
 import { UploadCard } from "../imports/upload-form";
+import { OnlineAttention } from "./online-attention";
 
 /**
  * Payments (milestone 3.2): every payment and reversal, newest first, with
@@ -58,6 +59,8 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Sea
   return (
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")} actions={any > 0 && can(user.role, "payment", "export") ? <ExportMenu kind="payments" /> : null} />
+
+      <OnlineAttention db={db} settings={settings} canRecheck={can(user.role, "payment", "update")} />
 
       {canImport ? (
         <div className="max-w-xl">

@@ -14,10 +14,14 @@ import { studentScopeFor } from "@/lib/student-scope";
 import { getSettingsForUser } from "@/lib/tenant";
 import { idSchema, toDateInput } from "@/lib/validation/common";
 import { InvoiceStatusBadge } from "../../status-badge";
+import { OnlineBanner } from "@/components/fees/online-banner";
+import { PayOnlineButton } from "@/components/fees/pay-online-button";
+import { PAYSTACK_CURRENCIES, paystack } from "@/lib/payments/paystack";
+import { Role } from "@educore/db";
 import { AdjustmentButton, CancelInvoiceButton, RecordPaymentButton, ReversePaymentButton } from "./invoice-ui";
 
 /** One invoice (3.1/3.2): lines, totals, payments and receipts, and what can be done next. */
-export default async function InvoicePage({ params }: { params: { id: string } }) {
+export default async function InvoicePage({ params, searchParams }: { params: { id: string }; searchParams: { online?: string | string[] } }) {
   const ctx = await requirePermission("invoice", "read");
   const id = idSchema.safeParse(params.id);
   if (!id.success) notFound();
@@ -68,12 +72,17 @@ export default async function InvoicePage({ params }: { params: { id: string } }
               <Download className="h-4 w-4" aria-hidden="true" />
               {t("downloadPdf")}
             </a>
+            {!cancelled && balance > 0 && user.role === Role.PARENT && paystack.configured() && PAYSTACK_CURRENCIES.has(invoice.currency) ? (
+              <PayOnlineButton invoiceId={invoice.id} invoiceNo={invoice.invoiceNo} balance={(balance / 100).toFixed(2)} balanceLabel={money(balance)} />
+            ) : null}
             {!cancelled && balance > 0 && can(user.role, "payment", "create") && isStaff ? (
               <RecordPaymentButton invoiceId={invoice.id} invoiceNo={invoice.invoiceNo} balance={(balance / 100).toFixed(2)} balanceLabel={money(balance)} today={toDateInput(today)} />
             ) : null}
           </>
         }
       />
+
+      <OnlineBanner outcome={Array.isArray(searchParams.online) ? searchParams.online[0] : searchParams.online} />
 
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border p-4 text-sm sm:grid-cols-4">
         <div>
@@ -202,7 +211,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
                       <TableCell className="text-right tabular-nums">{signed(m(p.amount))}</TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1">
-                          {p.kind === "PAYMENT" ? (
+                          {p.kind === "PAYMENT" && can(user.role, "payment", "read") ? (
                             <a href={`/api/receipts/${p.id}`} className={buttonVariants({ variant: "ghost", size: "sm" })} aria-label={t("downloadReceiptLabel", { receipt: p.receiptNo ?? "" })}>
                               <Download className="h-4 w-4" aria-hidden="true" />
                               <span className="hidden md:inline">{t("receiptPdf")}</span>

@@ -199,6 +199,7 @@ model Tenant {
   reportCardRuns       ReportCardRun[]
   numberSequences      NumberSequence[]
   billingRuns          BillingRun[]
+  onlinePayments       OnlinePayment[]
 
   @@map("tenants")
 }
@@ -259,6 +260,7 @@ model User {
   invoicesCreated    Invoice[]           @relation("InvoiceCreatedBy")
   paymentsRecorded   Payment[]           @relation("PaymentRecordedBy")
   billingRuns        BillingRun[]        @relation("BillingRunBy")
+  onlinePayments     OnlinePayment[]     @relation("OnlinePaymentPayer")
 
   @@index([tenantId])
   @@map("users")
@@ -444,6 +446,7 @@ model Student {
   feeSignups     FeeSignup[]
   messageThreads MessageThread[]
   payments       Payment[]
+  onlinePayments OnlinePayment[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -901,8 +904,9 @@ model Invoice {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @default(now()) @updatedAt
 
-  lines    InvoiceLine[]
-  payments Payment[]
+  lines          InvoiceLine[]
+  payments       Payment[]
+  onlinePayments OnlinePayment[]
 
   @@unique([tenantId, invoiceNo])
   @@index([tenantId])
@@ -938,33 +942,74 @@ model InvoiceLine {
 // Phase 3.2: append-only (the app role has no UPDATE/DELETE grant). A
 // REVERSAL row (negative amount) undoes a PAYMENT, once (reversesId unique).
 model Payment {
-  id                    String        @id @default(cuid())
+  id                    String         @id @default(cuid())
   tenantId              String
-  tenant                Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant                Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   invoiceId             String
-  invoice               Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice               Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   studentId             String
-  student               Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  kind                  PaymentKind   @default(PAYMENT)
-  amount                Decimal       @db.Decimal(12, 2)
+  student               Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind                  PaymentKind    @default(PAYMENT)
+  amount                Decimal        @db.Decimal(12, 2)
   method                PaymentMethod
   reference             String?
   receiptNo             String?
   note                  String?
-  stripePaymentIntentId String?       @unique
-  reversesId            String?       @unique
-  reverses              Payment?      @relation("PaymentReversal", fields: [reversesId], references: [id], onDelete: Restrict)
-  reversedBy            Payment?      @relation("PaymentReversal")
+  stripePaymentIntentId String?        @unique
+  reversesId            String?        @unique
+  reverses              Payment?       @relation("PaymentReversal", fields: [reversesId], references: [id], onDelete: Restrict)
+  reversedBy            Payment?       @relation("PaymentReversal")
   recordedById          String?
-  recordedBy            User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
-  paidAt                DateTime      @default(now())
-  createdAt             DateTime      @default(now())
+  recordedBy            User?          @relation("PaymentRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+  paidAt                DateTime       @default(now())
+  createdAt             DateTime       @default(now())
+  onlinePayment         OnlinePayment?
 
   @@index([tenantId])
   @@index([tenantId, paidAt])
   @@index([tenantId, invoiceId])
   @@index([tenantId, studentId])
   @@map("payments")
+}
+
+enum OnlinePaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  ABANDONED
+  NEEDS_REVIEW
+}
+
+// Phase 3.3: one online checkout a parent started (Paystack). The provider
+// reference is unique across all schools — it's how a webhook finds its
+// school. SUCCEEDED only after server-side verification, and then linked to
+// the one Payment it created (paymentId unique: never recorded twice).
+model OnlinePayment {
+  id         String              @id @default(cuid())
+  tenantId   String
+  tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoiceId  String
+  invoice    Invoice             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  studentId  String
+  student    Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payerId    String?
+  payer      User?               @relation("OnlinePaymentPayer", fields: [payerId], references: [id], onDelete: SetNull)
+  provider   String              @default("paystack")
+  reference  String              @unique
+  amount     Decimal             @db.Decimal(12, 2)
+  currency   String
+  status     OnlinePaymentStatus @default(PENDING)
+  channel    String?
+  message    String?
+  paymentId  String?             @unique
+  payment    Payment?            @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  createdAt  DateTime            @default(now())
+  verifiedAt DateTime?
+
+  @@index([tenantId])
+  @@index([tenantId, invoiceId])
+  @@index([tenantId, status])
+  @@map("online_payments")
 }
 
 // Per-school counters for invoice and receipt numbers (key e.g. "invoice:2026").
