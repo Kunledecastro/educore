@@ -21,6 +21,7 @@ import { Role } from "./roles";
 export const RESOURCES = [
   "tenant",
   "subscription",
+  "branding",
   "user",
   "academicYear",
   "classGrade",
@@ -72,6 +73,7 @@ export const PERMISSION_MATRIX: Matrix = {
 
   [Role.SCHOOL_ADMIN]: {
     tenant: R, // read own tenant's settings/branding; cannot escalate plan
+    branding: ["read", "update"], // the school's logo, brand colour and contact line
     subscription: ["read", "update"], // see the plan and pay EduCore for it (4.2); update = choose plan, pay, auto-renew
     user: CRUDE,
     academicYear: CRUDE,

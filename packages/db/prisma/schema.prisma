@@ -193,6 +193,7 @@ model Tenant {
   auditLogs            AuditLog[]
   subscription         Subscription?
   platformInvoices     PlatformInvoice[]
+  logo                 TenantLogo?
   platformPayments     PlatformPayment[]
   importJobs           ImportJob[]
   terms                Term[]
@@ -276,6 +277,20 @@ model PlatformPayment {
 
   @@index([invoiceId])
   @@map("platform_payments")
+}
+
+/// A school's logo (branding). Platform-level: written and served by the server only.
+model TenantLogo {
+  tenantId    String   @id
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  data        Bytes
+  contentType String
+  sizeBytes   Int
+  sha256      String
+  updatedById String?
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@map("tenant_logos")
 }
 
 /// Plan catalogue (Phase 4.1) — platform-level, edited in the platform console.

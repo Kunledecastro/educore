@@ -16,13 +16,20 @@ interface SidebarProps {
   items: NavItem[];
   role: Role;
   tenantName: string | null;
+  /** The school's logo (branding), if it has one. */
+  logoUrl?: string | null;
 }
 
-function Brand({ role, tenantName }: Pick<SidebarProps, "role" | "tenantName">) {
+function Brand({ role, tenantName, logoUrl }: Pick<SidebarProps, "role" | "tenantName" | "logoUrl">) {
   const tr = useTranslations("roles");
   return (
     <div className="flex items-center gap-2">
-      <GraduationCap className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+      {logoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- small, versioned, same-origin logo
+        <img src={logoUrl} alt="" className="h-8 w-8 shrink-0 rounded object-contain" />
+      ) : (
+        <GraduationCap className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+      )}
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-sm font-semibold">{tenantName ?? "EduCore"}</span>
         <span className="text-xs text-muted-foreground">{tr(role)}</span>
@@ -81,11 +88,11 @@ function SignOutButton() {
 }
 
 /** Fixed sidebar on tablets/desktops (md and up). */
-export function Sidebar({ items, role, tenantName }: SidebarProps) {
+export function Sidebar({ items, role, tenantName, logoUrl }: SidebarProps) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r bg-card md:flex">
       <div className="border-b px-5 py-4">
-        <Brand role={role} tenantName={tenantName} />
+        <Brand role={role} tenantName={tenantName} logoUrl={logoUrl} />
       </div>
       <NavLinks items={items} />
       <SignOutButton />
@@ -94,7 +101,7 @@ export function Sidebar({ items, role, tenantName }: SidebarProps) {
 }
 
 /** Top bar + slide-in menu on phones (below md, down to 375px). */
-export function MobileNav({ items, role, tenantName }: SidebarProps) {
+export function MobileNav({ items, role, tenantName, logoUrl }: SidebarProps) {
   const t = useTranslations("nav");
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
@@ -104,7 +111,7 @@ export function MobileNav({ items, role, tenantName }: SidebarProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-card px-4 py-3 md:hidden">
-        <Brand role={role} tenantName={tenantName} />
+        <Brand role={role} tenantName={tenantName} logoUrl={logoUrl} />
         <DialogPrimitive.Trigger
           className="rounded-md p-2 text-muted-foreground hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={t("openMenu")}
@@ -118,7 +125,7 @@ export function MobileNav({ items, role, tenantName }: SidebarProps) {
           <div className="flex items-center justify-between border-b px-4 py-3">
             <DialogPrimitive.Title asChild>
               <div>
-                <Brand role={role} tenantName={tenantName} />
+                <Brand role={role} tenantName={tenantName} logoUrl={logoUrl} />
               </div>
             </DialogPrimitive.Title>
             <DialogPrimitive.Close

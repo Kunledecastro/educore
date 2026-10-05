@@ -6,6 +6,8 @@ import { getEffectiveSession } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
 import { PlanBanner } from "@/components/plan/plan-banner";
+import { BrandStyle } from "@/components/branding/brand-style";
+import { parseBranding, logoUrl } from "@/lib/branding";
 import { getEntitlements } from "@/lib/entitlements-server";
 import { can } from "@educore/auth";
 import { unreadThreadCount } from "@/lib/messaging/data";
@@ -33,16 +35,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const items = getNavItemsForRole(session.user.role, entitlements?.modules ?? null).map((i) => (i.href === "/messages" && unread ? { ...i, badge: unread } : i));
   const settings = session.user.tenantId ? await getSettingsForUser(session.user.tenantId) : null;
 
+  // The school's own look (logo, brand colour) for everyone signed in to it.
+  const branding = tenant ? parseBranding(tenant.branding) : null;
+  const logo = tenant && branding ? logoUrl(tenant.id, branding.logoVersion) : null;
+
   return (
     <>
+      <BrandStyle color={branding?.primaryColor ?? null} />
       {session.impersonation && settings ? <ImpersonationBanner imp={session.impersonation} timeZone={settings.timezone} locale={settings.locale} /> : null}
       {entitlements && settings ? <PlanBanner e={entitlements} isAdmin={session.user.role === Role.SCHOOL_ADMIN} locale={settings.locale} /> : null}
       <div className="min-h-screen md:flex">
         <div className="contents print:hidden">
-          <Sidebar items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+          <Sidebar items={items} role={session.user.role} tenantName={tenant?.name ?? null} logoUrl={logo} />
         </div>
         <div className="contents print:hidden">
-          <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+          <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} logoUrl={logo} />
         </div>
         <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
           {children}

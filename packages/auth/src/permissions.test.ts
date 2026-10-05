@@ -37,6 +37,11 @@ describe("RBAC permission matrix", () => {
     expect(can(Role.SCHOOL_ADMIN, "announcement", "delete")).toBe(true);
   });
 
+  it("only school admins change their school's branding", () => {
+    expect(can(Role.SCHOOL_ADMIN, "branding", "update")).toBe(true);
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "branding", "update")).toBe(false);
+  });
+
   it("never lets ANY role delete the audit log", () => {
     for (const role of Object.values(Role)) {
       expect(can(role, "auditLog", "delete")).toBe(false);

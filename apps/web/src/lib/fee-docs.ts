@@ -6,6 +6,7 @@ import type { InvoiceDoc, ReceiptDoc, SchoolInfo } from "./fee-pdf";
 import { displayStatus, type StoredInvoiceStatus } from "./invoicing";
 import { todayInTimeZone } from "./format";
 import { parseTenantSettings } from "./tenant-settings";
+import { loadDocBranding } from "./branding-data";
 
 /**
  * Loads what an invoice or receipt PDF shows, through the tenant-scoped
@@ -18,7 +19,7 @@ const m = (v: { toString(): string }) => toMinor(v) ?? 0;
 async function school(db: TenantScopedClient, tenantId: string) {
   const tenant = await db.tenant.findFirst({ where: { id: tenantId }, select: { name: true, settings: true } });
   const settings = parseTenantSettings(tenant?.settings);
-  const info: SchoolInfo = { name: tenant?.name ?? "", locale: settings.locale, currency: settings.currency, dateStyle: settings.dateStyle };
+  const info: SchoolInfo = { name: tenant?.name ?? "", locale: settings.locale, currency: settings.currency, dateStyle: settings.dateStyle, branding: await loadDocBranding(tenantId) };
   const lang = settings.locale.toLowerCase().startsWith("fr") ? "fr" : "en";
   const messages = (await import(`../../messages/${lang}.json`)).default;
   const tMethod = createTranslator({ locale: lang, messages, namespace: "fees.invoice.methods" }) as unknown as (k: string) => string;

@@ -173,7 +173,8 @@
     "slugFormat": "Utilisez 3 à 30 lettres minuscules, chiffres et tirets simples (ex. greenfield ou st-marys)",
     "slugReserved": "Ce nom est réservé — choisissez-en un autre",
     "acceptTerms": "Veuillez accepter les conditions pour continuer",
-    "chooseRecipients": "Choisissez au moins un destinataire"
+    "chooseRecipients": "Choisissez au moins un destinataire",
+    "color": "Saisissez une couleur comme #0f766e"
   },
   "actionErrors": {
     "unauthenticated": "Votre session a expiré. Veuillez vous reconnecter.",
@@ -741,7 +742,8 @@
       "terms": "Trimestres",
       "grading": "Barème",
       "scores": "Composantes de la note",
-      "options": "Options"
+      "options": "Options",
+      "branding": "Identité visuelle"
     },
     "terms": {
       "noYearTitle": "Créez d'abord une année scolaire",
@@ -842,6 +844,44 @@
       "editDays": "Les enseignants peuvent modifier un appel pendant (jours)",
       "editDaysHint": "Ensuite, seuls les administrateurs peuvent le modifier. 0 = le jour même uniquement.",
       "saved": "Options enregistrées."
+    },
+    "branding": {
+      "intro": "Le logo et la couleur de votre école apparaissent dans le menu, sur la page de connexion de l'école et sur les factures, reçus et bulletins.",
+      "logoTitle": "Logo",
+      "currentLogo": "Le logo de votre école",
+      "noLogo": "Pas de logo",
+      "uploadLogo": "Téléverser un logo",
+      "replaceLogo": "Remplacer le logo",
+      "uploading": "Téléversement…",
+      "removeLogo": "Retirer le logo",
+      "removeTitle": "Retirer le logo ?",
+      "removeDescription": "Le menu, la page de connexion et les nouveaux documents n'afficheront plus que le nom de l'école.",
+      "logoSaved": "Logo enregistré",
+      "logoRemoved": "Logo retiré",
+      "logoHint": "PNG ou JPEG, jusqu'à {max} Ko. Un logo carré sur fond transparent ou blanc rend le mieux.",
+      "colorTitle": "Couleur de l'école",
+      "presets": "Couleurs suggérées",
+      "usePreset": "Utiliser {color}",
+      "color": "Couleur",
+      "colorHint": "Laisser vide pour la couleur EduCore par défaut",
+      "pickColor": "Choisir une couleur",
+      "reset": "Par défaut",
+      "contrast": "Texte sur cette couleur : contraste {ratio}:1 (4,5:1 ou plus se lit bien). Le texte est mis en blanc ou noir automatiquement.",
+      "contact": "Adresse et contact",
+      "contactHint": "Affiché sous le nom de l'école sur les factures, reçus et bulletins, ex. 12 Allen Avenue, Ikeja · 0803 000 0000",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Identité visuelle enregistrée",
+      "preview": "Aperçu",
+      "previewMenu": "Tableau de bord",
+      "previewButton": "Enregistrer",
+      "previewNote": "En mode sombre, une couleur foncée est éclaircie automatiquement pour rester visible.",
+      "errors": {
+        "empty": "Choisissez un fichier image.",
+        "tooLarge": "Image trop lourde — la limite est de {max} Ko.",
+        "notImage": "Utilisez une image PNG ou JPEG.",
+        "badColor": "Saisissez une couleur comme #0f766e."
+      }
     }
   },
   "attendance": {

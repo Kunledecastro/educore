@@ -4,6 +4,7 @@ import { ForbiddenError, assertEntitled, requireUser, UnauthenticatedError } fro
 import { cardState, parseSnapshot, type ReportSnapshot } from "@/lib/report-card";
 import { loadReportCardSection } from "@/lib/report-card-data";
 import { fileSlug, renderReportCards } from "@/lib/report-card-pdf";
+import { loadDocBranding } from "@/lib/branding-data";
 import { NotFoundError } from "@/lib/run-action";
 import { idSchema } from "@/lib/validation/common";
 
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
     if (snapshots.length === 0) return notFound();
 
     const label = `${section.class.name} ${section.name}`;
-    const pdf = await renderReportCards(snapshots, `${label} · ${cards[0]!.term.name}`);
+    const pdf = await renderReportCards(snapshots, `${label} · ${cards[0]!.term.name}`, await loadDocBranding(ctx.user.tenantId!));
     return new NextResponse(new Uint8Array(pdf) as unknown as BodyInit, {
       headers: {
         "Content-Type": "application/pdf",

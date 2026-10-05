@@ -1,5 +1,6 @@
 import "server-only";
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import type { DocBranding } from "./branding-data";
 import { createTranslator } from "next-intl";
 import { pdfFontFamily } from "./report-card-pdf";
 
@@ -18,6 +19,9 @@ const s = StyleSheet.create({
   page: { padding: 36, fontSize: 10, color: INK, lineHeight: 1.35 },
   header: { flexDirection: "row", justifyContent: "space-between", borderBottomWidth: 2, borderBottomColor: INK, paddingBottom: 10, marginBottom: 14 },
   school: { fontSize: 16, fontWeight: 700, lineHeight: 1.25 },
+  brand: { flexDirection: "row", alignItems: "center", maxWidth: "60%" },
+  logo: { width: 44, height: 44, objectFit: "contain", marginRight: 10 },
+  contact: { fontSize: 8, color: MUTED, marginTop: 2 },
   docTitle: { fontSize: 14, fontWeight: 700, textAlign: "right", lineHeight: 1.25 },
   docNo: { fontSize: 10, textAlign: "right", color: MUTED },
   grid: { flexDirection: "row", flexWrap: "wrap", marginBottom: 14 },
@@ -51,6 +55,8 @@ export interface SchoolInfo {
   locale: string;
   currency: string;
   dateStyle: "short" | "medium" | "long";
+  /** The school's logo, brand colour and contact line, when set. */
+  branding?: DocBranding | null;
 }
 
 export interface InvoiceDoc {
@@ -94,9 +100,17 @@ function fmt(school: SchoolInfo) {
 }
 
 function Header({ school, title, number }: { school: SchoolInfo; title: string; number: string }) {
+  const b = school.branding;
   return (
-    <View style={s.header}>
-      <Text style={s.school}>{school.name}</Text>
+    <View style={[s.header, b?.color ? { borderBottomColor: b.color } : {}]}>
+      <View style={s.brand}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+        {b?.logo ? <Image src={b.logo} style={s.logo} /> : null}
+        <View>
+          <Text style={s.school}>{school.name}</Text>
+          {b?.contactLine ? <Text style={s.contact}>{b.contactLine}</Text> : null}
+        </View>
+      </View>
       <View>
         <Text style={s.docTitle}>{title}</Text>
         <Text style={s.docNo}>{number}</Text>

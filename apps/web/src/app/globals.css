@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens — Phase 0 default theme. Per-tenant branding (Tenant.branding
-   JSONB, e.g. { primaryColor: "#0f766e" }) is applied as an inline style
-   override on --primary at the root layout, so a school's brand color shows
-   up without touching this file. */
+/* Design tokens — EduCore's default theme. A school's brand colour
+   (Tenant.branding.primaryColor) overrides --primary, --primary-foreground and
+   --ring for light and dark mode via <BrandStyle> in the app layout and the
+   school's sign-in page (accessible foreground chosen automatically). */
 @layer base {
   :root {
     --background: 0 0% 100%;

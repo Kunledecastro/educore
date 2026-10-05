@@ -1,7 +1,8 @@
 import "server-only";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image, Font, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import type { DocBranding } from "./branding-data";
 import { createTranslator } from "next-intl";
 import type { ReportSnapshot } from "./report-card";
 
@@ -49,6 +50,9 @@ const s = StyleSheet.create({
   page: { padding: 32, fontSize: 9, color: INK, lineHeight: 1.35 },
   header: { borderBottomWidth: 2, borderBottomColor: INK, paddingBottom: 8, marginBottom: 10 },
   school: { fontSize: 16, fontWeight: 700, lineHeight: 1.25 },
+  brand: { flexDirection: "row", alignItems: "center" },
+  logo: { width: 40, height: 40, objectFit: "contain", marginRight: 10 },
+  contact: { fontSize: 8, color: MUTED, marginTop: 1 },
   title: { fontSize: 11, marginTop: 4, lineHeight: 1.25 },
   grid: { flexDirection: "row", flexWrap: "wrap", marginBottom: 10 },
   field: { width: "50%", flexDirection: "row", marginBottom: 2 },
@@ -78,7 +82,7 @@ async function translatorFor(locale: string): Promise<T> {
   return createTranslator({ locale: lang, messages, namespace: "reportCards.pdf" }) as unknown as T;
 }
 
-function Card({ snap, t }: { snap: ReportSnapshot; t: T }) {
+function Card({ snap, t, brand }: { snap: ReportSnapshot; t: T; brand: DocBranding | null }) {
   const nf = new Intl.NumberFormat(snap.school.locale, { maximumFractionDigits: 1 });
   const df = new Intl.DateTimeFormat(snap.school.locale, { dateStyle: snap.school.dateStyle, timeZone: "UTC" });
   const n = (v: number | null) => (v === null ? "—" : nf.format(v));
@@ -90,8 +94,15 @@ function Card({ snap, t }: { snap: ReportSnapshot; t: T }) {
 
   return (
     <Page size="A4" style={[s.page, { fontFamily }]} wrap>
-      <View style={s.header}>
-        <Text style={s.school}>{snap.school.name}</Text>
+      <View style={[s.header, brand?.color ? { borderBottomColor: brand.color } : {}]}>
+        <View style={s.brand}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+          {brand?.logo ? <Image src={brand.logo} style={s.logo} /> : null}
+          <View>
+            <Text style={s.school}>{snap.school.name}</Text>
+            {brand?.contactLine ? <Text style={s.contact}>{brand.contactLine}</Text> : null}
+          </View>
+        </View>
         <Text style={s.title}>{t("title", { term: snap.period.term, year: snap.period.year })}</Text>
       </View>
 
@@ -174,13 +185,13 @@ function Card({ snap, t }: { snap: ReportSnapshot; t: T }) {
 }
 
 /** One PDF holding every given card (one per student, in order). */
-export async function renderReportCards(snapshots: ReportSnapshot[], title: string): Promise<Buffer> {
+export async function renderReportCards(snapshots: ReportSnapshot[], title: string, brand: DocBranding | null = null): Promise<Buffer> {
   ensureFonts();
   const t = await translatorFor(snapshots[0]?.school.locale ?? "en");
   return renderToBuffer(
     <Document title={title} author={snapshots[0]?.school.name ?? "EduCore"} creator="EduCore" producer="EduCore">
       {snapshots.map((snap, i) => (
-        <Card key={i} snap={snap} t={t} />
+        <Card key={i} snap={snap} t={t} brand={brand} />
       ))}
     </Document>,
   );

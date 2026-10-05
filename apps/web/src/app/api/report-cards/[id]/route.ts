@@ -4,6 +4,7 @@ import { Role } from "@educore/db";
 import { ForbiddenError, assertEntitled, requireUser, UnauthenticatedError } from "@/lib/guard";
 import { cardState, parseSnapshot } from "@/lib/report-card";
 import { fileSlug, renderReportCards } from "@/lib/report-card-pdf";
+import { loadDocBranding } from "@/lib/branding-data";
 import { studentScopeFor } from "@/lib/student-scope";
 import { idSchema } from "@/lib/validation/common";
 
@@ -42,7 +43,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       if (!published) return notFound();
     }
 
-    const pdf = await renderReportCards([snapshot], `${snapshot.student.name} · ${snapshot.period.term}`);
+    const pdf = await renderReportCards([snapshot], `${snapshot.student.name} · ${snapshot.period.term}`, await loadDocBranding(ctx.user.tenantId!));
     const name = `report-card-${fileSlug(`${card.student.firstName} ${card.student.lastName}`)}-${fileSlug(card.term.name)}.pdf`;
     return new NextResponse(new Uint8Array(pdf) as unknown as BodyInit, {
       headers: {

@@ -3,6 +3,34 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## School branding (2026-10-05)
+
+### Added
+- **Settings → Branding** (school admins): upload a logo, choose a brand
+  colour (10 suggestions, colour picker or hex code) and an address/contact
+  line, with a live preview.
+- The logo and colour appear in the menu (desktop and phone), on the school's
+  own sign-in page (once schools have their own addresses), and on invoices,
+  receipts and report cards (logo, contact line, colour rule under the
+  header). The public EduCore site keeps EduCore's own look.
+- Accessible by design: text on the brand colour is white or black, whichever
+  contrasts more (always ≥ 4.5:1); in dark mode a dark colour is lightened so
+  buttons and links stay visible.
+
+### Security
+- Migration `0022_tenant_logos` (additive): logos in their own platform-only
+  table (RLS forced, revoked from the app role), PNG/JPEG only, ≤ 512 KB,
+  size and type CHECKs.
+- Logos are recognised by their bytes (no SVG — it can carry scripts) and
+  served with exact type, `nosniff` and a sandboxing CSP; versioned URLs.
+- Colours are validated as `#rrggbb` and turned into numbers before reaching
+  the stylesheet, so nothing typed by a school is ever injected as CSS.
+- `branding:update` (school admins only) in the permission matrix; every
+  change in the school's audit log.
+- Tests: 8 unit (colour maths, contrast, image detection), RBAC, 4
+  integration (save/audit/keep other keys, byte checks, per-school logos
+  replaced and removed, no direct access from school sessions).
+
 ## Phase 4 — SaaS platform (complete, 2026-10-05)
 
 Spec: `claude/phase-4-spec.md` (confirmed 2026-10-05): EduCore's own

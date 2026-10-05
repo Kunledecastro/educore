@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Providers } from "@/components/providers";
-import { getCurrentTenant } from "@/lib/tenant";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,21 +9,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [locale, messages, timeZone, tenant] = await Promise.all([
-    getLocale(),
-    getMessages(),
-    getTimeZone(),
-    getCurrentTenant(),
-  ]);
-
-  const branding = (tenant?.branding as { primaryColor?: string } | null) ?? null;
+  // School branding is applied by the app layout and the school's sign-in page (BrandStyle),
+  // not here: the public EduCore site keeps EduCore's own look.
+  const [locale, messages, timeZone] = await Promise.all([getLocale(), getMessages(), getTimeZone()]);
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body
-        className="min-h-screen font-sans antialiased"
-        style={branding?.primaryColor ? ({ "--tenant-primary": branding.primaryColor } as React.CSSProperties) : undefined}
-      >
+      <body className="min-h-screen font-sans antialiased">
         <Providers locale={locale} messages={messages} timeZone={timeZone}>
           {children}
         </Providers>

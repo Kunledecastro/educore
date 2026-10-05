@@ -3,6 +3,8 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCurrentTenant } from "@/lib/tenant";
 import { LoginForm } from "./login-form";
+import { BrandStyle } from "@/components/branding/brand-style";
+import { logoUrl, parseBranding } from "@/lib/branding";
 
 /** `?error=` codes we explain to the user. Anything else gets the generic message. */
 const KNOWN_ERRORS = ["WrongSchool", "SessionRequired", "CredentialsSignin", "AccessDenied", "Configuration"] as const;
@@ -23,10 +25,18 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
   const rawNotice = Array.isArray(searchParams.notice) ? searchParams.notice[0] : searchParams.notice;
   const notice = (KNOWN_NOTICES as readonly string[]).includes(rawNotice ?? "") ? (rawNotice as (typeof KNOWN_NOTICES)[number]) : null;
 
+  const branding = tenant ? parseBranding(tenant.branding) : null;
+  const logo = tenant && branding ? logoUrl(tenant.id, branding.logoVersion) : null;
+
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
+      <BrandStyle color={branding?.primaryColor ?? null} />
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element -- small, versioned, same-origin logo
+            <img src={logo} alt={tenant?.name ?? ""} className="mx-auto mb-3 h-16 w-16 object-contain" />
+          ) : null}
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {tenant ? tenant.name : "EduCore"}
           </p>

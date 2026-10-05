@@ -173,7 +173,8 @@
     "slugFormat": "Use 3–30 lowercase letters, numbers and single dashes (e.g. greenfield or st-marys)",
     "slugReserved": "That name is reserved — please choose another",
     "acceptTerms": "Please accept the terms to continue",
-    "chooseRecipients": "Choose at least one person to write to"
+    "chooseRecipients": "Choose at least one person to write to",
+    "color": "Enter a colour like #0f766e"
   },
   "actionErrors": {
     "unauthenticated": "Your session has expired. Please sign in again.",
@@ -741,7 +742,8 @@
       "terms": "Terms",
       "grading": "Grading scale",
       "scores": "Score components",
-      "options": "Options"
+      "options": "Options",
+      "branding": "Branding"
     },
     "terms": {
       "noYearTitle": "Create an academic year first",
@@ -842,6 +844,44 @@
       "editDays": "Teachers can change a register for (days)",
       "editDaysHint": "After this, only admins can change it. 0 = same day only.",
       "saved": "Options saved."
+    },
+    "branding": {
+      "intro": "Your school's logo and colour appear in the menu, on your school's sign-in page, and on invoices, receipts and report cards.",
+      "logoTitle": "Logo",
+      "currentLogo": "Your school's logo",
+      "noLogo": "No logo",
+      "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace logo",
+      "uploading": "Uploading…",
+      "removeLogo": "Remove logo",
+      "removeTitle": "Remove the logo?",
+      "removeDescription": "The menu, sign-in page and new documents go back to showing just your school's name.",
+      "logoSaved": "Logo saved",
+      "logoRemoved": "Logo removed",
+      "logoHint": "PNG or JPEG, up to {max} KB. A square logo on a transparent or white background works best.",
+      "colorTitle": "Brand colour",
+      "presets": "Suggested colours",
+      "usePreset": "Use {color}",
+      "color": "Colour",
+      "colorHint": "Leave empty for EduCore's default",
+      "pickColor": "Pick a colour",
+      "reset": "Use default",
+      "contrast": "Text on this colour: {ratio}:1 contrast (4.5:1 or more is easy to read). Text is set to white or black automatically.",
+      "contact": "Address and contact line",
+      "contactHint": "Shown under your school's name on invoices, receipts and report cards, e.g. 12 Allen Avenue, Ikeja · 0803 000 0000",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Branding saved",
+      "preview": "Preview",
+      "previewMenu": "Dashboard",
+      "previewButton": "Save",
+      "previewNote": "In dark mode a dark colour is lightened automatically so it stays visible.",
+      "errors": {
+        "empty": "Choose an image file.",
+        "tooLarge": "That image is too large — the limit is {max} KB.",
+        "notImage": "Use a PNG or JPEG image.",
+        "badColor": "Enter a colour like #0f766e."
+      }
     }
   },
   "attendance": {
