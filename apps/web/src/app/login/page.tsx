@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCurrentTenant } from "@/lib/tenant";
@@ -44,6 +45,14 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
           </div>
         ) : null}
         <LoginForm />
+        {!tenant ? (
+          <p className="text-center text-sm text-muted-foreground">
+            {t("newSchool")}{" "}
+            <Link href="/signup" className="font-medium text-foreground underline underline-offset-2">
+              {t("startTrial")}
+            </Link>
+          </p>
+        ) : null}
       </div>
     </main>
   );

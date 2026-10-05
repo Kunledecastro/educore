@@ -65,7 +65,9 @@
     },
     "notices": {
       "PasswordSet": "Votre mot de passe est défini. Connectez-vous avec votre e-mail et ce nouveau mot de passe."
-    }
+    },
+    "newSchool": "Nouvelle école ?",
+    "startTrial": "Commencer l'essai gratuit"
   },
   "dashboard": {
     "welcome": "Bon retour, {name}",
@@ -166,7 +168,10 @@
     "percent": "Un pourcentage ne peut pas dépasser 100",
     "chooseClasses": "Choisissez au moins une classe",
     "referenceRequired": "Saisissez la référence du virement, du TPE ou du chèque",
-    "signedAmount": "Saisissez un montant comme 5000 ou -5000"
+    "signedAmount": "Saisissez un montant comme 5000 ou -5000",
+    "slugFormat": "Utilisez 3 à 30 lettres minuscules, chiffres et tirets simples (ex. greenfield ou st-marys)",
+    "slugReserved": "Ce nom est réservé — choisissez-en un autre",
+    "acceptTerms": "Veuillez accepter les conditions pour continuer"
   },
   "actionErrors": {
     "unauthenticated": "Votre session a expiré. Veuillez vous reconnecter.",
@@ -2014,6 +2019,235 @@
       },
       "redirecting": "Redirection vers Paystack…",
       "done": "Formule mise à jour"
+    }
+  },
+  "signup": {
+    "title": "Commencez votre essai gratuit",
+    "lead": "Installez votre école sur EduCore en quelques minutes. Vous en serez le premier administrateur et pourrez inviter votre équipe ensuite.",
+    "points": {
+      "trial": "30 jours gratuits, avec tous les modules",
+      "noCard": "Aucune carte nécessaire pour commencer",
+      "import": "Importez élèves et personnel depuis un tableur",
+      "data": "Les données de votre école sont séparées de celles des autres écoles"
+    },
+    "haveAccount": "Vous utilisez déjà EduCore ?",
+    "signIn": "Se connecter",
+    "schoolName": "Nom de l'école",
+    "slug": "Nom court",
+    "slugHint": "L'adresse de votre école sera {address}",
+    "emailHint": "Vous vous connecterez avec cette adresse",
+    "adminName": "Votre nom",
+    "email": "Votre e-mail professionnel",
+    "password": "Mot de passe",
+    "passwordHint": "Au moins 10 caractères, avec une lettre et un chiffre",
+    "confirm": "Confirmer le mot de passe",
+    "slugStatus": {
+      "available": "{address} est disponible",
+      "taken": "Ce nom court est pris — essayez-en un autre",
+      "reserved": "Ce nom est réservé — essayez-en un autre",
+      "format": "Utilisez 3 à 30 lettres minuscules, chiffres et tirets simples",
+      "slow": "Trop de vérifications — patientez un instant"
+    },
+    "accept": "J'accepte le <terms>résumé des conditions et de la confidentialité</terms> d'EduCore",
+    "submit": "Créer mon école",
+    "creating": "Création de votre école…",
+    "signingIn": "Connexion…",
+    "created": "Votre école est prête",
+    "errors": {
+      "tooMany": "Trop d'inscriptions depuis votre réseau. Réessayez plus tard.",
+      "fixErrors": "Veuillez corriger les champs signalés.",
+      "slugTaken": "Ce nom court est pris — choisissez-en un autre.",
+      "emailTaken": "Un compte utilise déjà cet e-mail. Connectez-vous, ou utilisez une autre adresse.",
+      "tryAgain": "Impossible de créer votre école pour le moment. Réessayez."
+    }
+  },
+  "marketing": {
+    "nav": {
+      "label": "Principal",
+      "skip": "Aller au contenu",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "signIn": "Se connecter",
+      "startTrial": "Essai gratuit",
+      "terms": "Conditions et confidentialité"
+    },
+    "home": {
+      "eyebrow": "La gestion scolaire, pensée pour les écoles africaines",
+      "title": "Gérez toute votre école sur une seule plateforme",
+      "lead": "Présences, résultats et bulletins, emplois du temps, frais et paiements en ligne, messages aux parents — au même endroit, facturé par élève.",
+      "ctaTrial": "Commencer l'essai gratuit de 30 jours",
+      "ctaPricing": "Voir les tarifs",
+      "noCard": "Aucune carte nécessaire. Prêt en quelques minutes.",
+      "whatTitle": "Tout le travail du secrétariat, au même endroit",
+      "highlights": {
+        "attendance": {
+          "title": "Les présences en quelques secondes",
+          "body": "Les enseignants font l'appel sur téléphone ; vous voyez les absents du jour dans toute l'école."
+        },
+        "results": {
+          "title": "Notes et résultats",
+          "body": "Contrôle continu et examens, votre barème, rangs et résultats du trimestre."
+        },
+        "reportCards": {
+          "title": "Bulletins",
+          "body": "Générés pour toute une classe, avec appréciations, prêts à imprimer ou partager en PDF."
+        },
+        "fees": {
+          "title": "Frais et reçus",
+          "body": "Facturez le trimestre, appliquez des remises, enregistrez les paiements, émettez des reçus ; voyez qui doit encore."
+        },
+        "messaging": {
+          "title": "Les parents informés",
+          "body": "Annonces à l'école, à une classe ou aux parents, et messages entre enseignants et parents."
+        },
+        "safe": {
+          "title": "Sûr par conception",
+          "body": "Les données de chaque école sont cloisonnées, chaque modification est enregistrée, et les parents ne voient que leurs enfants."
+        }
+      },
+      "howTitle": "Opérationnel dès cette semaine",
+      "steps": {
+        "one": {
+          "title": "Créez votre école",
+          "body": "Le nom de l'école, un nom court et votre compte administrateur. L'essai démarre aussitôt."
+        },
+        "two": {
+          "title": "Importez vos données",
+          "body": "Classes, élèves et personnel depuis un tableur, avec un rapport clair de ce qu'il faut corriger."
+        },
+        "three": {
+          "title": "Invitez votre équipe",
+          "body": "Envoyez les invitations au personnel et aux parents ; chacun choisit son mot de passe."
+        }
+      }
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "lead": "Ce qu'EduCore fait pour votre école — du premier jour du trimestre au dernier bulletin.",
+      "cta": "Commencer l'essai gratuit",
+      "seePricing": "Voir les tarifs",
+      "sections": {
+        "people": {
+          "title": "Élèves, personnel et parents",
+          "a": "Dossiers élèves avec classes, sections et liens parents",
+          "b": "Comptes du personnel par rôle : administrateur, enseignant, économe",
+          "c": "Import et export CSV pour chaque liste"
+        },
+        "attendance": {
+          "title": "Présences",
+          "a": "Appel quotidien par section, sur téléphone ou ordinateur",
+          "b": "Synthèses d'absences par élève et par classe",
+          "c": "Selon le fuseau horaire et le calendrier de l'école"
+        },
+        "assessments": {
+          "title": "Évaluations et résultats",
+          "a": "Vos composantes de notes (CC, examens) et votre barème",
+          "b": "Saisie des notes par matière, avec contrôles",
+          "c": "Résultats et rangs du trimestre, publiés quand vous le décidez"
+        },
+        "reportCards": {
+          "title": "Bulletins",
+          "a": "Toute une classe générée en arrière-plan",
+          "b": "Appréciations de l'enseignant et du directeur",
+          "c": "PDF par élève ou pour la classe"
+        },
+        "timetable": {
+          "title": "Emploi du temps",
+          "a": "Périodes, pauses et salles",
+          "b": "Détection des conflits d'enseignants et de salles",
+          "c": "Chaque enseignant, classe et parent voit le sien"
+        },
+        "fees": {
+          "title": "Frais et paiements",
+          "a": "Barèmes par classe et trimestre, remises et frais optionnels",
+          "b": "Factures du trimestre en une fois ; reçus et annulations",
+          "c": "Liste des débiteurs et encaissements du jour"
+        },
+        "onlinePayments": {
+          "title": "Paiement en ligne par les parents",
+          "a": "Paiement par carte, virement ou USSD via Paystack",
+          "b": "Paiements enregistrés uniquement après confirmation de Paystack",
+          "c": "Reçus émis automatiquement"
+        },
+        "messaging": {
+          "title": "Annonces et messages",
+          "a": "Annonces à l'école, à une classe ou à un groupe",
+          "b": "Échanges enseignant–parent au sujet d'un enfant",
+          "c": "Notifications par e-mail une fois l'e-mail configuré"
+        },
+        "platform": {
+          "title": "Sécurité et support",
+          "a": "Les données de chaque école isolées dans la base elle-même",
+          "b": "Un journal de chaque modification de notes, présences, frais et personnes",
+          "c": "Le support n'accède à votre école que sur demande, et c'est enregistré"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Un tarif simple, par élève",
+      "lead": "Payez seulement pour vos élèves réels, mois par mois, en naira. Chaque formule inclut élèves, personnel, parents, scolarité, imports et journal d'audit.",
+      "trial": "Chaque école commence par 30 jours gratuits, avec tous les modules et jusqu'à {max} élèves.",
+      "perStudent": "par élève actif, par mois",
+      "unlimited": "Sans limite d'élèves",
+      "upTo": "Jusqu'à {max} élèves",
+      "core": "Élèves, personnel, parents et imports",
+      "cta": "Essai gratuit",
+      "estimator": {
+        "title": "Estimez votre coût",
+        "students": "Nombre d'élèves",
+        "plan": "Formule",
+        "month": "Par mois",
+        "term": "Par trimestre (≈4 mois)",
+        "overLimit": "Au-delà de la limite",
+        "note": "Estimations en naira. Facturation mensuelle selon les élèves actifs ce jour-là (au moins un)."
+      },
+      "faqTitle": "Questions",
+      "faq": {
+        "counted": {
+          "q": "Quels élèves comptent ?",
+          "a": "Seuls les élèves actifs le jour de la facturation. Les élèves retirés ou diplômés ne comptent pas."
+        },
+        "trial": {
+          "q": "Que se passe-t-il après l'essai ?",
+          "a": "Choisissez une formule et payez par carte. Sinon, EduCore passe en lecture seule : vous pouvez toujours tout consulter et exporter."
+        },
+        "change": {
+          "q": "Peut-on changer de formule ?",
+          "a": "Oui. Une formule supérieure s'applique tout de suite ; une formule inférieure à la fin du mois payé."
+        },
+        "pay": {
+          "q": "Comment payer ?",
+          "a": "Par carte via Paystack, en naira. La carte est enregistrée et débitée chaque mois ; vous pouvez arrêter à tout moment."
+        },
+        "stop": {
+          "q": "Et si un paiement échoue ?",
+          "a": "Nous réessayons pendant la semaine suivante et tout continue de fonctionner. Ensuite, payez depuis la page Formule et facturation."
+        }
+      }
+    },
+    "terms": {
+      "title": "Résumé des conditions et de la confidentialité",
+      "draft": "Brouillon : résumé en langage simple du fonctionnement actuel d'EduCore. Il sera remplacé par des conditions complètes et une politique de confidentialité avant toute offre commerciale.",
+      "data": {
+        "title": "Les données de votre école",
+        "body": "Votre école est propriétaire des informations qu'elle saisit (élèves, personnel, parents, résultats, frais). Nous les utilisons uniquement pour fournir le service à votre école. Vous pouvez les exporter à tout moment."
+      },
+      "isolation": {
+        "title": "Comment elles sont protégées",
+        "body": "Les dossiers de chaque école sont séparés dans la base de données, l'accès est limité par rôle, et les modifications de notes, présences, frais et personnes sont enregistrées. L'équipe EduCore n'accède aux données d'une école que pour le support, et cet accès figure dans le journal de l'école."
+      },
+      "payments": {
+        "title": "Paiements",
+        "body": "Les paiements par carte sont traités par Paystack ; EduCore ne voit ni ne stocke jamais les numéros de carte complets. Les abonnements sont facturés chaque mois par élève actif, en naira."
+      },
+      "trial": {
+        "title": "Essai et résiliation",
+        "body": "Les nouvelles écoles bénéficient de 30 jours gratuits. Si un abonnement prend fin, l'école garde un accès en lecture seule pour consulter et exporter ses données."
+      },
+      "contact": {
+        "title": "Questions",
+        "body": "Contactez l'équipe EduCore via l'administrateur de votre école ou l'adresse communiquée lors de l'inscription."
+      }
     }
   }
 }

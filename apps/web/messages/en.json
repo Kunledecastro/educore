@@ -65,7 +65,9 @@
     },
     "notices": {
       "PasswordSet": "Your password is set. Sign in with your email and new password."
-    }
+    },
+    "newSchool": "New school?",
+    "startTrial": "Start a free trial"
   },
   "dashboard": {
     "welcome": "Welcome back, {name}",
@@ -166,7 +168,10 @@
     "percent": "A percentage can't be more than 100",
     "chooseClasses": "Choose at least one class",
     "referenceRequired": "Enter the transfer, POS or cheque reference",
-    "signedAmount": "Enter an amount like 5000 or -5000"
+    "signedAmount": "Enter an amount like 5000 or -5000",
+    "slugFormat": "Use 3–30 lowercase letters, numbers and single dashes (e.g. greenfield or st-marys)",
+    "slugReserved": "That name is reserved — please choose another",
+    "acceptTerms": "Please accept the terms to continue"
   },
   "actionErrors": {
     "unauthenticated": "Your session has expired. Please sign in again.",
@@ -2014,6 +2019,235 @@
       },
       "redirecting": "Taking you to Paystack…",
       "done": "Plan updated"
+    }
+  },
+  "signup": {
+    "title": "Start your free trial",
+    "lead": "Set up your school on EduCore in a couple of minutes. You'll be its first administrator and can invite your staff afterwards.",
+    "points": {
+      "trial": "30 days free, with every module switched on",
+      "noCard": "No card needed to start",
+      "import": "Bring your students and staff in from a spreadsheet",
+      "data": "Your school's data is kept separate from every other school's"
+    },
+    "haveAccount": "Already using EduCore?",
+    "signIn": "Sign in",
+    "schoolName": "School name",
+    "slug": "Short name",
+    "slugHint": "Your school's address will be {address}",
+    "emailHint": "You'll sign in with this",
+    "adminName": "Your name",
+    "email": "Your work email",
+    "password": "Password",
+    "passwordHint": "At least 10 characters, with a letter and a number",
+    "confirm": "Confirm password",
+    "slugStatus": {
+      "available": "{address} is available",
+      "taken": "That short name is taken — try another",
+      "reserved": "That name is reserved — try another",
+      "format": "Use 3–30 lowercase letters, numbers and single dashes",
+      "slow": "Too many checks — wait a moment"
+    },
+    "accept": "I agree to EduCore's <terms>terms and privacy summary</terms>",
+    "submit": "Create my school",
+    "creating": "Creating your school…",
+    "signingIn": "Signing you in…",
+    "created": "Your school is ready",
+    "errors": {
+      "tooMany": "Too many sign-ups from your network. Please try again later.",
+      "fixErrors": "Please fix the highlighted fields.",
+      "slugTaken": "That short name is taken — please choose another.",
+      "emailTaken": "An account already uses this email. Sign in instead, or use another email.",
+      "tryAgain": "We couldn't create your school just now. Please try again."
+    }
+  },
+  "marketing": {
+    "nav": {
+      "label": "Main",
+      "skip": "Skip to content",
+      "features": "Features",
+      "pricing": "Pricing",
+      "signIn": "Sign in",
+      "startTrial": "Start free trial",
+      "terms": "Terms & privacy"
+    },
+    "home": {
+      "eyebrow": "School management, made for Nigerian schools",
+      "title": "Run your whole school on one platform",
+      "lead": "Attendance, results and report cards, timetables, fees and online payments, and messages to parents — in one place, priced per student.",
+      "ctaTrial": "Start your 30-day free trial",
+      "ctaPricing": "See pricing",
+      "noCard": "No card needed. Set up in minutes.",
+      "whatTitle": "Everything a school office does, in one place",
+      "highlights": {
+        "attendance": {
+          "title": "Attendance in seconds",
+          "body": "Teachers mark the register on any phone; you see who's absent today across the school."
+        },
+        "results": {
+          "title": "Scores and results",
+          "body": "Continuous assessment and exams, your grading scale, class positions and term results."
+        },
+        "reportCards": {
+          "title": "Report cards",
+          "body": "Generated for a whole class at once, with comments, ready to print or share as PDFs."
+        },
+        "fees": {
+          "title": "Fees and receipts",
+          "body": "Bill the term, apply discounts, record payments and issue receipts; see who still owes."
+        },
+        "messaging": {
+          "title": "Parents in the loop",
+          "body": "Announcements to the school, a class or parents, and messages between teachers and parents."
+        },
+        "safe": {
+          "title": "Safe by design",
+          "body": "Each school's data is walled off, every change is recorded, and parents see only their own children."
+        }
+      },
+      "howTitle": "Up and running this week",
+      "steps": {
+        "one": {
+          "title": "Create your school",
+          "body": "Your school's name, a short name and your admin account. The trial starts at once."
+        },
+        "two": {
+          "title": "Bring in your data",
+          "body": "Import classes, students and staff from a spreadsheet, with a clear report of anything to fix."
+        },
+        "three": {
+          "title": "Invite your team",
+          "body": "Send staff and parents their invitations; they set their own passwords."
+        }
+      }
+    },
+    "features": {
+      "title": "Features",
+      "lead": "What EduCore does for your school — from the first day of term to the last report card.",
+      "cta": "Start your free trial",
+      "seePricing": "See pricing",
+      "sections": {
+        "people": {
+          "title": "Students, staff and parents",
+          "a": "Student records with classes, sections and parent links",
+          "b": "Staff accounts with roles: admin, teacher, bursar",
+          "c": "CSV import and export for every list"
+        },
+        "attendance": {
+          "title": "Attendance",
+          "a": "Daily registers by section, on phone or computer",
+          "b": "Absence summaries by student and class",
+          "c": "Uses your school's time zone and calendar"
+        },
+        "assessments": {
+          "title": "Assessments and results",
+          "a": "Your own score components (CA, exams) and grading scale",
+          "b": "Score entry per subject, with validation",
+          "c": "Term results and class positions, published when you're ready"
+        },
+        "reportCards": {
+          "title": "Report cards",
+          "a": "A whole class generated in the background",
+          "b": "Teacher and head teacher comments",
+          "c": "PDF download for each student or the class"
+        },
+        "timetable": {
+          "title": "Timetable",
+          "a": "Periods, breaks and rooms",
+          "b": "Clash checks for teachers and rooms",
+          "c": "Each teacher, class and parent sees their own"
+        },
+        "fees": {
+          "title": "Fees and payments",
+          "a": "Fee schedules per class and term, discounts and optional fees",
+          "b": "Invoices for the whole term in one run; receipts and reversals",
+          "c": "Debtors list and daily collections report"
+        },
+        "onlinePayments": {
+          "title": "Online payment by parents",
+          "a": "Parents pay by card, transfer or USSD through Paystack",
+          "b": "Payments recorded only after Paystack confirms them",
+          "c": "Receipts issued automatically"
+        },
+        "messaging": {
+          "title": "Announcements and messages",
+          "a": "Announcements to the school, a class or a group",
+          "b": "Teacher–parent conversations about a child",
+          "c": "Email notifications once your email service is set up"
+        },
+        "platform": {
+          "title": "Security and support",
+          "a": "Every school's data isolated in the database itself",
+          "b": "An audit log of every change to grades, attendance, fees and people",
+          "c": "Support can only see your school when you ask, and it's recorded"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Simple pricing, per student",
+      "lead": "Pay only for the students you actually have, month by month, in naira. Every plan includes students, staff, parents, academics, imports and the audit log.",
+      "trial": "Every school starts with 30 days free, with all modules and up to {max} students.",
+      "perStudent": "per active student, per month",
+      "unlimited": "No student limit",
+      "upTo": "Up to {max} students",
+      "core": "Students, staff, parents and imports",
+      "cta": "Start free trial",
+      "estimator": {
+        "title": "Estimate your cost",
+        "students": "Number of students",
+        "plan": "Plan",
+        "month": "Per month",
+        "term": "Per term (≈4 months)",
+        "overLimit": "Over limit",
+        "note": "Estimates in naira. You're billed each month for the students who are active that day (at least one)."
+      },
+      "faqTitle": "Questions",
+      "faq": {
+        "counted": {
+          "q": "Which students count?",
+          "a": "Only active students on the day you're billed. Withdrawn and graduated students don't count."
+        },
+        "trial": {
+          "q": "What happens after the free trial?",
+          "a": "Choose a plan and pay by card. If you don't, EduCore becomes read-only: you can still see and export everything."
+        },
+        "change": {
+          "q": "Can we change plan?",
+          "a": "Yes. Upgrades apply straight away; downgrades apply at the end of the month you've paid for."
+        },
+        "pay": {
+          "q": "How do we pay?",
+          "a": "By card through Paystack, in naira. The card is saved and charged monthly; you can stop that any time."
+        },
+        "stop": {
+          "q": "What if a payment fails?",
+          "a": "We try again over the following week and everything keeps working meanwhile. After that, you can pay from your Plan & billing page."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms and privacy summary",
+      "draft": "Draft: this is a plain-language summary of how EduCore works today. It will be replaced by full terms and a privacy policy before EduCore is offered commercially.",
+      "data": {
+        "title": "Your school's data",
+        "body": "Your school owns the information it puts into EduCore (students, staff, parents, results, fees). We use it only to run the service for your school. You can export it at any time."
+      },
+      "isolation": {
+        "title": "How it's protected",
+        "body": "Each school's records are kept separate in the database, access is limited by role, and changes to grades, attendance, fees and people are recorded in an audit log. EduCore staff see a school's data only for support, and that access is recorded in the school's own log."
+      },
+      "payments": {
+        "title": "Payments",
+        "body": "Card payments are handled by Paystack; EduCore never sees or stores full card numbers. Subscriptions are billed monthly per active student, in naira."
+      },
+      "trial": {
+        "title": "Trial and cancelling",
+        "body": "New schools get a 30-day free trial. If a subscription ends, the school keeps read-only access to view and export its data."
+      },
+      "contact": {
+        "title": "Questions",
+        "body": "Contact the EduCore team through your school's administrator or the address you were given when you signed up."
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { RESERVED_SLUGS as RESERVED_SUBDOMAINS } from "./lib/slugs";
 
 // Root domains that mean "no tenant subdomain present" (marketing site,
 // platform admin panel). Configure via env so preview deployments and the
@@ -7,7 +8,7 @@ const ROOT_DOMAINS = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000,edu
   .split(",")
   .map((d) => d.trim().toLowerCase());
 
-const RESERVED_SUBDOMAINS = new Set(["www", "app", "admin", "api"]);
+// Same list the sign-up form refuses as short names (lib/slugs.ts).
 
 // Headers only this middleware may set. Any copy sent by the client is
 // stripped first, otherwise a caller could forge its tenant context.

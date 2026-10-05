@@ -11,6 +11,38 @@ Stripe Billing, same reason as school fees); editable placeholder prices
 (Starter ₦300 / Standard ₦500 / Premium ₦800 per student per month); open
 self-serve sign-up with a 30-day trial; announcements + teacher–parent chat.
 
+### Added (milestone 4.3 — self-serve sign-up and marketing site, 2026-10-05)
+
+- **Public site**: home (`/`), features (`/features`), pricing (`/pricing`,
+  live from the plan catalogue, with a cost estimator by number of students
+  and an FAQ), and a terms & privacy summary (`/terms`, marked DRAFT until
+  reviewed by a lawyer). English and French. On a school's own address, `/`
+  goes straight to that school's sign-in.
+- **Sign-up** (`/signup`): school name, short name (suggested from the name,
+  checked live: available / taken / reserved), the first admin's name, email
+  and password, acceptance of the terms. One transaction creates the school on
+  the 30-day free trial and its admin; the browser then signs in and lands on
+  the dashboard, where the setup checklist takes over.
+- Sign-in page links to the trial for new schools.
+
+### Security (milestone 4.3)
+
+- Short names follow DNS rules (3–30 lowercase letters, digits, single
+  dashes) and can't take ~60 reserved names (www, admin, api, billing,
+  support, login…); the same list is what middleware refuses as subdomains.
+- Rate limits on the public form: 5 sign-ups per IP per hour, 10 per day, 200
+  platform-wide per hour; 60 short-name checks per IP per 10 minutes. A hidden
+  honeypot field stops simple bots.
+- Short names and emails are unique in the database; two sign-ups racing for
+  the same name produce exactly one school and no orphan account.
+- Passwords: argon2, same rules as invites. Never logged or audited.
+- Each sign-up is in the school's audit log and the platform log
+  (`TENANT_SIGNUP`); new schools appear in the platform console at once.
+- Known limit: no email verification yet (needs Resend) — anyone can start a
+  trial with any address they control the password for.
+- Tests: 4 short-name unit tests; 4 integration tests (trial + admin +
+  audits, duplicate name/email, concurrent race, isolation of the new school).
+
 ### Added (milestone 4.2 — subscription billing with Paystack, 2026-10-05)
 
 - **Plan & billing** (`/plan`, school admins): choose a plan and pay on

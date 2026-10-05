@@ -98,8 +98,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       // Credentials already fully validated in authorize(). For OAuth, only
-      // allow sign-in for pre-provisioned, active accounts — EduCore has no
-      // public self-service signup; users are invited by a SCHOOL_ADMIN.
+      // allow sign-in for pre-provisioned, active accounts. OAuth never creates
+      // accounts: schools sign up with a password (/signup) and invite their staff.
       if (account?.provider === "credentials") return true;
       if (!user.email) return false;
       const existing = await prisma.user.findUnique({ where: { email: user.email } });
