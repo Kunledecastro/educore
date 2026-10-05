@@ -28,6 +28,15 @@ describe("RBAC permission matrix", () => {
     }
   });
 
+  it("messages are teacher ↔ parent (and admins); announcements are posted by admins and teachers (4.4)", () => {
+    for (const role of [Role.SCHOOL_ADMIN, Role.TEACHER, Role.PARENT]) expect(can(role, "message", "create")).toBe(true);
+    for (const role of [Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "message", "read")).toBe(false);
+    expect(can(Role.TEACHER, "announcement", "create")).toBe(true);
+    expect(can(Role.TEACHER, "announcement", "delete")).toBe(false);
+    for (const role of [Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "announcement", "create")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "announcement", "delete")).toBe(true);
+  });
+
   it("never lets ANY role delete the audit log", () => {
     for (const role of Object.values(Role)) {
       expect(can(role, "auditLog", "delete")).toBe(false);

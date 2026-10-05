@@ -7,6 +7,8 @@ import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
 import { PlanBanner } from "@/components/plan/plan-banner";
 import { getEntitlements } from "@/lib/entitlements-server";
+import { can } from "@educore/auth";
+import { unreadThreadCount } from "@/lib/messaging/data";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // The effective user: normally the signed-in user; while support impersonates, the school admin.
@@ -24,7 +26,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // The school's plan decides which modules appear (4.1); platform admins aren't on a plan.
   const entitlements = session.user.tenantId ? await getEntitlements(session.user.tenantId) : null;
-  const items = getNavItemsForRole(session.user.role, entitlements?.modules ?? null);
+  const unread =
+    session.user.tenantId && entitlements?.modules.has("messaging") && can(session.user.role, "message", "read")
+      ? await unreadThreadCount(session.user.tenantId, session.user.id)
+      : 0;
+  const items = getNavItemsForRole(session.user.role, entitlements?.modules ?? null).map((i) => (i.href === "/messages" && unread ? { ...i, badge: unread } : i));
   const settings = session.user.tenantId ? await getSettingsForUser(session.user.tenantId) : null;
 
   return (

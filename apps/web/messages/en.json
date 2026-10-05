@@ -42,7 +42,8 @@
     "imports": "Import & export",
     "platformAudit": "Platform activity",
     "plan": "Plan & billing",
-    "platformPlans": "Plans"
+    "platformPlans": "Plans",
+    "unread": "unread"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -171,7 +172,8 @@
     "signedAmount": "Enter an amount like 5000 or -5000",
     "slugFormat": "Use 3–30 lowercase letters, numbers and single dashes (e.g. greenfield or st-marys)",
     "slugReserved": "That name is reserved — please choose another",
-    "acceptTerms": "Please accept the terms to continue"
+    "acceptTerms": "Please accept the terms to continue",
+    "chooseRecipients": "Choose at least one person to write to"
   },
   "actionErrors": {
     "unauthenticated": "Your session has expired. Please sign in again.",
@@ -2248,6 +2250,102 @@
         "title": "Questions",
         "body": "Contact the EduCore team through your school's administrator or the address you were given when you signed up."
       }
+    }
+  },
+  "announcements": {
+    "pageTitle": "Announcements",
+    "pageDescription": "News and notices for your school, classes and groups.",
+    "new": "New announcement",
+    "edit": "Edit announcement",
+    "editNamed": "Edit “{title}”",
+    "deleteNamed": "Delete “{title}”",
+    "deleteTitle": "Delete this announcement?",
+    "deleteDescription": "“{title}” will be removed for everyone. This can't be undone (it stays in the audit log).",
+    "delete": "Delete",
+    "deleted": "Announcement deleted",
+    "title": "Title",
+    "body": "Message",
+    "audience": "Who should see it",
+    "class": "Class",
+    "classHint": "Its teachers, students and parents will see it",
+    "chooseClass": "Choose a class",
+    "role": "Group",
+    "chooseRole": "Choose a group",
+    "pin": "Pin to the top",
+    "post": "Post",
+    "save": "Save",
+    "posted": "Announcement posted",
+    "saved": "Announcement saved",
+    "audiences": {
+      "SCHOOL": "Whole school",
+      "CLASS": "A class",
+      "ROLE": "A group (e.g. all parents)"
+    },
+    "toRole": "To: {role}s",
+    "toClass": "To: {name}",
+    "pinned": "Pinned",
+    "byline": "{name} · {when}",
+    "emptyTitle": "No announcements yet",
+    "emptyPoster": "Post news, reminders and notices for your school or a class.",
+    "emptyReader": "Announcements from your school will appear here.",
+    "seeAll": "See all",
+    "none": "Nothing new from your school.",
+    "errors": {
+      "notAllowed": "You can't change this announcement.",
+      "classNotTaught": "Teachers can post only to classes they teach.",
+      "pinAdminOnly": "Only school admins can pin announcements.",
+      "notFound": "That announcement or class no longer exists.",
+      "noRecipients": "Choose who should see it.",
+      "recipientNotAllowed": "You can't post to that audience."
+    }
+  },
+  "messages": {
+    "pageTitle": "Messages",
+    "pageDescription": "Conversations between teachers and parents about a child.",
+    "new": "New message",
+    "newDescription": "Choose the child the message is about, then who to write to.",
+    "views": "Which conversations",
+    "mine": "My conversations",
+    "allSchool": "All school conversations",
+    "allSchoolNote": "As a school admin you can read every conversation, for safeguarding. Replying adds you to it, and everyone in it will see that.",
+    "findStudent": "Find a student",
+    "findStudentHint": "Name or admission number",
+    "student": "About",
+    "chooseStudent": "Choose a student",
+    "noStudents": "No students found",
+    "to": "To",
+    "loading": "Loading…",
+    "noRecipients": "There's no one you can write to about this student yet (no parent account, or no teacher assigned).",
+    "kinds": {
+      "PARENT": "parent",
+      "FORM_TEACHER": "form teacher",
+      "TEACHER": "teacher",
+      "SCHOOL_ADMIN": "school admin"
+    },
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Message sent",
+    "reply": "Reply",
+    "joinHint": "You're not in this conversation yet: replying adds you, and the others will see your name.",
+    "joinAndSend": "Join and send",
+    "safeguarding": "Messages are kept by the school and can't be edited or deleted. School administrators can read them for safeguarding.",
+    "about": "About {name}",
+    "unread": "unread",
+    "back": "All messages",
+    "conversation": "Conversation",
+    "you": "You",
+    "viewingAsAdmin": "You're viewing this conversation as a school admin. The people in it can't see that you've read it.",
+    "emptyTitle": "No conversations yet",
+    "emptyDescription": "Start one with “New message”.",
+    "errors": {
+      "notAllowed": "You can't send messages here.",
+      "notFound": "That conversation or student isn't available to you.",
+      "noRecipients": "Choose at least one person to write to.",
+      "recipientNotAllowed": "You can't write to one of the people chosen about this student.",
+      "classNotTaught": "Not allowed.",
+      "pinAdminOnly": "Not allowed."
     }
   }
 }

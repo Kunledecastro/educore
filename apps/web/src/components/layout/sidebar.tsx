@@ -52,6 +52,12 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
             {t(item.labelKey)}
+            {item.badge ? (
+              <span className={cn("ml-auto rounded-full px-2 py-0.5 text-xs font-semibold", active ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground")}>
+                {item.badge > 99 ? "99+" : item.badge}
+                <span className="sr-only"> {t("unread")}</span>
+              </span>
+            ) : null}
           </Link>
         );
       })}

@@ -350,6 +350,7 @@ model User {
   attendanceMarked      Attendance[]           @relation("AttendanceMarkedBy")
   marksEntered          Mark[]                 @relation("MarkEnteredBy")
   announcementsMade     Announcement[]         @relation("AnnouncementPublishedBy")
+  threadsStarted        MessageThread[]        @relation("ThreadCreatedBy")
   messagesSent          Message[]              @relation("MessageSender")
   threadParticipants    ThreadParticipant[]
   auditLogEntries       AuditLog[]             @relation("AuditActor")
@@ -441,6 +442,7 @@ model ClassGrade {
   order          Int          @default(0)
 
   sections           Section[]
+  announcements      Announcement[]
   students           Student[]
   feeStructures      FeeStructure[]
   timetableEntries   TimetableEntry[]
@@ -797,39 +799,50 @@ model Announcement {
   audienceScope   AnnouncementAudience @default(SCHOOL)
   audienceClassId String?
   audienceRole    Role?
+  audienceClass   ClassGrade?          @relation(fields: [audienceClassId], references: [id], onDelete: Cascade)
+  isPinned        Boolean              @default(false)
   publishedById   String
   publishedBy     User                 @relation("AnnouncementPublishedBy", fields: [publishedById], references: [id])
   publishedAt     DateTime             @default(now())
+  updatedAt       DateTime             @default(now()) @updatedAt
 
   @@index([tenantId])
   @@index([tenantId, publishedAt])
+  @@index([tenantId, isPinned, publishedAt])
   @@map("announcements")
 }
 
 model MessageThread {
-  id        String   @id @default(cuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  subject   String
-  studentId String?
-  student   Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subject       String
+  studentId     String?
+  student       Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  createdById   String?
+  createdBy     User?    @relation("ThreadCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime @default(now())
 
   participants ThreadParticipant[]
   messages     Message[]
 
   @@index([tenantId])
+  @@index([tenantId, lastMessageAt])
   @@map("message_threads")
 }
 
 model ThreadParticipant {
-  id       String        @id @default(cuid())
-  threadId String
-  thread   MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  userId   String
-  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String        @id @default(cuid())
+  threadId   String
+  thread     MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime?
+  joinedAt   DateTime      @default(now())
 
   @@unique([threadId, userId])
+  @@index([userId])
   @@map("thread_participants")
 }
 

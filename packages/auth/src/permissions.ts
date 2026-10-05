@@ -149,7 +149,7 @@ export const PERMISSION_MATRIX: Matrix = {
     timetable: R,
     announcement: R,
     invoice: R,
-    message: RW,
+    // no messaging for students (Phase 4.4: teacher ↔ parent only)
   },
 };
 

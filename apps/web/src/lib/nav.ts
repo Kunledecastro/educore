@@ -21,6 +21,8 @@ export interface NavItem {
   // passed to the client <Sidebar>, and React can't serialise a component
   // (function) across that boundary. The sidebar maps names to icons.
   icon: NavIconName;
+  /** A small count beside the label (e.g. unread messages). */
+  badge?: number;
 }
 
 /**
@@ -63,6 +65,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
+      { labelKey: "messages", href: "/messages", icon: "MessageSquare" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
@@ -87,6 +90,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "students", href: "/students", icon: "Users" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
+      { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
     );
   }

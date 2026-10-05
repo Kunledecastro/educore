@@ -139,5 +139,6 @@ export { generateReportCards } from "./generate-report-cards";
 export { billTerm } from "./bill-term";
 import { billTerm } from "./bill-term";
 import { generateReportCards } from "./generate-report-cards";
+import { notifyMessage } from "./notify-message";
 import { renewSubscriptions } from "./renew-subscriptions";
-export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions];
+export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions, notifyMessage];

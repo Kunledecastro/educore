@@ -3,13 +3,56 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 4 — SaaS platform (in progress)
+## Phase 4 — SaaS platform (complete, 2026-10-05)
 
 Spec: `claude/phase-4-spec.md` (confirmed 2026-10-05): EduCore's own
 subscriptions billed with **Paystack in naira** (deviation from the brief's
 Stripe Billing, same reason as school fees); editable placeholder prices
 (Starter ₦300 / Standard ₦500 / Premium ₦800 per student per month); open
 self-serve sign-up with a 30-day trial; announcements + teacher–parent chat.
+
+### Added (milestone 4.4 — announcements and messaging, 2026-10-05)
+
+- **Announcements** (`/announcements`): to the whole school, a class (its
+  teachers, students and parents) or a group (e.g. all parents). School
+  admins post to anyone, pin, edit and delete; teachers post to classes they
+  teach and edit their own. Pinned first, newest next. Everyone's dashboard
+  shows the latest three meant for them.
+- **Messages** (`/messages`): conversations between teachers and parents about
+  a child. Teachers write to parents of students they teach; parents write to
+  their child's form and subject teachers and to school admins; admins write to
+  any student's parents. Unread counts in the menu and on dashboards; opening a
+  conversation marks it read.
+- **Safeguarding**: school admins can read every conversation ("All school
+  conversations"); replying adds them visibly. Messages can't be edited or
+  deleted, and everyone is told so.
+- **Notification channels**: one interface — in-app now; email through Resend
+  as soon as `RESEND_API_KEY`/`EMAIL_FROM` are set (a background job tells the
+  other participants who wrote and about whom, never the message itself); SMS
+  or WhatsApp can be added as channels later.
+- Bursars (accountants) now see announcements; students see announcements but
+  don't message (teacher ↔ parent only).
+
+### Security (milestone 4.4)
+
+- Migration `0021_messaging` (additive): announcement audience must be
+  consistent (CHECK), class audience is a real class (FK), length limits;
+  thread `createdById`/`lastMessageAt`, participant `lastReadAt`; messages
+  length-checked and **UPDATE/DELETE revoked from the app role** (permanent
+  record).
+- Who may see, post, edit, write to whom and read a thread is decided in one
+  pure, tested module (`lib/messaging/rules.ts`); the database query for
+  announcement audiences is tested against the rule for every role.
+- Recipients are re-checked on the server against the student (a parent can't
+  be added to someone else's child's conversation, a teacher can't write about
+  a student they don't teach). Everything runs in the school's RLS
+  transaction; announcement changes and conversation starts are audited.
+- RBAC: students no longer hold `message` permissions; teachers can't delete
+  announcements.
+- Tests: 10 rule tests, 3 channel tests, RBAC test, 10 integration tests
+  (audiences, posting/editing rights, rule ≡ query, recipients for each role,
+  unread/read/reply, other parents/teachers locked out, admin safeguarding
+  view and visible join, messages immutable, another school sees nothing).
 
 ### Added (milestone 4.3 — self-serve sign-up and marketing site, 2026-10-05)
 

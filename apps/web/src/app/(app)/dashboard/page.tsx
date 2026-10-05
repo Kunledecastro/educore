@@ -13,6 +13,10 @@ import { teacherSectionIds } from "@/lib/teacher-sections";
 import { feeTotals } from "@/lib/fee-summary";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
+import { AnnouncementsCard } from "@/components/messaging/announcements-card";
+import { getEntitlements } from "@/lib/entitlements-server";
+import { unreadThreadCount, viewerFor } from "@/lib/messaging/data";
+import type { MessagingRole } from "@/lib/messaging/rules";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -44,6 +48,11 @@ export default async function DashboardPage() {
     const [checklist, { tenant }] = await Promise.all([loadOnboardingChecklist(db, user.id), getTenantForUser(user.tenantId)]);
     onboarding = { checklist, hidden: Boolean(tenant?.onboardingDismissedAt) };
   }
+
+  // Announcements and unread messages (4.4), when the school's plan includes messaging.
+  const messaging = user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("messaging") : false;
+  const viewer = messaging && user.tenantId ? await viewerFor(user.tenantId, { id: user.id, role: user.role as MessagingRole }) : null;
+  const unread = viewer && can(user.role, "message", "read") ? await unreadThreadCount(user.tenantId!, user.id) : null;
 
   switch (user.role) {
     case Role.PLATFORM_ADMIN: {
@@ -104,7 +113,7 @@ export default async function DashboardPage() {
       stats = [
         { label: t("todaysClasses"), value: classesToday },
         { label: t("pendingAttendance"), value: pending ? pending.incomplete : t("noSchoolToday") },
-        { label: t("unreadMessages"), value: 0 },
+        ...(unread !== null ? [{ label: t("unreadMessages"), value: unread }] : []),
       ];
       break;
     }
@@ -119,6 +128,7 @@ export default async function DashboardPage() {
       stats = [
         { label: t("childrenOverview"), value: childCount },
         { label: t("feesDue"), value: money((fees?.outstanding ?? 0) / 100) },
+        ...(unread !== null ? [{ label: t("unreadMessages"), value: unread }] : []),
       ];
       break;
     }
@@ -149,6 +159,7 @@ export default async function DashboardPage() {
           <StatCard key={s.label} label={s.label} value={s.value} />
         ))}
       </div>
+      {viewer ? <AnnouncementsCard viewer={viewer} settings={settings} /> : null}
     </div>
   );
 }

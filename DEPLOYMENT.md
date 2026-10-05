@@ -100,7 +100,7 @@ data.
 
 | Service | Free tier | Env vars |
 |---|---|---|
-| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
+| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed, and new-message notifications stay in-app (unread counts) only. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
 | Paystack (school fees online + EduCore subscriptions) | free account; fees per transaction | `PAYSTACK_SECRET_KEY` (Test Secret Key, `sk_test_…`, Sensitive, Production + Preview). In Paystack → Settings → API Keys & Webhooks (Test mode) set **Test Webhook URL** to `https://<your-domain>/api/webhooks/paystack`. Without the key, parents don't see "Pay online"; bursary payments are unaffected. Money goes to the account that owns the key. The same key and webhook also take schools' EduCore subscription payments (Phase 4.2; references `ECB-…`), and the Inngest function "Renew EduCore subscriptions" charges saved cards daily at 06:00 Lagos — it syncs automatically on deploy. |
 | Stripe (EduCore subscriptions, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Cloudflare R2 (file storage) | 10GB free | `STORAGE_*` |

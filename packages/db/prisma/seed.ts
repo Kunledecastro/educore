@@ -321,6 +321,17 @@ async function main() {
       title: "Welcome back for the 2026/2027 session",
       body: "Classes resume Monday, September 8th. Please ensure fees are settled by the due date.",
       audienceScope: "SCHOOL",
+      isPinned: true,
+      publishedById: admin.id,
+    },
+  });
+  await prisma.announcement.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Parent–teacher meeting",
+      body: "Parents are invited to meet class teachers on Saturday from 10am in the main hall.",
+      audienceScope: "ROLE",
+      audienceRole: "PARENT",
       publishedById: admin.id,
     },
   });

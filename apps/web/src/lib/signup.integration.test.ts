@@ -56,7 +56,7 @@ describe("school sign-up", () => {
     const results = await Promise.allSettled([createSchool({ ...school("r1"), slug }, meta), createSchool({ ...school("r2"), slug }, meta)]);
     const won = results.filter((r): r is PromiseFulfilledResult<{ tenantId: string; userId: string }> => r.status === "fulfilled");
     expect(won).toHaveLength(1);
-    created.push(won[0].value.tenantId);
+    created.push(won[0]!.value.tenantId);
     const lost = results.find((r) => r.status === "rejected") as PromiseRejectedResult;
     expect(lost.reason).toEqual(new SignupError("slugTaken"));
     expect(await prisma.tenant.count({ where: { slug } })).toBe(1);

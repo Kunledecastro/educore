@@ -42,7 +42,8 @@
     "imports": "Import et export",
     "platformAudit": "Activité de la plateforme",
     "plan": "Formule et facturation",
-    "platformPlans": "Formules"
+    "platformPlans": "Formules",
+    "unread": "non lus"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -171,7 +172,8 @@
     "signedAmount": "Saisissez un montant comme 5000 ou -5000",
     "slugFormat": "Utilisez 3 à 30 lettres minuscules, chiffres et tirets simples (ex. greenfield ou st-marys)",
     "slugReserved": "Ce nom est réservé — choisissez-en un autre",
-    "acceptTerms": "Veuillez accepter les conditions pour continuer"
+    "acceptTerms": "Veuillez accepter les conditions pour continuer",
+    "chooseRecipients": "Choisissez au moins un destinataire"
   },
   "actionErrors": {
     "unauthenticated": "Votre session a expiré. Veuillez vous reconnecter.",
@@ -2248,6 +2250,102 @@
         "title": "Questions",
         "body": "Contactez l'équipe EduCore via l'administrateur de votre école ou l'adresse communiquée lors de l'inscription."
       }
+    }
+  },
+  "announcements": {
+    "pageTitle": "Annonces",
+    "pageDescription": "Nouvelles et avis pour l'école, les classes et les groupes.",
+    "new": "Nouvelle annonce",
+    "edit": "Modifier l'annonce",
+    "editNamed": "Modifier « {title} »",
+    "deleteNamed": "Supprimer « {title} »",
+    "deleteTitle": "Supprimer cette annonce ?",
+    "deleteDescription": "« {title} » sera retirée pour tous. Action irréversible (elle reste dans le journal d'audit).",
+    "delete": "Supprimer",
+    "deleted": "Annonce supprimée",
+    "title": "Titre",
+    "body": "Message",
+    "audience": "Qui doit la voir",
+    "class": "Classe",
+    "classHint": "Ses enseignants, élèves et parents la verront",
+    "chooseClass": "Choisir une classe",
+    "role": "Groupe",
+    "chooseRole": "Choisir un groupe",
+    "pin": "Épingler en haut",
+    "post": "Publier",
+    "save": "Enregistrer",
+    "posted": "Annonce publiée",
+    "saved": "Annonce enregistrée",
+    "audiences": {
+      "SCHOOL": "Toute l'école",
+      "CLASS": "Une classe",
+      "ROLE": "Un groupe (ex. tous les parents)"
+    },
+    "toRole": "Pour : {role}s",
+    "toClass": "Pour : {name}",
+    "pinned": "Épinglée",
+    "byline": "{name} · {when}",
+    "emptyTitle": "Aucune annonce",
+    "emptyPoster": "Publiez nouvelles, rappels et avis pour l'école ou une classe.",
+    "emptyReader": "Les annonces de votre école apparaîtront ici.",
+    "seeAll": "Tout voir",
+    "none": "Rien de nouveau de votre école.",
+    "errors": {
+      "notAllowed": "Vous ne pouvez pas modifier cette annonce.",
+      "classNotTaught": "Les enseignants ne publient que pour leurs classes.",
+      "pinAdminOnly": "Seuls les administrateurs peuvent épingler.",
+      "notFound": "Cette annonce ou cette classe n'existe plus.",
+      "noRecipients": "Choisissez qui doit la voir.",
+      "recipientNotAllowed": "Vous ne pouvez pas publier pour ce public."
+    }
+  },
+  "messages": {
+    "pageTitle": "Messages",
+    "pageDescription": "Échanges entre enseignants et parents au sujet d'un enfant.",
+    "new": "Nouveau message",
+    "newDescription": "Choisissez l'enfant concerné, puis les destinataires.",
+    "views": "Quelles conversations",
+    "mine": "Mes conversations",
+    "allSchool": "Toutes les conversations",
+    "allSchoolNote": "En tant qu'administrateur, vous pouvez lire toutes les conversations, pour la protection des élèves. Répondre vous y ajoute, et les participants le verront.",
+    "findStudent": "Rechercher un élève",
+    "findStudentHint": "Nom ou numéro d'inscription",
+    "student": "Au sujet de",
+    "chooseStudent": "Choisir un élève",
+    "noStudents": "Aucun élève trouvé",
+    "to": "À",
+    "loading": "Chargement…",
+    "noRecipients": "Personne à qui écrire au sujet de cet élève pour l'instant (pas de compte parent, ou pas d'enseignant affecté).",
+    "kinds": {
+      "PARENT": "parent",
+      "FORM_TEACHER": "professeur principal",
+      "TEACHER": "enseignant",
+      "SCHOOL_ADMIN": "administrateur"
+    },
+    "subject": "Objet",
+    "message": "Message",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "sent": "Message envoyé",
+    "reply": "Répondre",
+    "joinHint": "Vous ne participez pas encore : répondre vous ajoute, et les autres verront votre nom.",
+    "joinAndSend": "Rejoindre et envoyer",
+    "safeguarding": "Les messages sont conservés par l'école et ne peuvent être ni modifiés ni supprimés. Les administrateurs peuvent les lire pour la protection des élèves.",
+    "about": "Au sujet de {name}",
+    "unread": "non lu",
+    "back": "Tous les messages",
+    "conversation": "Conversation",
+    "you": "Vous",
+    "viewingAsAdmin": "Vous consultez cette conversation en tant qu'administrateur. Les participants ne voient pas que vous l'avez lue.",
+    "emptyTitle": "Aucune conversation",
+    "emptyDescription": "Commencez-en une avec « Nouveau message ».",
+    "errors": {
+      "notAllowed": "Vous ne pouvez pas envoyer de messages ici.",
+      "notFound": "Cette conversation ou cet élève ne vous est pas accessible.",
+      "noRecipients": "Choisissez au moins un destinataire.",
+      "recipientNotAllowed": "Vous ne pouvez pas écrire à l'une des personnes choisies au sujet de cet élève.",
+      "classNotTaught": "Non autorisé.",
+      "pinAdminOnly": "Non autorisé."
     }
   }
 }

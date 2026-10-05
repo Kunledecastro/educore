@@ -14,6 +14,8 @@ type Events = {
   "educore/billing.requested": { data: { runId: string; tenantId: string } };
   /** Run subscription renewals now (platform team, or Inngest dashboard). Sent only by our server. */
   "educore/subscriptions.renew": { data: Record<string, never> };
+  /** Someone wrote in a conversation; tell the others (if a channel is set up). Sent only by our server. */
+  "educore/message.sent": { data: { tenantId: string; threadId: string; messageId: string; recipientIds: string[] } };
 };
 
 export const inngest = new Inngest({ id: "educore", schemas: new EventSchemas().fromRecord<Events>() });
