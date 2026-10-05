@@ -10,7 +10,7 @@ import { toDateInput } from "@/lib/validation/common";
 import { NewYearButton, YearRowActions } from "./year-actions";
 
 export default async function AcademicYearsPage() {
-  const { user, db } = await requirePermission("academicYear", "read");
+  const { user, db } = await requirePermission("academicYear", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("academics.years"), getSettingsForUser(user.tenantId ?? null)]);
 
   const years = await db.academicYear.findMany({

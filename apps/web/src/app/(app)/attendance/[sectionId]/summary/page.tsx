@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { mergeCounts } from "@/lib/attendance";
 import { attendanceSummaries, loadRegisterSection, sectionStudents } from "@/lib/attendance-data";
 import { formatDateOnly, formatNumber, todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
 import { getSettingsForUser } from "@/lib/tenant";
 import { resolveTermRange } from "@/lib/term-range";
@@ -23,7 +23,7 @@ export default async function AttendanceSummaryPage({
   params: { sectionId: string };
   searchParams: { term?: string | string[] };
 }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("attendance");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin || !can(user.role, "attendance", "read")) redirect("/attendance");
   const section = await loadRegisterSection(ctx, params.sectionId).catch((err) => {

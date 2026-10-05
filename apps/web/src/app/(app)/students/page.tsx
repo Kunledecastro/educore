@@ -26,7 +26,7 @@ import { STATUS_BADGE } from "./status-badge";
 import { NewStudentButton, StudentRowActions } from "./student-ui";
 
 export default async function StudentsPage({ searchParams }: { searchParams: SearchParamsInput & { year?: string | string[] } }) {
-  const ctx = await requirePermission("student", "read");
+  const ctx = await requirePermission("student", "read", { page: true });
   const { db, user } = ctx;
   const t = await getTranslations("students");
   const tl = await getTranslations("list");

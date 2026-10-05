@@ -11,6 +11,50 @@ Stripe Billing, same reason as school fees); editable placeholder prices
 (Starter ₦300 / Standard ₦500 / Premium ₦800 per student per month); open
 self-serve sign-up with a 30-day trial; announcements + teacher–parent chat.
 
+### Added (milestone 4.1 — plans, limits and feature flags, 2026-10-05)
+
+- **Plan catalogue** (`plans` table, edited at `/platform/plans`): name, price
+  per active student per month (naira), student limit, modules included,
+  shown/hidden. Placeholders: Free trial (all modules, 500 students), Starter
+  ₦300 (attendance, assessments, timetable, messaging; 300), Standard ₦500
+  (+ report cards, fees; 1,500), Premium ₦800 (+ online payment; no limit).
+- **Modules enforced on the server**: attendance, assessments, report cards,
+  timetable, fees, online payments, messaging. Outside the plan, the menu
+  hides it, its pages open "Your plan" explaining what's needed, and every
+  action, PDF and export refuses with a friendly upgrade message. Core
+  features (people, academics, imports, settings, audit) are on every plan.
+- **Student limit**: enforced on add, re-activation and CSV import (row by
+  row: existing students still update; new ones past the limit are reported).
+  Withdrawn and graduated students don't count.
+- **Subscription states**: 30-day free trial → paid; after the paid period
+  ends or a payment fails, 7 days' grace (everything works, warning banner),
+  then **read-only** (everyone can view and export; nothing can change) until
+  renewed. Suspended schools stay locked out.
+- **Your plan** (`/plan`, school admins in the menu; anyone sent there): plan,
+  state and dates, students used against the limit, monthly cost now, modules,
+  and the public plans with an estimate for this school's size.
+- **Banners**: trial countdown (admins), grace and read-only (everyone).
+- **Platform console**: change a school's plan by hand with a reason
+  (complimentary, paid offline, trial extension, paid-until date); the
+  school's state shows on its page. Audited as `TENANT_PLAN_CHANGE` /
+  `PLAN_UPDATE` in the platform log, and in the school's own log.
+- Greenfield Academy (demo) is on complimentary Premium with no end date.
+
+### Security (milestone 4.1)
+
+- Migration `0018_plans` (additive): platform-only `plans` table (RLS forced,
+  all privileges revoked from `educore_app`), CHECKs on price, limit and
+  module names.
+- `requirePermission` now checks RBAC **and** the plan; the routes that check
+  RBAC themselves (invoice/receipt/report-card PDFs, exports, imports) call
+  `assertEntitled`. Platform admins aren't on a plan; support impersonation is.
+- The student limit takes a per-school advisory lock, so two enrolments at the
+  same moment can't both take the last place.
+- Tests: 13 entitlement unit tests, 3 navigation tests, 7 integration tests
+  (catalogue → entitlements, schools can't read/write plans, DB CHECKs, lapsed
+  trial read-only, concurrent last-place race, import limit, withdrawn frees a
+  place).
+
 ### Added (milestone 4.0 — platform admin console, 2026-10-05)
 
 - **Schools** (`/platform/tenants`, platform admins): every school with plan

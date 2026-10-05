@@ -14,7 +14,7 @@ import { NewSubjectButton, SubjectRowActions } from "./subject-ui";
 const listConfig = { sortable: ["name", "code"] as const, defaultSort: "name" as const };
 
 export default async function SubjectsPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { db } = await requirePermission("subject", "read");
+  const { db } = await requirePermission("subject", "read", { page: true });
   const t = await getTranslations("academics.subjects");
   const tl = await getTranslations("list");
   const params = parseListParams(searchParams, listConfig);

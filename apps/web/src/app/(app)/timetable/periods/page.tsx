@@ -7,7 +7,7 @@ import { TimetableTabs } from "../tabs";
 import { PeriodsEditor } from "./periods-editor";
 
 export default async function BellSchedulePage() {
-  const ctx = await requirePermission("timetable", "update");
+  const ctx = await requirePermission("timetable", "update", { page: true });
   if (ctx.isPlatformAdmin) redirect("/dashboard");
   const t = await getTranslations("timetable");
   const periods = await loadPeriods(ctx.db);

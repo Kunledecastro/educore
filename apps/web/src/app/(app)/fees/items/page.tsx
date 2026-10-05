@@ -9,7 +9,7 @@ import { FeeItemRowActions, NewFeeItemButton } from "./item-actions";
 
 /** Fee items: the things a school charges for (milestone 3.0). */
 export default async function FeeItemsPage() {
-  const { user, db } = await requirePermission("feeStructure", "read");
+  const { user, db } = await requirePermission("feeStructure", "read", { page: true });
   const t = await getTranslations("fees.items");
   const items = await db.feeType.findMany({
     orderBy: [{ order: "asc" }, { name: "asc" }],

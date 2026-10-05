@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { can } from "@educore/auth";
 import { loadInvoiceDoc } from "@/lib/fee-docs";
 import { renderInvoicePdf } from "@/lib/fee-pdf";
-import { ForbiddenError, requireUser, UnauthenticatedError } from "@/lib/guard";
+import { ForbiddenError, assertEntitled, requireUser, UnauthenticatedError } from "@/lib/guard";
 import { fileSlug } from "@/lib/report-card-pdf";
 import { studentScopeFor } from "@/lib/student-scope";
 import { idSchema } from "@/lib/validation/common";
@@ -19,6 +19,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   try {
     const ctx = await requireUser();
     if (ctx.isPlatformAdmin || !can(ctx.user.role, "invoice", "read")) throw new ForbiddenError();
+    await assertEntitled(ctx, "invoice", "read");
     const id = idSchema.safeParse(params.id);
     if (!id.success) return notFound();
     const doc = await loadInvoiceDoc(ctx.db, ctx.user.tenantId!, id.data, await studentScopeFor(ctx));

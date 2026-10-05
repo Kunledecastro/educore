@@ -17,7 +17,7 @@ import { parseListParams, type SearchParamsInput } from "@/lib/list-params";
 import { AssignmentRowActions, NewAssignmentButton, type SectionGroup } from "./assignment-ui";
 
 export default async function AssignmentsPage({ searchParams }: { searchParams: SearchParamsInput & { year?: string | string[] } }) {
-  const { db } = await requirePermission("teacherAssignment", "read");
+  const { db } = await requirePermission("teacherAssignment", "read", { page: true });
   const [t, tc, tl] = await Promise.all([
     getTranslations("academics.assignments"),
     getTranslations("academics.classes"),

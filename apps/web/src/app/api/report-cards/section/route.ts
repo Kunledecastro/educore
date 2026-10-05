@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { can } from "@educore/auth";
-import { ForbiddenError, requireUser, UnauthenticatedError } from "@/lib/guard";
+import { ForbiddenError, assertEntitled, requireUser, UnauthenticatedError } from "@/lib/guard";
 import { cardState, parseSnapshot, type ReportSnapshot } from "@/lib/report-card";
 import { loadReportCardSection } from "@/lib/report-card-data";
 import { fileSlug, renderReportCards } from "@/lib/report-card-pdf";
@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   try {
     const ctx = await requireUser();
     if (ctx.isPlatformAdmin || !can(ctx.user.role, "reportCard", "export")) throw new ForbiddenError();
+    await assertEntitled(ctx, "reportCard", "export");
     const sectionId = idSchema.safeParse(req.nextUrl.searchParams.get("sectionId"));
     const termId = idSchema.safeParse(req.nextUrl.searchParams.get("term"));
     if (!sectionId.success || !termId.success) return notFound();

@@ -3,12 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { Role } from "@educore/db";
 import { PageHeader } from "@/components/page-header";
 import { StudentResultsCard } from "@/components/results/student-results-card";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
 
 /** A student's own results (published terms only). */
 export default async function MyResultsPage() {
-  const { user, db } = await requireUser();
+  const { user, db } = await requireModule("assessments");
   if (user.role !== Role.STUDENT) redirect("/assessments");
   const t = await getTranslations("gradebook");
   const settings = await getSettingsForUser(user.tenantId ?? null);

@@ -14,7 +14,9 @@ import { requireUser } from "@/lib/guard";
 import { loadOnboardingChecklist } from "@/lib/onboarding-data";
 import { trialDaysLeft, usageFor } from "@/lib/platform-data";
 import { idSchema } from "@/lib/validation/common";
-import { ImpersonateButton, ReactivateButton, SuspendButton } from "./tenant-actions";
+import { STATE_VARIANT } from "@/components/plan/display";
+import { loadEntitlements } from "@/lib/entitlements-data";
+import { ChangePlanButton, ImpersonateButton, ReactivateButton, SuspendButton } from "./tenant-actions";
 
 /** One school, for the platform team (Phase 4.0): usage, setup progress, admins, activity, support sessions. */
 export default async function PlatformTenantPage({ params }: { params: { id: string } }) {
@@ -38,6 +40,8 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
   const firstAdmin = admins.find((a) => a.isActive);
   const checklist = firstAdmin ? await loadOnboardingChecklist(forTenant(tenant.id), firstAdmin.id) : null;
   const days = trialDaysLeft(tenant);
+  const entitlements = await loadEntitlements(tenant.id);
+  const tPlan = await getTranslations("plan");
   const tOn = await getTranslations("onboarding.steps");
 
   return (
@@ -60,7 +64,17 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
       <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {[
           [t("tenant.status"), <Badge key="s" variant={STATUS_VARIANT[tenant.status]}>{t(`statuses.${tenant.status}`)}</Badge>],
-          [t("tenant.plan"), `${t(`plans.${tenant.plan}`)}${days !== null ? ` · ${days < 0 ? t("tenants.trialOver") : t("tenants.trialLeft", { days })}` : ""}`],
+          [
+            t("tenant.plan"),
+            <div key="p" className="space-y-1">
+              <p>{`${t(`plans.${tenant.plan}`)}${days !== null ? ` · ${days < 0 ? t("tenants.trialOver") : t("tenants.trialLeft", { days })}` : ""}`}</p>
+              <p className="flex flex-wrap items-center gap-2 text-xs font-normal text-muted-foreground">
+                <Badge variant={STATE_VARIANT[entitlements.state]}>{tPlan(`states.${entitlements.state}`)}</Badge>
+                {entitlements.until ? `${tPlan(`until.${entitlements.state}`)}: ${formatDateOnly(entitlements.until, fmt)}` : null}
+              </p>
+              <ChangePlanButton tenantId={tenant.id} plan={tenant.plan} until={tenant.subscription?.currentPeriodEnd ? tenant.subscription.currentPeriodEnd.toISOString().slice(0, 10) : ""} />
+            </div>,
+          ],
           [t("tenants.students"), formatNumber(usage.students, fmt)],
           [t("tenant.staffParents"), `${formatNumber(usage.staff, fmt)} / ${formatNumber(usage.parents, fmt)}`],
           [t("tenant.feesCollected"), formatMoney((toMinor(money._sum.amount ?? 0) ?? 0) / 100, fmt)],

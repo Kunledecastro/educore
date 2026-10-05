@@ -16,7 +16,7 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 
 /** Optional items (bus, lunch…): tick who's signed up, per class and term (milestone 3.0). */
 export default async function OptionalFeesPage({ searchParams }: { searchParams: SP }) {
-  const { user, db } = await requirePermission("feeStructure", "read");
+  const { user, db } = await requirePermission("feeStructure", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("fees.optional"), getSettingsForUser(user.tenantId ?? null)]);
   const { terms, selected: term } = await feeTerms(db, settings.timezone, first(searchParams.term));
   const items = await db.feeType.findMany({ where: { isOptional: true, isActive: true }, orderBy: [{ order: "asc" }, { name: "asc" }], select: { id: true, name: true } });

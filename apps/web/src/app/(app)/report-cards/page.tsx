@@ -10,14 +10,14 @@ import { EmptyState } from "@educore/ui/empty-state";
 import { TermSwitcher } from "@/components/list/term-switcher";
 import { PageHeader } from "@/components/page-header";
 import { todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { cardState } from "@/lib/report-card";
 import { reportCardSectionIdsFor } from "@/lib/report-card-data";
 import { getSettingsForUser } from "@/lib/tenant";
 import { resolveTermRange } from "@/lib/term-range";
 
 export default async function ReportCardsPage({ searchParams }: { searchParams: { term?: string | string[] } }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("reportCards");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin) redirect("/dashboard");
   // Families download their child's card from the child's profile.

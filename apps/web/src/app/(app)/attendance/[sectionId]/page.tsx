@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { canEditRegister, isSchoolDay, parseDateParam } from "@/lib/attendance";
 import { attendanceEditDays, loadRegisterSection, sectionStudents } from "@/lib/attendance-data";
 import { formatDateOnly, formatDateTime, todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
 import { getSettingsForUser } from "@/lib/tenant";
 import { toDateInput } from "@/lib/validation/common";
@@ -24,7 +24,7 @@ export default async function RegisterPage({
   params: { sectionId: string };
   searchParams: { date?: string | string[] };
 }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("attendance");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin || !can(user.role, "attendance", "update")) redirect("/attendance");
 

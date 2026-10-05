@@ -19,7 +19,7 @@ import { INVOICE_STATUS_FILTERS, feeTotals } from "@/lib/fee-summary";
 import { feeTerms } from "@/lib/fees-data";
 import { toMinor } from "@/lib/fees";
 import { formatDateOnly, formatMoney, todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { invoiceListQuery } from "@/lib/invoice-list";
 import { displayStatus, type StoredInvoiceStatus } from "@/lib/invoicing";
 import type { SearchParamsInput } from "@/lib/list-params";
@@ -29,7 +29,7 @@ import { InvoiceStatusBadge } from "./status-badge";
 
 /** Invoices for a term (milestone 3.1): totals, then a searchable, filterable list. */
 export default async function InvoicesPage({ searchParams }: { searchParams: SearchParamsInput & { term?: string | string[]; online?: string | string[] } }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("fees");
   // Families: their children's fees and online payment (3.3).
   if (!can(ctx.user.role, "feeStructure", "read")) {
     if (!can(ctx.user.role, "invoice", "read") || ctx.isPlatformAdmin) redirect("/dashboard");

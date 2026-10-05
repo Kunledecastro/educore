@@ -30,7 +30,7 @@ function ageOn(dob: Date, today = new Date()): number {
 }
 
 export default async function StudentProfilePage({ params }: { params: { id: string } }) {
-  const ctx = await requirePermission("student", "read");
+  const ctx = await requirePermission("student", "read", { page: true });
   const { db, user } = ctx;
   const id = idSchema.safeParse(params.id);
   if (!id.success) notFound();

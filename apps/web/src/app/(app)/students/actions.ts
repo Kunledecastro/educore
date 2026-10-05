@@ -7,6 +7,17 @@ import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { idSchema } from "@/lib/validation/common";
 import { existingGuardianLinkSchema, newGuardianLinkSchema, studentSchema, studentStatusSchema } from "@/lib/validation/people";
 import { getTranslations } from "next-intl/server";
+import { hasStudentCapacity } from "@/lib/entitlements-data";
+import { getEntitlements } from "@/lib/entitlements-server";
+
+/** The plan's student limit (4.1): refuses enrolling past it, with a friendly upgrade message. */
+async function assertCapacity(tx: PrismaClient, tenantId: string) {
+  const { maxStudents } = await getEntitlements(tenantId);
+  if (!(await hasStudentCapacity(tx, tenantId, maxStudents))) {
+    const t = await getTranslations("people.errors");
+    throw new UserFacingError(t("studentLimit", { max: maxStudents ?? 0 }));
+  }
+}
 
 /**
  * Student and guardian-link actions (milestone 1.2). Same pattern as
@@ -52,6 +63,7 @@ export async function createStudent(input: unknown) {
       entityType: "Student",
       run: async (tx) => {
         const placement = await resolvePlacement(tx, audit.tenantId, data.classId, data.sectionId);
+        await assertCapacity(tx, audit.tenantId);
         const after = await tx.student.create({
           data: {
             tenantId: audit.tenantId,
@@ -113,6 +125,7 @@ export async function setStudentStatus(id: unknown, status: unknown) {
       entityType: "Student",
       run: async (tx) => {
         const before = await must(tx.student.findFirst({ where: { id: studentId, tenantId: audit.tenantId } }));
+        if (next === "ACTIVE" && before.status !== "ACTIVE") await assertCapacity(tx, audit.tenantId);
         const after = await tx.student.update({ where: { id: before.id }, data: { status: next } });
         return { before, after };
       },

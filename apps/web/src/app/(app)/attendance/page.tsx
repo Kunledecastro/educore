@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/page-header";
 import { canEditRegister, isSchoolDay, parseDateParam, registerState } from "@/lib/attendance";
 import { attendanceEditDays, registerSectionIdsFor } from "@/lib/attendance-data";
 import { formatDateOnly } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
 import { todayInTimeZone } from "@/lib/format";
 import { toDateInput } from "@/lib/validation/common";
@@ -21,7 +21,7 @@ import { DatePicker } from "./date-picker";
 const STATE_BADGE = { taken: "success", partial: "warning", notTaken: "outline", empty: "secondary" } as const;
 
 export default async function AttendancePage({ searchParams }: { searchParams: { date?: string | string[] } }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("attendance");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin) redirect("/dashboard");
   // Families see attendance on their child's profile.

@@ -37,7 +37,7 @@ function pretty(value: Prisma.JsonValue | null): string | null {
 }
 
 export default async function AuditLogPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { user, db, isPlatformAdmin } = await requirePermission("auditLog", "read");
+  const { user, db, isPlatformAdmin } = await requirePermission("auditLog", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("auditLog"), getSettingsForUser(user.tenantId ?? null)]);
   const params = parseListParams(searchParams, listConfig);
 

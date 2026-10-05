@@ -18,7 +18,7 @@ import { ClassSwitcher } from "./class-switcher";
 import { PublishControls } from "./publish-controls";
 
 export default async function ClassResultsPage({ searchParams }: { searchParams: { term?: string | string[]; class?: string | string[] } }) {
-  const ctx = await requirePermission("results", "update");
+  const ctx = await requirePermission("results", "update", { page: true });
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin || user.role !== Role.SCHOOL_ADMIN) redirect("/assessments");
   const [t, settings] = await Promise.all([getTranslations("gradebook"), getSettingsForUser(user.tenantId ?? null)]);

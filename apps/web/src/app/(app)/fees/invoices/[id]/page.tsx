@@ -16,16 +16,18 @@ import { idSchema, toDateInput } from "@/lib/validation/common";
 import { InvoiceStatusBadge } from "../../status-badge";
 import { OnlineBanner } from "@/components/fees/online-banner";
 import { PayOnlineButton } from "@/components/fees/pay-online-button";
+import { getEntitlements } from "@/lib/entitlements-server";
 import { PAYSTACK_CURRENCIES, paystack } from "@/lib/payments/paystack";
 import { Role } from "@educore/db";
 import { AdjustmentButton, CancelInvoiceButton, RecordPaymentButton, ReversePaymentButton } from "./invoice-ui";
 
 /** One invoice (3.1/3.2): lines, totals, payments and receipts, and what can be done next. */
 export default async function InvoicePage({ params, searchParams }: { params: { id: string }; searchParams: { online?: string | string[] } }) {
-  const ctx = await requirePermission("invoice", "read");
+  const ctx = await requirePermission("invoice", "read", { page: true });
   const id = idSchema.safeParse(params.id);
   if (!id.success) notFound();
   const { user, db } = ctx;
+  const onlineInPlan = user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("onlinePayments") : false;
   const scope = await studentScopeFor(ctx);
   const invoice = await db.invoice.findFirst({
     where: { id: id.data, student: scope },
@@ -72,7 +74,7 @@ export default async function InvoicePage({ params, searchParams }: { params: { 
               <Download className="h-4 w-4" aria-hidden="true" />
               {t("downloadPdf")}
             </a>
-            {!cancelled && balance > 0 && user.role === Role.PARENT && paystack.configured() && PAYSTACK_CURRENCIES.has(invoice.currency) ? (
+            {!cancelled && balance > 0 && user.role === Role.PARENT && onlineInPlan && paystack.configured() && PAYSTACK_CURRENCIES.has(invoice.currency) ? (
               <PayOnlineButton invoiceId={invoice.id} invoiceNo={invoice.invoiceNo} balance={(balance / 100).toFixed(2)} balanceLabel={money(balance)} />
             ) : null}
             {!cancelled && balance > 0 && can(user.role, "payment", "create") && isStaff ? (

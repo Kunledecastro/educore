@@ -27,7 +27,7 @@ import { OnlineAttention } from "./online-attention";
  * the period's total; bank-statement import for finance staff.
  */
 export default async function PaymentsPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { user, db, isPlatformAdmin } = await requirePermission("payment", "read");
+  const { user, db, isPlatformAdmin } = await requirePermission("payment", "read", { page: true });
   if (isPlatformAdmin) redirect("/dashboard");
   if (user.role === "PARENT" || user.role === "STUDENT") redirect("/fees");
   const [t, tl, settings] = await Promise.all([getTranslations("payments"), getTranslations("list"), getSettingsForUser(user.tenantId ?? null)]);

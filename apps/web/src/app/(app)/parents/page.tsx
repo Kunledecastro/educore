@@ -20,7 +20,7 @@ import { parseListParams, type SearchParamsInput } from "@/lib/list-params";
 const listConfig = { sortable: ["name", "email"] as const, defaultSort: "name" as const };
 
 export default async function ParentsPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { db } = await requirePermission("guardian", "update");
+  const { db } = await requirePermission("guardian", "update", { page: true });
   const [t, tf, tl] = await Promise.all([getTranslations("parents"), getTranslations("people.fields"), getTranslations("list")]);
   const params = parseListParams(searchParams, listConfig);
 

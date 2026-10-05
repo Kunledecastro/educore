@@ -10,7 +10,7 @@ import { ClassCard } from "./class-card";
 import { NewClassButton } from "./new-class-button";
 
 export default async function ClassesPage({ searchParams }: { searchParams: { year?: string | string[] } }) {
-  const { db } = await requirePermission("classGrade", "read");
+  const { db } = await requirePermission("classGrade", "read", { page: true });
   const t = await getTranslations("academics.classes");
   const { years, selected } = await resolveAcademicYear(db, searchParams.year);
 

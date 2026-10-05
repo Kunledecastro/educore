@@ -20,7 +20,7 @@ import { BillingForm } from "./billing-form";
  * run uses), then start the run and watch its progress.
  */
 export default async function BillingPage({ searchParams }: { searchParams: { term?: string | string[] } }) {
-  const { user, db } = await requirePermission("invoice", "create");
+  const { user, db } = await requirePermission("invoice", "create", { page: true });
   const [t, settings] = await Promise.all([getTranslations("fees.billing"), getSettingsForUser(user.tenantId ?? null)]);
   const requested = Array.isArray(searchParams.term) ? searchParams.term[0] : searchParams.term;
   const { terms, selected: term } = await feeTerms(db, settings.timezone, requested);

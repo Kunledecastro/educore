@@ -3,7 +3,7 @@ import { requirePermission } from "@/lib/guard";
 import { ScoresEditor } from "./scores-editor";
 
 export default async function ScoresPage() {
-  const { db } = await requirePermission("academicSettings", "read");
+  const { db } = await requirePermission("academicSettings", "read", { page: true });
   const t = await getTranslations("settings.scores");
   const components = await db.assessmentType.findMany({
     orderBy: [{ order: "asc" }, { name: "asc" }],

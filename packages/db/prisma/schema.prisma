@@ -209,6 +209,21 @@ model Tenant {
 
 /// Platform-level billing record. One per tenant. Only PLATFORM_ADMIN and the
 /// owning tenant's SCHOOL_ADMIN may read it.
+/// Plan catalogue (Phase 4.1) — platform-level, edited in the platform console.
+/// Price is per active student per month, minor units (kobo).
+model PlanDefinition {
+  code        Plan     @id
+  name        String
+  priceMinor  Int      @default(0)
+  maxStudents Int?
+  modules     String[] @default([])
+  isPublic    Boolean  @default(true)
+  updatedAt   DateTime @default(now()) @updatedAt
+  updatedById String?
+
+  @@map("plans")
+}
+
 model Subscription {
   id                   String             @id @default(cuid())
   tenantId             String             @unique

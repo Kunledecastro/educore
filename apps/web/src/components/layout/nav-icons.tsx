@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Briefcase,
   Building2,
   CalendarCheck,
@@ -9,6 +10,7 @@ import {
   GraduationCap,
   HeartHandshake,
   LayoutDashboard,
+  Layers,
   Library,
   Megaphone,
   MessageSquare,
@@ -22,6 +24,7 @@ import {
 
 /** Icons the sidebar can show, looked up by name (see NavItem.icon). */
 export const NAV_ICONS = {
+  BadgeCheck,
   Briefcase,
   Building2,
   CalendarCheck,
@@ -32,6 +35,7 @@ export const NAV_ICONS = {
   GraduationCap,
   HeartHandshake,
   LayoutDashboard,
+  Layers,
   Library,
   Megaphone,
   MessageSquare,

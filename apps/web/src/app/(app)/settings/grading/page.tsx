@@ -3,7 +3,7 @@ import { requirePermission } from "@/lib/guard";
 import { GradingEditor } from "./grading-editor";
 
 export default async function GradingPage() {
-  const { db } = await requirePermission("academicSettings", "read");
+  const { db } = await requirePermission("academicSettings", "read", { page: true });
   const t = await getTranslations("settings.grading");
   const bands = await db.gradeBand.findMany({ orderBy: { minScore: "desc" } });
 

@@ -17,7 +17,7 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
  * invoice exists. Uses the same maths invoicing will (lib/fees.ts).
  */
 export default async function BillPreviewPage({ searchParams }: { searchParams: SP }) {
-  const { user, db } = await requirePermission("feeStructure", "read");
+  const { user, db } = await requirePermission("feeStructure", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("fees.preview"), getSettingsForUser(user.tenantId ?? null)]);
   const { terms, selected: term } = await feeTerms(db, settings.timezone, first(searchParams.term));
   if (!term) return <EmptyState icon={<CalendarRange className="h-6 w-6" />} title={t("noTermsTitle")} description={t("noTermsDescription")} />;

@@ -9,7 +9,7 @@ import { ParamSelect } from "@/components/list/param-select";
 import { PageHeader } from "@/components/page-header";
 import { TimetableGrid } from "@/components/timetable/timetable-grid";
 import { todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { studentScopeFor } from "@/lib/student-scope";
 import { getSettingsForUser } from "@/lib/tenant";
 import { dayNames, loadLessons, loadPeriods } from "@/lib/timetable-data";
@@ -29,7 +29,7 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
  * Everything is tenant-scoped; parents only see children linked to them.
  */
 export default async function TimetablePage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("timetable");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin || user.role === Role.ACCOUNTANT) redirect("/dashboard");
   const sp: SP = { view: first(searchParams.view), section: first(searchParams.section), teacher: first(searchParams.teacher), child: first(searchParams.child) };

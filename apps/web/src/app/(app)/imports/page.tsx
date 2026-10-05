@@ -14,7 +14,7 @@ import { ImportStatusBadge } from "./status-badge";
 import { UploadCard } from "./upload-form";
 
 export default async function ImportsPage() {
-  const { db, user, isPlatformAdmin } = await requirePermission("student", "import");
+  const { db, user, isPlatformAdmin } = await requirePermission("student", "import", { page: true });
   if (isPlatformAdmin) redirect("/dashboard"); // imports are per school
   const [t, settings] = await Promise.all([getTranslations("imports"), getSettingsForUser(user.tenantId ?? null)]);
   const [years, jobs] = await Promise.all([

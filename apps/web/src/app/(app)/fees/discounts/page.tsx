@@ -14,7 +14,7 @@ import { AssignDiscountButton, DiscountRowActions, NewDiscountButton, RemoveAssi
  * students get them this year — for one term or the whole year.
  */
 export default async function DiscountsPage() {
-  const { user, db } = await requirePermission("feeStructure", "read");
+  const { user, db } = await requirePermission("feeStructure", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("fees.discounts"), getSettingsForUser(user.tenantId ?? null)]);
   const canEdit = can(user.role, "feeStructure", "update");
 

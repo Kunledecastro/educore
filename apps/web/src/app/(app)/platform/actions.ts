@@ -12,7 +12,9 @@ import { clientIpFromHeaders, userAgentFromHeaders } from "@/lib/request-meta";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { getEffectiveSession } from "@/lib/session";
 import { idSchema } from "@/lib/validation/common";
-import { impersonateSchema, suspendSchema } from "@/lib/validation/platform";
+import { MODULES } from "@/lib/entitlements";
+import { toMinor } from "@/lib/fees";
+import { impersonateSchema, planEditSchema, suspendSchema, tenantPlanSchema } from "@/lib/validation/platform";
 
 /**
  * Platform console actions (Phase 4.0). Platform admins only — and never
@@ -96,4 +98,52 @@ export async function stopImpersonationAction() {
   }
   cookies().delete(IMPERSONATION_COOKIE);
   redirect(tenantId ? `/platform/tenants/${tenantId}` : "/platform/tenants");
+}
+
+// ---------------------------------------------------------------------------
+// Plans (4.1)
+// ---------------------------------------------------------------------------
+
+/** Set a school's plan by hand: complimentary, invoiced offline, or a trial extension. Audited in both logs. */
+export async function changeTenantPlan(input: unknown) {
+  return runAction(["tenant", "update"], async (ctx) => {
+    platformOnly(ctx);
+    const { tenantId, plan, until, note } = tenantPlanSchema.parse(input);
+    const actor = actorFor(ctx);
+    await platformPrisma().$transaction(async (tx) => {
+      const before = await tx.tenant.findUnique({ where: { id: tenantId }, include: { subscription: true } });
+      if (!before) throw new NotFoundError();
+      await tx.tenant.update({ where: { id: tenantId }, data: { plan } });
+      const sub = { plan, status: plan === "FREE_TRIAL" ? ("TRIALING" as const) : ("ACTIVE" as const), currentPeriodEnd: until ?? null, cancelAtPeriodEnd: false };
+      await tx.subscription.upsert({ where: { tenantId }, create: { tenantId, ...sub }, update: sub });
+      const snapBefore = { plan: before.plan, status: before.subscription?.status ?? null, until: before.subscription?.currentPeriodEnd ?? null };
+      const snapAfter = { plan, status: sub.status, until: sub.currentPeriodEnd, note };
+      await recordPlatformAudit(actor, { action: "TENANT_PLAN_CHANGE", tenantId, entityType: "Tenant", entityId: tenantId, before: snapBefore, after: snapAfter }, tx);
+      await recordAudit({ tenantId, actorId: null, impersonatorId: ctx.user.id, ipAddress: actor.ipAddress, userAgent: actor.userAgent }, { action: "UPDATE", entityType: "Subscription", entityId: tenantId, before: snapBefore, after: snapAfter }, tx);
+    });
+    revalidatePath("/platform", "layout");
+  });
+}
+
+/** Edit a plan in the catalogue. Takes effect for every school on it from their next page load. */
+export async function updatePlan(input: unknown) {
+  return runAction(["tenant", "update"], async (ctx) => {
+    platformOnly(ctx);
+    const data = planEditSchema.parse(input);
+    const actor = actorFor(ctx);
+    const next = {
+      name: data.name,
+      priceMinor: toMinor(data.price)!,
+      maxStudents: data.maxStudents === "" ? null : Number(data.maxStudents),
+      modules: MODULES.filter((m) => data.modules.includes(m)),
+      isPublic: data.isPublic,
+      updatedById: ctx.user.id,
+    };
+    await platformPrisma().$transaction(async (tx) => {
+      const before = await tx.planDefinition.findUnique({ where: { code: data.code } });
+      const after = await tx.planDefinition.upsert({ where: { code: data.code }, create: { code: data.code, ...next }, update: next });
+      await recordPlatformAudit(actor, { action: "PLAN_UPDATE", entityType: "Plan", entityId: data.code, before, after }, tx);
+    });
+    revalidatePath("/platform", "layout");
+  });
 }

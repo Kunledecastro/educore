@@ -4,6 +4,7 @@ import { parseDayFirstDate, type ColumnDef } from "../csv";
 import { ImportRowError } from "../errors";
 import type { AuditEntry, FieldIssue, ImportContext, Importer } from "../types";
 import { norm, pickEnum, zodIssues } from "./shared";
+import { hasStudentCapacity, loadEntitlements } from "@/lib/entitlements-data";
 
 /**
  * Students, optionally with one parent/guardian per row. Upserts on
@@ -166,6 +167,10 @@ async function apply(tx: PrismaClient, ctx: ImportContext, row: StudentRow) {
   };
 
   const before = await tx.student.findFirst({ where: { tenantId: ctx.tenantId, admissionNo: row.admissionNo } });
+  // The plan's student limit (4.1): new students past it are refused row by row; updates always go through.
+  if (!before && !(await hasStudentCapacity(tx, ctx.tenantId, (await loadEntitlements(ctx.tenantId)).maxStudents))) {
+    throw new ImportRowError("imports.issues.studentLimit");
+  }
   const student = before
     ? await tx.student.update({ where: { id: before.id }, data })
     : await tx.student.create({ data: { ...data, tenantId: ctx.tenantId, admissionNo: row.admissionNo } });

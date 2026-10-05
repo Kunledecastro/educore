@@ -25,7 +25,7 @@ const listConfig = {
 };
 
 export default async function TeachersPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { db } = await requirePermission("teacher", "read");
+  const { db } = await requirePermission("teacher", "read", { page: true });
   const [t, tf, tl, ta] = await Promise.all([
     getTranslations("teachers"),
     getTranslations("people.fields"),

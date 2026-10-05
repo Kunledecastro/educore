@@ -41,7 +41,7 @@ async function main() {
       name: "Greenfield Academy",
       slug: "greenfield-academy",
       subdomain: "greenfield",
-      plan: "STANDARD",
+      plan: "PREMIUM", // complimentary demo school: every module, no end date (4.1)
       status: "ACTIVE",
       settings: { gradingScale: "letter", locale: "en-NG", timezone: "Africa/Lagos" },
       branding: { primaryColor: "#0f766e", logoUrl: null },

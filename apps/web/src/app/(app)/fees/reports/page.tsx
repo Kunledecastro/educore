@@ -19,7 +19,7 @@ import { DailyCollections } from "./daily-collections";
  * method, money in over the last 30 days, and who owes the most.
  */
 export default async function FeeReportsPage({ searchParams }: { searchParams: { term?: string | string[] } }) {
-  const { user, db } = await requirePermission("invoice", "export");
+  const { user, db } = await requirePermission("invoice", "export", { page: true });
   const [t, tm, settings] = await Promise.all([getTranslations("fees.reports"), getTranslations("fees.invoice.methods"), getSettingsForUser(user.tenantId ?? null)]);
   const requested = Array.isArray(searchParams.term) ? searchParams.term[0] : searchParams.term;
   const { terms, selected: term } = await feeTerms(db, settings.timezone, requested);

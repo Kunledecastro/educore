@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Prisma, recordAudit, withRls } from "@educore/db";
 import { can } from "@educore/auth";
 import { fail, type ActionResult } from "@/lib/action-result";
-import { auditContextFor, requireUser } from "@/lib/guard";
+import { auditContextFor, assertEntitled, requireUser } from "@/lib/guard";
 import { decodeCsvBytes, MAX_FILE_BYTES } from "@/lib/imports/csv";
 import { validateCsv } from "@/lib/imports/engine";
 import { IMPORTERS, isImportKind } from "@/lib/imports/registry";
@@ -79,6 +79,7 @@ async function jobFor(id: string) {
   if (!job) throw new NotFoundError();
   const importer = IMPORTERS[job.kind];
   if (!can(ctx.user.role, importer.permission[0], importer.permission[1])) throw new NotFoundError();
+  await assertEntitled(ctx, importer.permission[0], importer.permission[1]);
   return { ctx, job };
 }
 

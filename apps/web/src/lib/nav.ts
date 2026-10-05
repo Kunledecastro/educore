@@ -1,5 +1,18 @@
 import { Role } from "@educore/db";
 import type { NavIconName } from "@/components/layout/nav-icons";
+import type { Module } from "./entitlements";
+
+/** Pages that belong to a plan module (4.1): hidden when the school's plan doesn't include it. */
+const MODULE_OF_HREF: Record<string, Module> = {
+  "/attendance": "attendance",
+  "/assessments": "assessments",
+  "/report-cards": "reportCards",
+  "/timetable": "timetable",
+  "/fees": "fees",
+  "/payments": "fees",
+  "/announcements": "messaging",
+  "/messages": "messaging",
+};
 
 export interface NavItem {
   labelKey: string; // key into messages.nav
@@ -16,12 +29,22 @@ export interface NavItem {
  * role's PERMISSION_MATRIX grants at least `read` on the underlying
  * resource, so the UI can never dangle a link to a 403.
  */
-export function getNavItemsForRole(role: Role): NavItem[] {
+export function getNavItemsForRole(role: Role, modules: ReadonlySet<Module> | null = null): NavItem[] {
+  const items = navItemsForRole(role);
+  if (!modules) return items;
+  return items.filter((i) => {
+    const m = MODULE_OF_HREF[i.href];
+    return !m || modules.has(m);
+  });
+}
+
+function navItemsForRole(role: Role): NavItem[] {
   const items: NavItem[] = [{ labelKey: "dashboard", href: "/dashboard", icon: "LayoutDashboard" }];
 
   if (role === Role.PLATFORM_ADMIN) {
     items.push(
       { labelKey: "platformTenants", href: "/platform/tenants", icon: "Building2" },
+      { labelKey: "platformPlans", href: "/platform/plans", icon: "Layers" },
       { labelKey: "platformAudit", href: "/platform/audit", icon: "ShieldCheck" },
     );
     return items;
@@ -43,6 +66,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
+      { labelKey: "plan", href: "/plan", icon: "BadgeCheck" },
     );
   }
 

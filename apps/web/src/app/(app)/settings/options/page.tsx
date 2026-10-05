@@ -3,7 +3,7 @@ import { requirePermission } from "@/lib/guard";
 import { OptionsForm } from "./options-form";
 
 export default async function OptionsPage() {
-  const { db } = await requirePermission("academicSettings", "read");
+  const { db } = await requirePermission("academicSettings", "read", { page: true });
   const t = await getTranslations("settings.options");
   const options = await db.academicSettings.findFirst();
 

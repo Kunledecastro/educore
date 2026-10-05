@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { TermSwitcher } from "@/components/list/term-switcher";
 import { formatDateTime } from "@/lib/format";
 import { loadGradebook } from "@/lib/gradebook";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
 import { getSettingsForUser } from "@/lib/tenant";
 import { GradebookGrid } from "./gradebook-grid";
@@ -22,7 +22,7 @@ export default async function GradebookPage({
   params: { sectionId: string; subjectId: string };
   searchParams: { term?: string | string[] };
 }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("assessments");
   const { user } = ctx;
   if (ctx.isPlatformAdmin || !can(user.role, "mark", "update")) redirect("/assessments");
   const settings = await getSettingsForUser(user.tenantId ?? null);

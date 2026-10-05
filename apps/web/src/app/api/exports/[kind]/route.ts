@@ -3,7 +3,7 @@ import { can, type Resource } from "@educore/auth";
 import { platformPrisma, Role, type Prisma } from "@educore/db";
 import { resolveAcademicYear } from "@/lib/academic-year";
 import { exportFileName, MAX_EXPORT_ROWS, renderExport, type ExportTable } from "@/lib/exports";
-import { ForbiddenError, requireUser, UnauthenticatedError, type RequestContext } from "@/lib/guard";
+import { ForbiddenError, assertEntitled, requireUser, UnauthenticatedError, type RequestContext } from "@/lib/guard";
 import { parseListParams } from "@/lib/list-params";
 import { studentScopeFor } from "@/lib/student-scope";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
@@ -306,6 +306,7 @@ export async function GET(req: NextRequest, { params }: { params: { kind: string
     if (params.kind === "tenants" ? !ctx.isPlatformAdmin : !can(ctx.user.role, spec.permission, "export") || ctx.isPlatformAdmin) throw new ForbiddenError();
     // Staff export includes teachers, so it needs both permissions.
     if (params.kind === "staff" && !can(ctx.user.role, "teacher", "export")) throw new ForbiddenError();
+    if (params.kind !== "tenants") await assertEntitled(ctx, spec.permission, "export");
 
     const sp = req.nextUrl.searchParams;
     const format = sp.get("format") === "xlsx" ? "xlsx" : "csv";

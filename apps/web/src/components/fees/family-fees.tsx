@@ -17,6 +17,7 @@ import { studentScopeFor } from "@/lib/student-scope";
 import { getSettingsForUser } from "@/lib/tenant";
 import { OnlineBanner } from "./online-banner";
 import { PayOnlineButton } from "./pay-online-button";
+import { getEntitlements } from "@/lib/entitlements-server";
 
 /**
  * Fees for families (milestone 3.3): each child's invoices, balances and
@@ -50,7 +51,8 @@ export async function FamilyFees({ ctx, online }: { ctx: RequestContext; online?
   });
   const m = (v: { toString(): string }) => toMinor(v) ?? 0;
   const money = (minor: number) => formatMoney(minor / 100, settings);
-  const canPay = user.role === Role.PARENT && paystack.configured() && can(user.role, "payment", "create");
+  const onlineInPlan = user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("onlinePayments") : false;
+  const canPay = user.role === Role.PARENT && paystack.configured() && onlineInPlan && can(user.role, "payment", "create");
   const canReceipts = can(user.role, "payment", "read");
   const tm = await getTranslations("fees.invoice.methods");
 
@@ -132,7 +134,7 @@ export async function FamilyFees({ ctx, online }: { ctx: RequestContext; online?
           );
         })
       )}
-      {user.role === Role.PARENT && !paystack.configured() ? <p className="text-sm text-muted-foreground">{t("payAtBursary")}</p> : null}
+      {user.role === Role.PARENT && !canPay ? <p className="text-sm text-muted-foreground">{t("payAtBursary")}</p> : null}
     </div>
   );
 }

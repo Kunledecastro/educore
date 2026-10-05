@@ -10,14 +10,14 @@ import { EmptyState } from "@educore/ui/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { gradebookPairsFor } from "@/lib/gradebook";
 import { todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
 import { resolveTermRange } from "@/lib/term-range";
 import { TermSwitcher } from "@/components/list/term-switcher";
 import { ScoresTabs } from "./tabs";
 
 export default async function GradebooksPage({ searchParams }: { searchParams: { term?: string | string[] } }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("assessments");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin) redirect("/dashboard");
   if (user.role === Role.PARENT) redirect("/students");

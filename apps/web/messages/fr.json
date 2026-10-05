@@ -40,7 +40,9 @@
     "myStudents": "Mes élèves",
     "myChildren": "Mes enfants",
     "imports": "Import et export",
-    "platformAudit": "Activité de la plateforme"
+    "platformAudit": "Activité de la plateforme",
+    "plan": "Votre formule",
+    "platformPlans": "Formules"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -181,7 +183,9 @@
       "employeeId": "Une autre personne a déjà ce matricule",
       "code": "Une autre matière utilise déjà ce code",
       "name": "Ce nom est déjà utilisé"
-    }
+    },
+    "readOnly": "L'abonnement de votre école a pris fin : EduCore est en lecture seule pour l'instant. Un administrateur peut le renouveler dans Votre formule.",
+    "notEntitled": "{module} n'est pas inclus dans la formule de votre école. Un administrateur peut changer de formule dans Votre formule."
   },
   "blockers": {
     "activeYear": "le statut d'année active (activez d'abord une autre année)",
@@ -333,7 +337,8 @@
       "lastAdmin": "Votre école doit garder au moins un administrateur actif. Nommez d'abord quelqu'un d'autre.",
       "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte",
       "inviteDeactivated": "Réactivez ce compte avant d'envoyer une invitation",
-      "alreadyActive": "Cette personne a déjà défini son mot de passe et peut se connecter"
+      "alreadyActive": "Cette personne a déjà défini son mot de passe et peut se connecter",
+      "studentLimit": "Votre formule permet jusqu'à {max} élèves actifs et cette limite est atteinte. Changez de formule ou marquez les départs comme retirés ou diplômés."
     },
     "status": {
       "active": "Peut se connecter",
@@ -654,7 +659,8 @@
         "notAPayment": "Seul un paiement peut être annulé",
         "alreadyReversed": "Ce paiement a déjà été annulé",
         "duplicateReference": "Un paiement avec cette référence est déjà enregistré ({receipt})"
-      }
+      },
+      "studentLimit": "Non ajouté : la limite d'élèves de votre formule est atteinte"
     }
   },
   "onboarding": {
@@ -1601,7 +1607,8 @@
         "tooSmall": "Le paiement en ligne minimum est de 100 ₦",
         "moreThanBalance": "C'est plus que le solde de cette facture",
         "startFailed": "Impossible de joindre Paystack pour l'instant. Réessayez dans une minute.",
-        "checkFailed": "Impossible de joindre Paystack pour l'instant. Réessayez bientôt."
+        "checkFailed": "Impossible de joindre Paystack pour l'instant. Réessayez bientôt.",
+        "notInPlan": "Le paiement en ligne ne fait pas partie de la formule de votre école. Veuillez payer à l'économat."
       },
       "outcome": {
         "paid": "Paiement reçu — merci. Votre reçu est ci-dessous.",
@@ -1805,7 +1812,15 @@
       "impersonateIntro": "Vous verrez EduCore exactement comme cet administrateur, pendant 30 minutes. Un bandeau reste affiché ; tout ce que vous faites est enregistré à votre nom dans le journal d'audit de l'école. Vous ne pouvez ni envoyer d'invitations ni modifier la facturation.",
       "impersonateReason": "Pourquoi en avez-vous besoin ?",
       "impersonateReasonHint": "ex. Ticket n°142 : les bulletins ne se génèrent pas. L'école peut voir ce motif.",
-      "impersonating": "Connecté pour l'assistance"
+      "impersonating": "Connecté pour l'assistance",
+      "changePlan": "Changer de formule",
+      "changePlanTitle": "Changer de formule",
+      "changePlanIntro": "Définir la formule manuellement — offerte, payée hors ligne ou prolongation d'essai. Enregistré dans le journal de la plateforme et celui de l'école.",
+      "until": "Fin d'essai / payé jusqu'au",
+      "untilHint": "Laisser vide pour aucune date de fin (un essai dure alors 30 jours après l'inscription).",
+      "note": "Motif",
+      "noteHint": "ex. Payé par virement, facture EC-0042",
+      "planChanged": "Formule modifiée"
     },
     "audit": {
       "title": "Activité de la plateforme",
@@ -1825,6 +1840,81 @@
         "PLAN_UPDATE": "Prix ou limites d'une formule modifiés",
         "TENANT_PLAN_CHANGE": "Formule d'une école modifiée"
       }
+    },
+    "plansPage": {
+      "title": "Formules",
+      "description": "Le catalogue des formules. Prix par élève actif et par mois, en naira.",
+      "plan": "Formule",
+      "price": "Prix",
+      "maxStudents": "Limite d'élèves",
+      "modules": "Modules",
+      "schools": "Écoles",
+      "updated": "Mise à jour",
+      "actions": "Actions",
+      "hidden": "masquée",
+      "unlimited": "Illimitée",
+      "note": "Les changements s'appliquent à toutes les écoles de la formule dès leur prochaine page. Une limite plus basse ne coupe jamais une école : les élèves existants restent, elle ne peut simplement plus en ajouter.",
+      "edit": "Modifier",
+      "editTitle": "Modifier {name}",
+      "editWarning": "Cela modifie la formule de toutes les écoles concernées, immédiatement.",
+      "name": "Nom",
+      "priceHint": "Naira par élève actif et par mois",
+      "maxHint": "Laisser vide pour aucune limite",
+      "isPublic": "Afficher sur la page des tarifs et aux écoles",
+      "save": "Enregistrer",
+      "saved": "Formule enregistrée"
+    }
+  },
+  "plan": {
+    "title": "Votre formule",
+    "description": "Ce que comprend la formule EduCore de votre école, et le prix des autres.",
+    "need": "{module} n'est pas inclus dans la formule {plan}.",
+    "needUpgrade": "La formule {plan} l'inclut.",
+    "askAdmin": "Pour changer la formule de l'école, adressez-vous à un administrateur.",
+    "students": "Élèves actifs",
+    "studentsUnlimited": "{count} (sans limite)",
+    "studentsOf": "{count} sur {max}",
+    "until": {
+      "trial": "Fin de l'essai",
+      "active": "Payé jusqu'au",
+      "grace": "Fin du délai de grâce",
+      "readOnly": "Terminé",
+      "suspended": "Terminé"
+    },
+    "noEnd": "Sans date de fin",
+    "monthly": "Coût mensuel actuel",
+    "perStudent": "{price} par élève actif et par mois",
+    "included": "Inclus",
+    "comparePlans": "Formules",
+    "current": "Actuelle",
+    "perStudentMonth": "par élève actif et par mois",
+    "noLimit": "Sans limite d'élèves",
+    "upTo": "Jusqu'à {max} élèves",
+    "estimate": "Environ {amount} par mois pour vos {count} élèves",
+    "howToChange": "Le paiement en ligne des formules arrive dans la prochaine mise à jour. D'ici là, le support EduCore peut changer votre formule.",
+    "states": {
+      "trial": "Essai gratuit",
+      "active": "Active",
+      "grace": "Paiement en retard",
+      "readOnly": "Lecture seule",
+      "suspended": "Suspendue"
+    },
+    "modules": {
+      "attendance": "Présences",
+      "assessments": "Évaluations et résultats",
+      "reportCards": "Bulletins",
+      "timetable": "Emploi du temps",
+      "fees": "Frais et paiements",
+      "onlinePayments": "Paiement en ligne par les parents",
+      "messaging": "Annonces et messages"
+    },
+    "banner": {
+      "trial": "Essai gratuit : {days, plural, =0 {se termine aujourd'hui} one {# jour restant} other {# jours restants}}.",
+      "grace": "Le paiement de l'abonnement de l'école est en retard. Tout fonctionne jusqu'au {date}.",
+      "graceAdmin": "Le paiement de votre abonnement est en retard. Tout fonctionne jusqu'au {date}, puis EduCore passe en lecture seule.",
+      "readOnly": "L'abonnement de l'école a pris fin. Vous pouvez consulter et télécharger, mais pas modifier.",
+      "readOnlyAdmin": "Votre abonnement a pris fin : EduCore est en lecture seule. Chacun peut consulter et exporter, mais rien ne peut être modifié avant le renouvellement.",
+      "seePlan": "Voir votre formule"
     }
   }
 }

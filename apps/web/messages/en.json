@@ -40,7 +40,9 @@
     "myStudents": "My students",
     "myChildren": "My children",
     "imports": "Import & export",
-    "platformAudit": "Platform activity"
+    "platformAudit": "Platform activity",
+    "plan": "Your plan",
+    "platformPlans": "Plans"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -181,7 +183,9 @@
       "employeeId": "Another person already has this employee ID",
       "code": "Another subject already uses this code",
       "name": "This name is already used"
-    }
+    },
+    "readOnly": "Your school's subscription has ended, so EduCore is read-only for now. A school admin can renew under Your plan.",
+    "notEntitled": "{module} isn't included in your school's plan. A school admin can upgrade under Your plan."
   },
   "blockers": {
     "activeYear": "the active-year flag (make another year active first)",
@@ -333,7 +337,8 @@
       "lastAdmin": "Your school needs at least one active admin. Make someone else an admin first.",
       "cannotDeactivateSelf": "You can't deactivate your own account",
       "inviteDeactivated": "Reactivate this account before sending an invite",
-      "alreadyActive": "This person has already set their password and can sign in"
+      "alreadyActive": "This person has already set their password and can sign in",
+      "studentLimit": "Your plan allows up to {max} active students and you've reached it. Upgrade under Your plan, or mark leavers as withdrawn or graduated."
     },
     "status": {
       "active": "Can sign in",
@@ -654,7 +659,8 @@
         "notAPayment": "Only a payment can be reversed",
         "alreadyReversed": "This payment has already been reversed",
         "duplicateReference": "A payment with this reference is already recorded ({receipt})"
-      }
+      },
+      "studentLimit": "Not added: your plan's student limit has been reached"
     }
   },
   "onboarding": {
@@ -1601,7 +1607,8 @@
         "tooSmall": "The smallest online payment is ₦100",
         "moreThanBalance": "That's more than the balance on this invoice",
         "startFailed": "We couldn't reach Paystack just now. Please try again in a minute.",
-        "checkFailed": "Couldn't reach Paystack just now. Try again shortly."
+        "checkFailed": "Couldn't reach Paystack just now. Try again shortly.",
+        "notInPlan": "Online payment isn't part of your school's plan. Please pay at the bursary."
       },
       "outcome": {
         "paid": "Payment received — thank you. Your receipt is below.",
@@ -1805,7 +1812,15 @@
       "impersonateIntro": "You'll see EduCore exactly as this admin does, for 30 minutes. A banner stays on screen; everything you do is recorded with your name in the school's audit log. You can't send invites or change billing while signed in as them.",
       "impersonateReason": "Why do you need to?",
       "impersonateReasonHint": "e.g. Ticket #142: report cards not generating. The school can see this.",
-      "impersonating": "Signed in for support"
+      "impersonating": "Signed in for support",
+      "changePlan": "Change plan",
+      "changePlanTitle": "Change plan",
+      "changePlanIntro": "Set the plan by hand — complimentary, paid offline, or a trial extension. Recorded in the platform log and the school's audit log.",
+      "until": "Trial ends / paid until",
+      "untilHint": "Leave empty for no end date (a trial then lasts 30 days from sign-up).",
+      "note": "Why",
+      "noteHint": "e.g. Paid by bank transfer, invoice EC-0042",
+      "planChanged": "Plan changed"
     },
     "audit": {
       "title": "Platform activity",
@@ -1825,6 +1840,81 @@
         "PLAN_UPDATE": "Changed a plan's price or limits",
         "TENANT_PLAN_CHANGE": "Changed a school's plan"
       }
+    },
+    "plansPage": {
+      "title": "Plans",
+      "description": "The plan catalogue. Prices are per active student per month, in naira.",
+      "plan": "Plan",
+      "price": "Price",
+      "maxStudents": "Student limit",
+      "modules": "Modules",
+      "schools": "Schools",
+      "updated": "Updated",
+      "actions": "Actions",
+      "hidden": "hidden",
+      "unlimited": "Unlimited",
+      "note": "Changes apply to every school on the plan from their next page. Schools are never cut off mid-term by a lower limit: existing students stay, they just can't add more.",
+      "edit": "Edit",
+      "editTitle": "Edit {name}",
+      "editWarning": "This changes the plan for every school on it, straight away.",
+      "name": "Name",
+      "priceHint": "Naira per active student per month",
+      "maxHint": "Leave empty for no limit",
+      "isPublic": "Show on the pricing page and to schools",
+      "save": "Save plan",
+      "saved": "Plan saved"
+    }
+  },
+  "plan": {
+    "title": "Your plan",
+    "description": "What your school's EduCore plan includes, and what the others cost.",
+    "need": "{module} isn't included in the {plan} plan.",
+    "needUpgrade": "The {plan} plan includes it.",
+    "askAdmin": "To change your school's plan, ask a school administrator.",
+    "students": "Active students",
+    "studentsUnlimited": "{count} (no limit)",
+    "studentsOf": "{count} of {max}",
+    "until": {
+      "trial": "Trial ends",
+      "active": "Paid until",
+      "grace": "Grace period ends",
+      "readOnly": "Ended",
+      "suspended": "Ended"
+    },
+    "noEnd": "No end date",
+    "monthly": "Monthly cost now",
+    "perStudent": "{price} per active student per month",
+    "included": "Included",
+    "comparePlans": "Plans",
+    "current": "Current",
+    "perStudentMonth": "per active student per month",
+    "noLimit": "No student limit",
+    "upTo": "Up to {max} students",
+    "estimate": "About {amount} a month for your {count} students",
+    "howToChange": "Paying for a plan online is coming in the next update. Until then, EduCore support can change your plan for you.",
+    "states": {
+      "trial": "Free trial",
+      "active": "Active",
+      "grace": "Payment overdue",
+      "readOnly": "Read-only",
+      "suspended": "Suspended"
+    },
+    "modules": {
+      "attendance": "Attendance",
+      "assessments": "Assessments and results",
+      "reportCards": "Report cards",
+      "timetable": "Timetable",
+      "fees": "Fees and payments",
+      "onlinePayments": "Online payment by parents",
+      "messaging": "Announcements and messages"
+    },
+    "banner": {
+      "trial": "Free trial: {days, plural, =0 {ends today} one {# day left} other {# days left}}.",
+      "grace": "Your school's subscription payment is overdue. Everything works until {date}.",
+      "graceAdmin": "Your subscription payment is overdue. Everything keeps working until {date}, then EduCore becomes read-only.",
+      "readOnly": "Your school's subscription has ended. You can view and download, but not make changes.",
+      "readOnlyAdmin": "Your subscription has ended, so EduCore is read-only: everyone can view and export, but nothing can be changed until you renew.",
+      "seePlan": "See your plan"
     }
   }
 }

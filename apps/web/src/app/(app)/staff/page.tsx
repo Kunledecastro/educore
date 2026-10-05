@@ -31,7 +31,7 @@ const listConfig = {
  * profile row; they're still listed, and editing them creates the profile.
  */
 export default async function StaffPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const { db, user: me } = await requirePermission("staff", "read");
+  const { db, user: me } = await requirePermission("staff", "read", { page: true });
   const [t, tf, tl, ta, tr] = await Promise.all([
     getTranslations("staff"),
     getTranslations("people.fields"),

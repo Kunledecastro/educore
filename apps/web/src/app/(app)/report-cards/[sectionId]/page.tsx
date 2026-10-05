@@ -10,7 +10,7 @@ import { TermSwitcher } from "@/components/list/term-switcher";
 import { PageHeader } from "@/components/page-header";
 import { loadClassResults } from "@/lib/class-results";
 import { formatDateTime, formatNumber, todayInTimeZone } from "@/lib/format";
-import { requireUser } from "@/lib/guard";
+import { requireModule } from "@/lib/guard";
 import { cardState } from "@/lib/report-card";
 import { loadReportCardSection, STALE_RUN_MS } from "@/lib/report-card-data";
 import { NotFoundError } from "@/lib/run-action";
@@ -27,7 +27,7 @@ export default async function SectionReportCardsPage({
   params: { sectionId: string };
   searchParams: { term?: string | string[] };
 }) {
-  const ctx = await requireUser();
+  const ctx = await requireModule("reportCards");
   const { user, db } = ctx;
   if (ctx.isPlatformAdmin || (user.role !== Role.SCHOOL_ADMIN && user.role !== Role.TEACHER)) redirect("/report-cards");
   const section = await loadReportCardSection(ctx, params.sectionId).catch((err) => {

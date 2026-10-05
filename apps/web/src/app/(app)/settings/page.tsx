@@ -14,7 +14,7 @@ import { toDateInput } from "@/lib/validation/common";
 import { AddSuggestedTermsButton, NewTermButton, TermRowActions } from "./term-actions";
 
 export default async function TermsPage({ searchParams }: { searchParams: { year?: string | string[] } }) {
-  const { user, db } = await requirePermission("academicSettings", "read");
+  const { user, db } = await requirePermission("academicSettings", "read", { page: true });
   const [t, settings] = await Promise.all([getTranslations("settings.terms"), getSettingsForUser(user.tenantId ?? null)]);
   const { years, selected } = await resolveAcademicYear(db, searchParams.year);
 

@@ -2,16 +2,17 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Ban, LogIn, RotateCcw } from "lucide-react";
+import { Ban, Layers, LogIn, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@educore/ui/button";
 import { Input } from "@educore/ui/input";
+import { Select } from "@educore/ui/select";
 import { ConfirmAction } from "@/components/form/confirm-action";
 import { FormDialog, FormDialogFooter } from "@/components/form/form-dialog";
 import { FormField } from "@/components/form/form-field";
 import { useServerForm } from "@/components/form/use-server-form";
-import { impersonateSchema, suspendSchema, type ImpersonateInput, type SuspendInput } from "@/lib/validation/platform";
-import { reactivateTenant, startImpersonationAction, suspendTenant } from "../../actions";
+import { impersonateSchema, PLAN_CODES, suspendSchema, tenantPlanSchema, type ImpersonateInput, type SuspendInput, type TenantPlanInput } from "@/lib/validation/platform";
+import { changeTenantPlan, reactivateTenant, startImpersonationAction, suspendTenant } from "../../actions";
 
 export function SuspendButton({ tenantId, name }: { tenantId: string; name: string }) {
   const t = useTranslations("platform.tenant");
@@ -108,6 +109,56 @@ function ImpersonateForm({ userId, onDone }: { userId: string; onDone: () => voi
         <Input maxLength={300} autoFocus {...form.register("reason")} />
       </FormField>
       <FormDialogFooter pending={pending} onCancel={onDone} submitLabel={t("impersonate")} />
+    </form>
+  );
+}
+
+export function ChangePlanButton({ tenantId, plan, until }: { tenantId: string; plan: TenantPlanInput["plan"]; until: string }) {
+  const t = useTranslations("platform.tenant");
+  return (
+    <FormDialog
+      title={t("changePlanTitle")}
+      trigger={
+        <Button variant="outline" size="sm">
+          <Layers className="h-4 w-4" aria-hidden="true" />
+          {t("changePlan")}
+        </Button>
+      }
+    >
+      {(close) => <ChangePlanForm tenantId={tenantId} plan={plan} until={until} onDone={close} />}
+    </FormDialog>
+  );
+}
+
+function ChangePlanForm({ tenantId, plan, until, onDone }: { tenantId: string; plan: TenantPlanInput["plan"]; until: string; onDone: () => void }) {
+  const t = useTranslations("platform.tenant");
+  const tp = useTranslations("platform.plans");
+  const { form, onSubmit, pending, fieldError } = useServerForm<TenantPlanInput>({
+    schema: tenantPlanSchema,
+    defaultValues: { tenantId, plan, until, note: "" },
+    submit: (v) => changeTenantPlan(v),
+    successMessage: t("planChanged"),
+    onSuccess: onDone,
+  });
+  return (
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <p className="rounded-md border bg-muted/40 p-3 text-sm">{t("changePlanIntro")}</p>
+      <FormField label={t("plan")} htmlFor="plan-code" error={fieldError("plan")} required>
+        <Select id="plan-code" {...form.register("plan")}>
+          {PLAN_CODES.map((c) => (
+            <option key={c} value={c}>
+              {tp(c)}
+            </option>
+          ))}
+        </Select>
+      </FormField>
+      <FormField label={t("until")} htmlFor="plan-until" error={fieldError("until")} hint={t("untilHint")}>
+        <Input id="plan-until" type="date" {...form.register("until")} />
+      </FormField>
+      <FormField label={t("note")} htmlFor="plan-note" error={fieldError("note")} hint={t("noteHint")} required>
+        <Input id="plan-note" maxLength={300} {...form.register("note")} />
+      </FormField>
+      <FormDialogFooter pending={pending} onCancel={onDone} submitLabel={t("changePlan")} />
     </form>
   );
 }

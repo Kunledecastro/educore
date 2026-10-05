@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { Role } from "@educore/db";
 import { toMinor } from "@/lib/fees";
+import { getEntitlements } from "@/lib/entitlements-server";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { startOnlineCheckout, settleOnlinePayment } from "@/lib/payments/online";
 import { PAYSTACK_CURRENCIES, paystack } from "@/lib/payments/paystack";
@@ -23,6 +24,8 @@ export async function startOnlinePaymentAction(input: unknown) {
   return runAction(["payment", "create"], async (ctx) => {
     const t = await getTranslations("fees.online.errors");
     if (ctx.user.role !== Role.PARENT) throw new UserFacingError(t("parentsOnly"));
+    // Online payment is its own module (Premium); fees alone covers the bursary.
+    if (!(await getEntitlements(ctx.user.tenantId!)).modules.has("onlinePayments")) throw new UserFacingError(t("notInPlan"));
     if (!paystack.configured()) throw new UserFacingError(t("notConfigured"));
     const data = onlinePaymentSchema.parse(input);
     const scope = await studentScopeFor(ctx);

@@ -1,8 +1,11 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { forTenant, platformPrisma, Role, type AuditContext, type TenantScopedClient } from "@educore/db";
 import { clientIpFromHeaders, userAgentFromHeaders } from "./request-meta";
 import { can, type Action, type Resource, type AuthUser } from "@educore/auth";
 import type { Impersonation } from "./impersonation";
+import { checkEntitlement, type EntitlementRefusal, type Module } from "./entitlements";
+import { getEntitlements } from "./entitlements-server";
 import { getEffectiveSession } from "./session";
 import { getTenantForUser } from "./tenant";
 
@@ -69,12 +72,56 @@ export async function requireUser(): Promise<RequestContext> {
   };
 }
 
-/** Throws unless the current user's role is allowed `action` on `resource`. */
-export async function requirePermission(resource: Resource, action: Action): Promise<RequestContext> {
+/** The school's plan doesn't include this, or the subscription has lapsed to read-only (4.1). */
+export class NotEntitledError extends ForbiddenError {
+  constructor(public readonly refusal: NonNullable<EntitlementRefusal>) {
+    super(refusal.reason === "module" ? `Plan does not include ${refusal.module}` : "Subscription is read-only");
+    this.name = "NotEntitledError";
+  }
+}
+
+/**
+ * Throws unless the current user's role is allowed `action` on `resource`
+ * (RBAC) AND the school's plan allows it right now (entitlements: module in
+ * plan, subscription not read-only). Platform admins working above tenants
+ * aren't subject to a plan; impersonation acts as the school, so it is.
+ *
+ * Pages pass `{ page: true }`: a module outside the plan sends the user to
+ * "Your plan" instead of an error, and a read-only school can still OPEN
+ * pages guarded by a write permission (every change they'd submit is still
+ * refused by the action).
+ */
+export async function requirePermission(resource: Resource, action: Action, opts: { page?: boolean } = {}): Promise<RequestContext> {
   const ctx = await requireUser();
   if (!can(ctx.user.role, resource, action)) {
     throw new ForbiddenError(`Role ${ctx.user.role} may not ${action} ${resource}`);
   }
+  if (ctx.user.tenantId) {
+    const refusal = checkEntitlement(await getEntitlements(ctx.user.tenantId), resource, action);
+    if (refusal && opts.page) {
+      if (refusal.reason === "module") redirect(`/plan?need=${refusal.module}`);
+    } else if (refusal) {
+      throw new NotEntitledError(refusal);
+    }
+  }
+  return ctx;
+}
+
+/** The entitlement half of requirePermission, for routes that check RBAC themselves. */
+export async function assertEntitled(ctx: RequestContext, resource: Resource, action: Action): Promise<void> {
+  if (!ctx.user.tenantId) return;
+  const refusal = checkEntitlement(await getEntitlements(ctx.user.tenantId), resource, action);
+  if (refusal) throw new NotEntitledError(refusal);
+}
+
+/**
+ * For module pages that don't call requirePermission (they work out access
+ * per role themselves): sends the user to "Your plan" when the school's plan
+ * doesn't include the module.
+ */
+export async function requireModule(module: Module): Promise<RequestContext> {
+  const ctx = await requireUser();
+  if (ctx.user.tenantId && !(await getEntitlements(ctx.user.tenantId)).modules.has(module)) redirect(`/plan?need=${module}`);
   return ctx;
 }
 

@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { Prisma } from "@educore/db";
 import type { Action, Resource } from "@educore/auth";
 import { fail, ok, type ActionResult } from "./action-result";
-import { ForbiddenError, requirePermission, UnauthenticatedError, type RequestContext } from "./guard";
+import { ForbiddenError, NotEntitledError, requirePermission, UnauthenticatedError, type RequestContext } from "./guard";
 
 /** The record doesn't exist — or belongs to another school, which we deliberately report the same way. */
 export class NotFoundError extends Error {
@@ -50,6 +50,11 @@ export async function runAction<T>(
     return ok(await fn(ctx));
   } catch (err) {
     if (err instanceof UnauthenticatedError) return fail(t("unauthenticated"));
+    if (err instanceof NotEntitledError) {
+      if (err.refusal.reason === "readOnly") return fail(t("readOnly"));
+      const tm = await getTranslations("plan.modules");
+      return fail(t("notEntitled", { module: tm(err.refusal.module) }));
+    }
     if (err instanceof ForbiddenError) return fail(t("forbidden"));
     if (err instanceof NotFoundError) return fail(t("notFound"));
     if (err instanceof UserFacingError) return fail(err.message, err.fieldErrors);
