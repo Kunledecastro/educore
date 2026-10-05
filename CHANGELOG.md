@@ -10,6 +10,42 @@ default and switched on per class; students sign in with school short name +
 admission number; submitted work in Supabase Storage; assignment marks can
 optionally count towards CA.
 
+### Added (milestone 5.1 — assignments, 2026-10-05)
+
+- **Assignments** (new sidebar item; Free trial, Standard and Premium plans):
+  teachers set homework or a project for a subject they teach, in one or
+  more classes at once (each class gets its own copy). Title, instructions,
+  due date and time (school's time zone), optional "marked out of", and
+  whether it's handed in **online** or **on paper**. Save as a draft or
+  publish straight away; close, reopen, edit, and delete (only while nothing
+  has been handed in). Admins can manage every class's assignments.
+- **Worksheets**: attach up to 5 files (PDF, Word, JPEG, PNG; 10 MB each).
+  Files go straight from the browser to private storage with a one-time
+  link; the server then checks the file really is the type it claims (by
+  its first bytes), its size, and a malware-scan hook, and deletes anything
+  that fails. Downloads use five-minute signed links.
+- **Students and parents** see published work for their own (child's) class,
+  never drafts: what's to do / due soon / overdue first. Dashboards get a
+  "Work due" card. (Handing work in online arrives in 5.2.)
+- Teachers see published work for every class they teach or are form teacher
+  of, but only their own subject's drafts.
+
+### Security (5.1)
+
+- Migration `0025_assignments`: three tenant tables with RLS; handed-in work
+  can't be deleted by the app role; a stored file must sit inside its own
+  school's folder (database CHECK). Upload grants are HMAC-signed, personal,
+  tied to one assignment, and expire after 2 hours. The storage service key
+  stays on the server; CSP `connect-src` allows only the storage origin.
+- Every create/update/delete of an assignment or worksheet is audited.
+
+### Tests (5.1)
+
+- 16 integration tests (who sets work where, who sees what, edits once work
+  is in, uploads: wrong type, forged/borrowed grants, missing upload, size
+  cap; downloads across classes and schools; delete) plus unit tests for the
+  rules, file checks and time-zone conversion.
+
 ### Added (milestone 5.0 — student accounts, 2026-10-05)
 
 - **Students → Student logins** (school admins): turn student logins on and

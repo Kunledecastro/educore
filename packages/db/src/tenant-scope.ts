@@ -47,6 +47,9 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "NumberSequence",
   "BillingRun",
   "OnlinePayment",
+  "Assignment",
+  "AssignmentSubmission",
+  "AssignmentFile",
 ]);
 
 const READ_ACTIONS = new Set([

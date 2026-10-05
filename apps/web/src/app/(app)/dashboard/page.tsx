@@ -14,6 +14,9 @@ import { feeTotals } from "@/lib/fee-summary";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 import { AnnouncementsCard } from "@/components/messaging/announcements-card";
+import { AssignmentsDueCard } from "@/components/assignments/due-card";
+import { assignmentViewer } from "@/lib/assignments/data";
+import type { AnyRole } from "@/lib/assignments/rules";
 import { getEntitlements } from "@/lib/entitlements-server";
 import { unreadThreadCount, viewerFor } from "@/lib/messaging/data";
 import type { MessagingRole } from "@/lib/messaging/rules";
@@ -53,6 +56,10 @@ export default async function DashboardPage() {
   const messaging = user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("messaging") : false;
   const viewer = messaging && user.tenantId ? await viewerFor(user.tenantId, { id: user.id, role: user.role as MessagingRole }) : null;
   const unread = viewer && can(user.role, "message", "read") ? await unreadThreadCount(user.tenantId!, user.id) : null;
+
+  // Work still to do (5.1), for students and parents when the plan includes assignments.
+  const family = user.role === Role.STUDENT || user.role === Role.PARENT;
+  const homework = family && user.tenantId && (await getEntitlements(user.tenantId)).modules.has("assignments") ? await assignmentViewer(user.tenantId, { id: user.id, role: user.role as AnyRole }) : null;
 
   switch (user.role) {
     case Role.PLATFORM_ADMIN: {
@@ -159,6 +166,7 @@ export default async function DashboardPage() {
           <StatCard key={s.label} label={s.label} value={s.value} />
         ))}
       </div>
+      {homework ? <AssignmentsDueCard viewer={homework} settings={settings} /> : null}
       {viewer ? <AnnouncementsCard viewer={viewer} settings={settings} /> : null}
     </div>
   );

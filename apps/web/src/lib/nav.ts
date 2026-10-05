@@ -12,6 +12,7 @@ const MODULE_OF_HREF: Record<string, Module> = {
   "/payments": "fees",
   "/announcements": "messaging",
   "/messages": "messaging",
+  "/assignments": "assignments",
 };
 
 export interface NavItem {
@@ -62,6 +63,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "imports", href: "/imports", icon: "FileUp" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
+      { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
@@ -78,6 +80,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "myStudents", href: "/students", icon: "Users" },
       { labelKey: "attendance", href: "/attendance", icon: "CalendarCheck" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
+      { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
@@ -98,6 +101,7 @@ function navItemsForRole(role: Role): NavItem[] {
   if (role === Role.PARENT) {
     items.push(
       { labelKey: "myChildren", href: "/students", icon: "Users" },
+      { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
@@ -107,6 +111,7 @@ function navItemsForRole(role: Role): NavItem[] {
 
   if (role === Role.STUDENT) {
     items.push(
+      { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "assessments", href: "/assessments", icon: "ClipboardList" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },

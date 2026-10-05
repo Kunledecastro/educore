@@ -23,6 +23,8 @@ export const RESOURCES = [
   "subscription",
   "branding",
   "studentLogin",
+  "assignment",
+  "submission",
   "user",
   "academicYear",
   "classGrade",
@@ -101,6 +103,8 @@ export const PERMISSION_MATRIX: Matrix = {
     onboarding: ["read", "update"], // setup checklist on the dashboard; update = hide/show it
     academicSettings: ["create", "read", "update", "delete"], // terms, grading scale, score components, options
     results: ["read", "update"], // class results; update = publish / unpublish a term's results
+    assignment: CRUDE, // Phase 5.1
+    submission: ["read", "update", "export"], // view and mark any class's work
   },
 
   [Role.ACCOUNTANT]: {
@@ -130,6 +134,8 @@ export const PERMISSION_MATRIX: Matrix = {
     studentLogin: ["read", "update"], // form teachers: reset passwords and print slips for their own form sections
     announcement: RW,
     message: RW,
+    assignment: [...CRUDE], // own sections/subjects only (checked in code); delete only before any work is handed in
+    submission: ["create", "read", "update", "export"], // mark; create = record paper work
   },
 
   [Role.PARENT]: {
@@ -143,6 +149,8 @@ export const PERMISSION_MATRIX: Matrix = {
     announcement: R,
     timetable: R,
     message: RW,
+    assignment: R, // their children's
+    submission: ["create", "read", "update"], // hand in for their child when the school allows
   },
 
   [Role.STUDENT]: {
@@ -155,6 +163,8 @@ export const PERMISSION_MATRIX: Matrix = {
     announcement: R,
     invoice: R,
     // no messaging for students (Phase 4.4: teacher ↔ parent only)
+    assignment: R, // their own class's
+    submission: ["create", "read", "update"], // hand in their own work
   },
 };
 

@@ -162,50 +162,53 @@ model Tenant {
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
-  users                User[]
-  academicYears        AcademicYear[]
-  classes              ClassGrade[]
-  sections             Section[]
-  subjects             Subject[]
-  classSectionSubjects ClassSectionSubject[]
-  students             Student[]
-  guardians            Guardian[]
-  studentGuardians     StudentGuardian[]
-  teachers             Teacher[]
-  staff                Staff[]
-  attendance           Attendance[]
-  assessmentTypes      AssessmentType[]
-  assessments          Assessment[]
-  marks                Mark[]
-  reportCards          ReportCard[]
-  timetableEntries     TimetableEntry[]
-  announcements        Announcement[]
-  feeTypes             FeeType[]
-  discounts            Discount[]
-  studentDiscounts     StudentDiscount[]
-  feeSignups           FeeSignup[]
-  feeStructures        FeeStructure[]
-  invoices             Invoice[]
-  invoiceLines         InvoiceLine[]
-  payments             Payment[]
-  messageThreads       MessageThread[]
-  messages             Message[]
-  auditLogs            AuditLog[]
-  subscription         Subscription?
-  platformInvoices     PlatformInvoice[]
-  logo                 TenantLogo?
-  platformPayments     PlatformPayment[]
-  importJobs           ImportJob[]
-  terms                Term[]
-  timetablePeriods     TimetablePeriod[]
-  gradeBands           GradeBand[]
-  academicSettings     AcademicSettings?
-  resultPublications   ResultPublication[]
-  reportCardRuns       ReportCardRun[]
-  numberSequences      NumberSequence[]
-  billingRuns          BillingRun[]
-  onlinePayments       OnlinePayment[]
-  impersonations       ImpersonationSession[]
+  users                 User[]
+  academicYears         AcademicYear[]
+  classes               ClassGrade[]
+  sections              Section[]
+  subjects              Subject[]
+  classSectionSubjects  ClassSectionSubject[]
+  students              Student[]
+  guardians             Guardian[]
+  studentGuardians      StudentGuardian[]
+  teachers              Teacher[]
+  staff                 Staff[]
+  attendance            Attendance[]
+  assessmentTypes       AssessmentType[]
+  assessments           Assessment[]
+  marks                 Mark[]
+  reportCards           ReportCard[]
+  timetableEntries      TimetableEntry[]
+  announcements         Announcement[]
+  feeTypes              FeeType[]
+  discounts             Discount[]
+  studentDiscounts      StudentDiscount[]
+  feeSignups            FeeSignup[]
+  feeStructures         FeeStructure[]
+  invoices              Invoice[]
+  invoiceLines          InvoiceLine[]
+  payments              Payment[]
+  messageThreads        MessageThread[]
+  messages              Message[]
+  auditLogs             AuditLog[]
+  subscription          Subscription?
+  platformInvoices      PlatformInvoice[]
+  logo                  TenantLogo?
+  platformPayments      PlatformPayment[]
+  importJobs            ImportJob[]
+  terms                 Term[]
+  timetablePeriods      TimetablePeriod[]
+  gradeBands            GradeBand[]
+  academicSettings      AcademicSettings?
+  resultPublications    ResultPublication[]
+  reportCardRuns        ReportCardRun[]
+  numberSequences       NumberSequence[]
+  billingRuns           BillingRun[]
+  onlinePayments        OnlinePayment[]
+  impersonations        ImpersonationSession[]
+  assignments           Assignment[]
+  assignmentSubmissions AssignmentSubmission[]
+  assignmentFiles       AssignmentFile[]
 
   @@map("tenants")
 }
@@ -383,6 +386,10 @@ model User {
   onlinePayments        OnlinePayment[]        @relation("OnlinePaymentPayer")
   impersonationsStarted ImpersonationSession[] @relation("ImpersonationBy")
   impersonatedIn        ImpersonationSession[] @relation("ImpersonationOf")
+  assignmentsCreated    Assignment[]           @relation("AssignmentCreatedBy")
+  submissionsMade       AssignmentSubmission[] @relation("SubmissionSubmittedBy")
+  submissionsMarked     AssignmentSubmission[] @relation("SubmissionMarkedBy")
+  assignmentFiles       AssignmentFile[]       @relation("AssignmentFileUploadedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -442,6 +449,7 @@ model AcademicYear {
   feeStructures    FeeStructure[]
   invoices         Invoice[]
   studentDiscounts StudentDiscount[]
+  assignments      Assignment[]
 
   // Also enforced in migration 0006 (not expressible in Prisma schema):
   //   - partial unique index: at most one isActive = true per tenant
@@ -492,6 +500,7 @@ model Section {
   assessments          Assessment[]
   timetableEntries     TimetableEntry[]
   reportCardRuns       ReportCardRun[]
+  assignments          Assignment[]
 
   // Also enforced in migration 0006: CHECK (capacity IS NULL OR capacity > 0)
   @@unique([tenantId, classId, name])
@@ -510,6 +519,7 @@ model Subject {
   classSectionSubjects ClassSectionSubject[]
   assessments          Assessment[]
   timetableEntries     TimetableEntry[]
+  assignments          Assignment[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -564,16 +574,17 @@ model Student {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  guardians      StudentGuardian[]
-  attendance     Attendance[]
-  marks          Mark[]
-  reportCards    ReportCard[]
-  invoices       Invoice[]
-  discounts      StudentDiscount[]
-  feeSignups     FeeSignup[]
-  messageThreads MessageThread[]
-  payments       Payment[]
-  onlinePayments OnlinePayment[]
+  guardians             StudentGuardian[]
+  attendance            Attendance[]
+  marks                 Mark[]
+  reportCards           ReportCard[]
+  invoices              Invoice[]
+  discounts             StudentDiscount[]
+  feeSignups            FeeSignup[]
+  messageThreads        MessageThread[]
+  payments              Payment[]
+  onlinePayments        OnlinePayment[]
+  assignmentSubmissions AssignmentSubmission[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -1280,6 +1291,7 @@ model Term {
   feeSignups       FeeSignup[]
   invoices         Invoice[]
   billingRuns      BillingRun[]
+  assignments      Assignment[]
 
   // Also enforced in migration 0009:
   //   - partial unique index: at most one isCurrent = true per tenant
@@ -1434,4 +1446,112 @@ model ImpersonationSession {
   @@index([platformAdminId, startedAt])
   @@index([tenantId, startedAt])
   @@map("impersonation_sessions")
+}
+
+enum AssignmentMode {
+  ONLINE
+  PAPER
+}
+
+enum AssignmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  RETURNED
+  MARKED
+}
+
+/// Homework / coursework for one section and subject (Phase 5.1).
+model Assignment {
+  id              String           @id @default(cuid())
+  tenantId        String
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  academicYearId  String
+  academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  termId          String?
+  term            Term?            @relation(fields: [termId], references: [id], onDelete: SetNull)
+  sectionId       String
+  section         Section          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subjectId       String
+  subject         Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title           String
+  instructions    String           @default("")
+  dueAt           DateTime
+  /// null = not scored
+  maxScore        Decimal?         @db.Decimal(6, 2)
+  mode            AssignmentMode   @default(ONLINE)
+  status          AssignmentStatus @default(DRAFT)
+  publishedAt     DateTime?
+  closedAt        DateTime?
+  marksReleasedAt DateTime?
+  createdById     String?
+  createdBy       User?            @relation("AssignmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+
+  submissions AssignmentSubmission[]
+  files       AssignmentFile[]
+
+  @@index([tenantId])
+  @@index([tenantId, sectionId, dueAt])
+  @@index([tenantId, status, dueAt])
+  @@map("assignments")
+}
+
+/// A student's handed-in work for an assignment (one per student; resubmitting updates it) (Phase 5.2).
+model AssignmentSubmission {
+  id            String           @id @default(cuid())
+  tenantId      String
+  tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignmentId  String
+  assignment    Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId     String
+  student       Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  text          String           @default("")
+  status        SubmissionStatus @default(SUBMITTED)
+  submittedAt   DateTime         @default(now())
+  isLate        Boolean          @default(false)
+  submittedById String?
+  submittedBy   User?            @relation("SubmissionSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
+  score         Decimal?         @db.Decimal(6, 2)
+  feedback      String?
+  markedAt      DateTime?
+  markedById    String?
+  markedBy      User?            @relation("SubmissionMarkedBy", fields: [markedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @default(now()) @updatedAt
+
+  files AssignmentFile[]
+
+  @@unique([assignmentId, studentId])
+  @@index([tenantId])
+  @@index([tenantId, studentId])
+  @@map("assignment_submissions")
+}
+
+/// A file in private storage: a teacher's worksheet (no submission) or part of a submission (Phase 5.1/5.2).
+model AssignmentFile {
+  id           String                @id @default(cuid())
+  tenantId     String
+  tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignmentId String
+  assignment   Assignment            @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  submissionId String?
+  submission   AssignmentSubmission? @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  storageKey   String                @unique
+  fileName     String
+  contentType  String
+  sizeBytes    Int
+  uploadedById String?
+  uploadedBy   User?                 @relation("AssignmentFileUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime              @default(now())
+
+  @@index([tenantId])
+  @@index([assignmentId])
+  @@index([submissionId])
+  @@map("assignment_files")
 }

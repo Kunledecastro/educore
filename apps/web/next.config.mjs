@@ -2,6 +2,16 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+// Assignment files upload straight from the browser to storage (Phase 5.1), so
+// the storage origin — and only it — is allowed as a connect target.
+function storageOrigin() {
+  try {
+    return process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).origin : "";
+  } catch {
+    return "";
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -41,7 +51,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self'",
+              `connect-src 'self'${storageOrigin() ? ` ${storageOrigin()}` : ""}`,
               "frame-ancestors 'none'",
             ].join("; "),
           },

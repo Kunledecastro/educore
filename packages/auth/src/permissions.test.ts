@@ -49,6 +49,19 @@ describe("RBAC permission matrix", () => {
     for (const role of [Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "studentLogin", "read")).toBe(false);
   });
 
+  it("assignments: teachers set and mark; students and parents read and hand in; bursars nothing (5.1)", () => {
+    expect(can(Role.TEACHER, "assignment", "create")).toBe(true);
+    expect(can(Role.TEACHER, "submission", "update")).toBe(true);
+    for (const role of [Role.STUDENT, Role.PARENT]) {
+      expect(can(role, "assignment", "read")).toBe(true);
+      expect(can(role, "assignment", "create")).toBe(false);
+      expect(can(role, "submission", "create")).toBe(true);
+      expect(can(role, "submission", "delete")).toBe(false);
+    }
+    expect(can(Role.ACCOUNTANT, "assignment", "read")).toBe(false);
+    for (const role of Object.values(Role)) expect(can(role, "submission", "delete")).toBe(role === Role.PLATFORM_ADMIN);
+  });
+
   it("never lets ANY role delete the audit log", () => {
     for (const role of Object.values(Role)) {
       expect(can(role, "auditLog", "delete")).toBe(false);
