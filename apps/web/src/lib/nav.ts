@@ -22,7 +22,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
   if (role === Role.PLATFORM_ADMIN) {
     items.push(
       { labelKey: "platformTenants", href: "/platform/tenants", icon: "Building2" },
-      { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
+      { labelKey: "platformAudit", href: "/platform/audit", icon: "ShieldCheck" },
     );
     return items;
   }

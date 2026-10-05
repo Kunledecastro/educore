@@ -1,13 +1,15 @@
 import { redirect } from "next/navigation";
 import { Role } from "@educore/db";
-import { auth } from "@/lib/auth";
-import { getTenantForUser } from "@/lib/tenant";
+import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { getNavItemsForRole } from "@/lib/nav";
+import { getEffectiveSession } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
+import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-  if (!session?.user) {
+  // The effective user: normally the signed-in user; while support impersonates, the school admin.
+  const session = await getEffectiveSession();
+  if (!session) {
     redirect("/login");
   }
 
@@ -19,18 +21,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   const items = getNavItemsForRole(session.user.role);
+  const settings = session.impersonation ? await getSettingsForUser(session.user.tenantId) : null;
 
   return (
-    <div className="min-h-screen md:flex">
-      <div className="contents print:hidden">
-        <Sidebar items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+    <>
+      {session.impersonation && settings ? <ImpersonationBanner imp={session.impersonation} timeZone={settings.timezone} locale={settings.locale} /> : null}
+      <div className="min-h-screen md:flex">
+        <div className="contents print:hidden">
+          <Sidebar items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+        </div>
+        <div className="contents print:hidden">
+          <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
+        </div>
+        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
+          {children}
+        </main>
       </div>
-      <div className="contents print:hidden">
-        <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} />
-      </div>
-      <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
-        {children}
-      </main>
-    </div>
+    </>
   );
 }

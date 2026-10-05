@@ -117,7 +117,14 @@ export default async function AuditLogPage({ searchParams }: { searchParams: Sea
                     <TableCell className="whitespace-nowrap">{when}</TableCell>
                     {isPlatformAdmin ? <TableCell>{tenantName}</TableCell> : null}
                     <TableCell>
-                      <div className="font-medium">{who}</div>
+                      <div className="font-medium">
+                        {who}
+                        {row.impersonatorId ? (
+                          <Badge variant="warning" className="ml-2">
+                            {t("viaSupport")}
+                          </Badge>
+                        ) : null}
+                      </div>
                       {row.actor?.name && row.actor.email ? (
                         <div className="text-xs text-muted-foreground">{row.actor.email}</div>
                       ) : null}

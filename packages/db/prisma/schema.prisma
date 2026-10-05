@@ -152,6 +152,8 @@ model Tenant {
   logoUrl               String?
   plan                  Plan         @default(FREE_TRIAL)
   status                TenantStatus @default(ACTIVE)
+  suspendedAt           DateTime?
+  suspendedReason       String?
   settings              Json         @default("{}")
   branding              Json         @default("{}")
   /// When a school admin hid the setup checklist (milestone 1.4). The ONLY
@@ -200,6 +202,7 @@ model Tenant {
   numberSequences      NumberSequence[]
   billingRuns          BillingRun[]
   onlinePayments       OnlinePayment[]
+  impersonations       ImpersonationSession[]
 
   @@map("tenants")
 }
@@ -248,19 +251,21 @@ model User {
   studentProfile  Student?
   guardianProfile Guardian?
 
-  attendanceMarked   Attendance[]        @relation("AttendanceMarkedBy")
-  marksEntered       Mark[]              @relation("MarkEnteredBy")
-  announcementsMade  Announcement[]      @relation("AnnouncementPublishedBy")
-  messagesSent       Message[]           @relation("MessageSender")
-  threadParticipants ThreadParticipant[]
-  auditLogEntries    AuditLog[]          @relation("AuditActor")
-  importJobs         ImportJob[]         @relation("ImportCreatedBy")
-  resultsPublished   ResultPublication[] @relation("ResultPublishedBy")
-  reportCardRuns     ReportCardRun[]     @relation("ReportCardRunBy")
-  invoicesCreated    Invoice[]           @relation("InvoiceCreatedBy")
-  paymentsRecorded   Payment[]           @relation("PaymentRecordedBy")
-  billingRuns        BillingRun[]        @relation("BillingRunBy")
-  onlinePayments     OnlinePayment[]     @relation("OnlinePaymentPayer")
+  attendanceMarked      Attendance[]           @relation("AttendanceMarkedBy")
+  marksEntered          Mark[]                 @relation("MarkEnteredBy")
+  announcementsMade     Announcement[]         @relation("AnnouncementPublishedBy")
+  messagesSent          Message[]              @relation("MessageSender")
+  threadParticipants    ThreadParticipant[]
+  auditLogEntries       AuditLog[]             @relation("AuditActor")
+  importJobs            ImportJob[]            @relation("ImportCreatedBy")
+  resultsPublished      ResultPublication[]    @relation("ResultPublishedBy")
+  reportCardRuns        ReportCardRun[]        @relation("ReportCardRunBy")
+  invoicesCreated       Invoice[]              @relation("InvoiceCreatedBy")
+  paymentsRecorded      Payment[]              @relation("PaymentRecordedBy")
+  billingRuns           BillingRun[]           @relation("BillingRunBy")
+  onlinePayments        OnlinePayment[]        @relation("OnlinePaymentPayer")
+  impersonationsStarted ImpersonationSession[] @relation("ImpersonationBy")
+  impersonatedIn        ImpersonationSession[] @relation("ImpersonationOf")
 
   @@index([tenantId])
   @@map("users")
@@ -1056,19 +1061,22 @@ model BillingRun {
 // ---------------------------------------------------------------------------
 
 model AuditLog {
-  id         String      @id @default(cuid())
-  tenantId   String
-  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  actorId    String?
-  actor      User?       @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
-  action     AuditAction
-  entityType String
-  entityId   String
-  before     Json?
-  after      Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime    @default(now())
+  id             String      @id @default(cuid())
+  tenantId       String
+  tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actorId        String?
+  actor          User?       @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action         AuditAction
+  entityType     String
+  entityId       String
+  before         Json?
+  after          Json?
+  ipAddress      String?
+  userAgent      String?
+  // Phase 4.0: set when a platform admin made this change while signed in as
+  // `actorId` for support (no FK: audit rows are never updated).
+  impersonatorId String?
+  createdAt      DateTime    @default(now())
 
   @@index([tenantId])
   @@index([tenantId, entityType, entityId])
@@ -1248,4 +1256,49 @@ model TimetablePeriod {
   @@unique([tenantId, number])
   @@index([tenantId])
   @@map("timetable_periods")
+}
+
+// ---------------------------------------------------------------------------
+// Platform console (Phase 4.0) — platform-level, never tenant-scoped. RLS is
+// forced with no policy for the app role, so school sessions can't see them.
+// ---------------------------------------------------------------------------
+
+/// Everything a platform admin does. Append-only (trigger, migration 0017).
+model PlatformAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  tenantId   String?
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
+  @@map("platform_audit_logs")
+}
+
+/// A platform admin signed in as a school admin for support: time-limited,
+/// ended explicitly or by expiry (CHECK: at most 2 hours).
+model ImpersonationSession {
+  id              String    @id @default(cuid())
+  platformAdminId String
+  platformAdmin   User      @relation("ImpersonationBy", fields: [platformAdminId], references: [id], onDelete: Cascade)
+  targetUserId    String
+  targetUser      User      @relation("ImpersonationOf", fields: [targetUserId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reason          String
+  startedAt       DateTime  @default(now())
+  expiresAt       DateTime
+  endedAt         DateTime?
+  ipAddress       String?
+
+  @@index([platformAdminId, startedAt])
+  @@index([tenantId, startedAt])
+  @@map("impersonation_sessions")
 }

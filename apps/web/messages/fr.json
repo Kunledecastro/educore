@@ -29,7 +29,7 @@
     "payments": "Paiements",
     "messages": "Messages",
     "auditLog": "Journal d'audit",
-    "platformTenants": "Écoles (Locataires)",
+    "platformTenants": "Écoles",
     "settings": "Paramètres",
     "academics": "Organisation pédagogique",
     "mainNavigation": "Navigation principale",
@@ -39,7 +39,8 @@
     "parents": "Parents",
     "myStudents": "Mes élèves",
     "myChildren": "Mes enfants",
-    "imports": "Import et export"
+    "imports": "Import et export",
+    "platformAudit": "Activité de la plateforme"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -139,7 +140,8 @@
       "CREATE": "Créé",
       "UPDATE": "Modifié",
       "DELETE": "Supprimé"
-    }
+    },
+    "viaSupport": "via l'assistance EduCore"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -1720,6 +1722,108 @@
         "abandoned": "Le parent n'a pas terminé le paiement",
         "review": "Payé, mais à vérifier",
         "unknown": "Paystack ne connaît pas ce paiement"
+      }
+    }
+  },
+  "platform": {
+    "statuses": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspendue",
+      "CANCELLED": "Résiliée"
+    },
+    "plans": {
+      "FREE_TRIAL": "Essai gratuit",
+      "STARTER": "Starter",
+      "STANDARD": "Standard",
+      "PREMIUM": "Premium"
+    },
+    "errors": {
+      "notSchoolAdmin": "Vous ne pouvez vous connecter qu'en tant qu'administrateur actif d'une école.",
+      "schoolNotActive": "Cette école est suspendue. Réactivez-la d'abord.",
+      "notFound": "Ce compte n'existe plus."
+    },
+    "impersonation": {
+      "banner": "Vous êtes connecté en tant que {name} à {school} pour l'assistance — chaque modification est enregistrée. Fin à {until}.",
+      "stop": "Arrêter et revenir à la console",
+      "stopping": "Arrêt…"
+    },
+    "tenants": {
+      "title": "Écoles",
+      "description": "{count, plural, one {# école} other {# écoles}} sur EduCore.",
+      "search": "Rechercher une école, un nom court ou l'e-mail d'un utilisateur",
+      "school": "École",
+      "plan": "Formule",
+      "status": "Statut",
+      "students": "Élèves",
+      "staff": "Personnel",
+      "lastActivity": "Dernière activité",
+      "joined": "Inscription",
+      "trialLeft": "{days, plural, one {# jour} other {# jours}} d'essai restants",
+      "trialOver": "Essai terminé",
+      "emptyTitle": "Aucune école",
+      "emptyDescription": "Les écoles apparaissent ici lorsqu'elles s'inscrivent ou sont créées."
+    },
+    "tenant": {
+      "back": "Toutes les écoles",
+      "joined": "inscrite le {date}",
+      "status": "Statut",
+      "plan": "Formule",
+      "staffParents": "Personnel / parents",
+      "feesCollected": "Frais encaissés (total)",
+      "suspendedNote": "Suspendue {when} : {reason}. Personne dans cette école ne peut se connecter.",
+      "admins": "Administrateurs de l'école",
+      "adminsHint": "Connectez-vous en tant qu'administrateur pour l'assistance. Cela dure 30 minutes, affiche un bandeau et est enregistré dans le journal d'audit de l'école.",
+      "noAdmins": "Cette école n'a pas de compte administrateur.",
+      "inactive": "inactif",
+      "invited": "invité, pas encore connecté",
+      "setup": "Mise en place",
+      "setupProgress": "{done} étapes sur {total} terminées",
+      "stepDone": "Terminé",
+      "stepTodo": "À faire",
+      "activity": "Activité récente",
+      "noActivity": "Rien d'enregistré pour l'instant.",
+      "when": "Quand",
+      "who": "Qui",
+      "what": "Quoi",
+      "system": "Système",
+      "viaSupport": "via l'assistance",
+      "supportSessions": "Sessions d'assistance",
+      "noSessions": "Personne d'EduCore ne s'est connecté pour cette école.",
+      "live": "en cours",
+      "expired": "expirée",
+      "suspend": "Suspendre l'école",
+      "suspendTitle": "Suspendre {name} ?",
+      "suspendIntro": "Tout le monde dans cette école est déconnecté et ne peut plus se connecter jusqu'à la réactivation. Les données sont conservées.",
+      "reason": "Motif",
+      "suspended": "École suspendue",
+      "reactivate": "Réactiver",
+      "reactivateTitle": "Réactiver {name} ?",
+      "reactivateDescription": "Tout le monde dans cette école pourra de nouveau se connecter.",
+      "reactivated": "École réactivée",
+      "impersonate": "Se connecter en tant que",
+      "impersonateTitle": "Se connecter en tant que {name} ({school})",
+      "impersonateIntro": "Vous verrez EduCore exactement comme cet administrateur, pendant 30 minutes. Un bandeau reste affiché ; tout ce que vous faites est enregistré à votre nom dans le journal d'audit de l'école. Vous ne pouvez ni envoyer d'invitations ni modifier la facturation.",
+      "impersonateReason": "Pourquoi en avez-vous besoin ?",
+      "impersonateReasonHint": "ex. Ticket n°142 : les bulletins ne se génèrent pas. L'école peut voir ce motif.",
+      "impersonating": "Connecté pour l'assistance"
+    },
+    "audit": {
+      "title": "Activité de la plateforme",
+      "description": "Tout ce que les administrateurs de la plateforme EduCore ont fait. Ce journal ne peut être ni modifié ni supprimé.",
+      "action": "Action",
+      "when": "Quand",
+      "who": "Qui",
+      "school": "École",
+      "details": "Détails",
+      "emptyTitle": "Rien pour l'instant",
+      "emptyDescription": "Les suspensions, réactivations, connexions d'assistance et changements de formule apparaissent ici.",
+      "actions": {
+        "TENANT_SUSPEND": "École suspendue",
+        "TENANT_REACTIVATE": "École réactivée",
+        "IMPERSONATION_START": "Connexion d'assistance démarrée",
+        "IMPERSONATION_END": "Connexion d'assistance terminée",
+        "PLAN_UPDATE": "Prix ou limites d'une formule modifiés",
+        "TENANT_PLAN_CHANGE": "Formule d'une école modifiée"
       }
     }
   }

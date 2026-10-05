@@ -3,6 +3,52 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 4 — SaaS platform (in progress)
+
+Spec: `claude/phase-4-spec.md` (confirmed 2026-10-05): EduCore's own
+subscriptions billed with **Paystack in naira** (deviation from the brief's
+Stripe Billing, same reason as school fees); editable placeholder prices
+(Starter ₦300 / Standard ₦500 / Premium ₦800 per student per month); open
+self-serve sign-up with a 30-day trial; announcements + teacher–parent chat.
+
+### Added (milestone 4.0 — platform admin console, 2026-10-05)
+
+- **Schools** (`/platform/tenants`, platform admins): every school with plan
+  (and trial days left), status, active students, staff, last activity and
+  join date; search (name, short name or any user's email), status and plan
+  filters, sorting, pagination, CSV/Excel export.
+- **School page**: status, plan, students, staff/parents, fees collected;
+  school admins; setup checklist progress; recent activity (support actions
+  flagged); support-session history.
+- **Suspend / reactivate** a school with a reason (everyone there is signed
+  out; data kept); live support sessions in that school end at once.
+- **Sign in as a school admin for support**: reason required (the school can
+  see it), 30 minutes then it stops by itself, a banner on every page with
+  "Stop and return to console", one live session per platform admin. While
+  signed in as them: no invite links (they set passwords) — billing joins this
+  list in 4.2.
+- **Platform activity** (`/platform/audit`): every suspension, reactivation
+  and support sign-in/out; append-only.
+- Schools' own audit log shows "via EduCore support" on anything done during
+  a support session, and records each session start and end.
+
+### Security (milestone 4.0)
+
+- Migration `0017_platform_console` (additive): `platform_audit_logs`
+  (append-only by trigger, like `audit_logs`) and `impersonation_sessions`
+  (window ≤ 2 hours by CHECK), both with RLS forced and no grants for the app
+  role — school sessions can't read or write them; `audit_logs.impersonatorId`;
+  `tenants.suspendedAt/suspendedReason`.
+- The impersonation cookie is httpOnly and HMAC-signed with an expiry, but it
+  only points at a session row: every request re-checks the row is open,
+  unexpired, started by THIS platform admin, and that the admin and school are
+  still active. While impersonating, the request is the school admin's in every
+  respect (tenant-scoped client, RLS, RBAC) — platform powers are off.
+- Tests: token signing (4 unit); **7 integration tests on real Postgres**
+  (who can be impersonated, both audit trails, other platform admin / expired /
+  forged cookie refused, new session ends the old one, stop, deactivation cuts
+  it off, platform tables hidden from school sessions, platform log append-only).
+
 ## Phase 3 — Fees & payments (2026-10-04)
 
 Spec: `claude/phase-3-spec.md` (confirmed 2026-10-02): billed per term;

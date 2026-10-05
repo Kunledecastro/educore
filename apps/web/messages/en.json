@@ -29,7 +29,7 @@
     "payments": "Payments",
     "messages": "Messages",
     "auditLog": "Audit Log",
-    "platformTenants": "Schools (Tenants)",
+    "platformTenants": "Schools",
     "settings": "Settings",
     "academics": "Academic setup",
     "mainNavigation": "Main navigation",
@@ -39,7 +39,8 @@
     "parents": "Parents",
     "myStudents": "My students",
     "myChildren": "My children",
-    "imports": "Import & export"
+    "imports": "Import & export",
+    "platformAudit": "Platform activity"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -139,7 +140,8 @@
       "CREATE": "Created",
       "UPDATE": "Updated",
       "DELETE": "Deleted"
-    }
+    },
+    "viaSupport": "via EduCore support"
   },
   "validation": {
     "required": "This field is required",
@@ -1720,6 +1722,108 @@
         "abandoned": "The parent didn't finish paying",
         "review": "Paid, but needs review",
         "unknown": "Paystack doesn't know this payment"
+      }
+    }
+  },
+  "platform": {
+    "statuses": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "CANCELLED": "Cancelled"
+    },
+    "plans": {
+      "FREE_TRIAL": "Free trial",
+      "STARTER": "Starter",
+      "STANDARD": "Standard",
+      "PREMIUM": "Premium"
+    },
+    "errors": {
+      "notSchoolAdmin": "You can only sign in as an active school admin.",
+      "schoolNotActive": "This school is suspended. Reactivate it first.",
+      "notFound": "That account no longer exists."
+    },
+    "impersonation": {
+      "banner": "You're signed in as {name} at {school} for support — every change is recorded. Ends at {until}.",
+      "stop": "Stop and return to console",
+      "stopping": "Stopping…"
+    },
+    "tenants": {
+      "title": "Schools",
+      "description": "{count, plural, one {# school} other {# schools}} on EduCore.",
+      "search": "Search school, short name or a user's email",
+      "school": "School",
+      "plan": "Plan",
+      "status": "Status",
+      "students": "Students",
+      "staff": "Staff",
+      "lastActivity": "Last activity",
+      "joined": "Joined",
+      "trialLeft": "{days, plural, one {# day} other {# days}} of trial left",
+      "trialOver": "Trial ended",
+      "emptyTitle": "No schools yet",
+      "emptyDescription": "Schools appear here when they sign up or are created."
+    },
+    "tenant": {
+      "back": "All schools",
+      "joined": "joined {date}",
+      "status": "Status",
+      "plan": "Plan",
+      "staffParents": "Staff / parents",
+      "feesCollected": "Fees collected (all time)",
+      "suspendedNote": "Suspended {when}: {reason}. Nobody at this school can sign in.",
+      "admins": "School admins",
+      "adminsHint": "Sign in as an admin to help with support. It lasts 30 minutes, shows a banner, and is recorded in the school's own audit log.",
+      "noAdmins": "This school has no admin account.",
+      "inactive": "inactive",
+      "invited": "invited, not yet signed in",
+      "setup": "Setup progress",
+      "setupProgress": "{done} of {total} steps done",
+      "stepDone": "Done",
+      "stepTodo": "To do",
+      "activity": "Recent activity",
+      "noActivity": "Nothing recorded yet.",
+      "when": "When",
+      "who": "Who",
+      "what": "What",
+      "system": "System",
+      "viaSupport": "via support",
+      "supportSessions": "Support sessions",
+      "noSessions": "No one from EduCore has signed in as this school.",
+      "live": "in progress",
+      "expired": "expired",
+      "suspend": "Suspend school",
+      "suspendTitle": "Suspend {name}?",
+      "suspendIntro": "Everyone at this school is signed out and can't sign in until you reactivate it. Their data is kept.",
+      "reason": "Reason",
+      "suspended": "School suspended",
+      "reactivate": "Reactivate",
+      "reactivateTitle": "Reactivate {name}?",
+      "reactivateDescription": "Everyone at this school can sign in again.",
+      "reactivated": "School reactivated",
+      "impersonate": "Sign in as",
+      "impersonateTitle": "Sign in as {name} ({school})",
+      "impersonateIntro": "You'll see EduCore exactly as this admin does, for 30 minutes. A banner stays on screen; everything you do is recorded with your name in the school's audit log. You can't send invites or change billing while signed in as them.",
+      "impersonateReason": "Why do you need to?",
+      "impersonateReasonHint": "e.g. Ticket #142: report cards not generating. The school can see this.",
+      "impersonating": "Signed in for support"
+    },
+    "audit": {
+      "title": "Platform activity",
+      "description": "Everything EduCore platform admins have done. This log can't be changed or deleted.",
+      "action": "Action",
+      "when": "When",
+      "who": "Who",
+      "school": "School",
+      "details": "Details",
+      "emptyTitle": "Nothing yet",
+      "emptyDescription": "Suspensions, reactivations, support sign-ins and plan changes appear here.",
+      "actions": {
+        "TENANT_SUSPEND": "Suspended a school",
+        "TENANT_REACTIVATE": "Reactivated a school",
+        "IMPERSONATION_START": "Started support sign-in",
+        "IMPERSONATION_END": "Ended support sign-in",
+        "PLAN_UPDATE": "Changed a plan's price or limits",
+        "TENANT_PLAN_CHANGE": "Changed a school's plan"
       }
     }
   }

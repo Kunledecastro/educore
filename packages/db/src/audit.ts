@@ -20,6 +20,8 @@ export interface AuditContext {
   actorId: string | null;
   ipAddress?: string | null;
   userAgent?: string | null;
+  /** Phase 4.0: the platform admin really behind `actorId` while impersonating (support). */
+  impersonatorId?: string | null;
 }
 
 /**
@@ -44,6 +46,32 @@ export async function recordAudit(
       tenantId: ctx.tenantId,
       actorId: ctx.actorId,
       action: params.action,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      before: toAuditJson(params.before),
+      after: toAuditJson(params.after),
+      ipAddress: ctx.ipAddress ?? null,
+      userAgent: ctx.userAgent ?? null,
+      impersonatorId: ctx.impersonatorId ?? null,
+    },
+  });
+}
+
+/**
+ * Platform audit log (Phase 4.0): one immutable row for everything a
+ * platform admin does — suspend/reactivate, impersonate, plan changes.
+ * Platform-level; schools never see it.
+ */
+export async function recordPlatformAudit(
+  ctx: { actorId: string | null; ipAddress?: string | null; userAgent?: string | null },
+  params: { action: string; tenantId?: string | null; entityType: string; entityId: string; before?: unknown; after?: unknown },
+  client: Pick<PrismaClient, "platformAuditLog"> = prisma,
+) {
+  await client.platformAuditLog.create({
+    data: {
+      actorId: ctx.actorId,
+      action: params.action,
+      tenantId: params.tenantId ?? null,
       entityType: params.entityType,
       entityId: params.entityId,
       before: toAuditJson(params.before),

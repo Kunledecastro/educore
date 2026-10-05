@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { auditedMutation, prisma, recordAudit, Role } from "@educore/db";
-import { auditContextFor } from "@/lib/guard";
+import { auditContextFor, forbidWhileImpersonating } from "@/lib/guard";
 import { escapeHtml, isEmailConfigured, sendEmail } from "@/lib/email";
 import { generateInviteToken, inviteIdentifier } from "@/lib/invite-token";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
@@ -265,6 +265,8 @@ function appOrigin(): string {
  */
 export async function sendInvite(userId: unknown) {
   return runAction(["user", "update"], async (ctx) => {
+    // An invite link sets a password: support never mints one while signed in as a school admin.
+    forbidWhileImpersonating(ctx);
     const id = idSchema.parse(userId);
     const audit = auditContextFor(ctx);
     const t = await getTranslations("people.invite");

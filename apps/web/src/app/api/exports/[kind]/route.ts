@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { can, type Resource } from "@educore/auth";
-import { Role, type Prisma } from "@educore/db";
+import { platformPrisma, Role, type Prisma } from "@educore/db";
 import { resolveAcademicYear } from "@/lib/academic-year";
 import { exportFileName, MAX_EXPORT_ROWS, renderExport, type ExportTable } from "@/lib/exports";
 import { ForbiddenError, requireUser, UnauthenticatedError, type RequestContext } from "@/lib/guard";
@@ -18,6 +18,7 @@ import { toMinor } from "@/lib/fees";
 import { invoiceListQuery } from "@/lib/invoice-list";
 import { displayStatus, type StoredInvoiceStatus } from "@/lib/invoicing";
 import { paymentListQuery } from "@/lib/payment-list";
+import { tenantListQuery, trialDaysLeft, usageFor } from "@/lib/platform-data";
 
 export const dynamic = "force-dynamic";
 
@@ -188,6 +189,24 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
       };
     },
   },
+  tenants: {
+    // Platform console only (checked in GET): every school with plan, status and usage.
+    permission: "tenant",
+    async build(_ctx, sp) {
+      const { where, orderBy } = tenantListQuery(sp);
+      const db = platformPrisma();
+      const tenants = await db.tenant.findMany({ where, orderBy, take: MAX_EXPORT_ROWS, include: { subscription: { select: { status: true, currentPeriodEnd: true } } } });
+      const usage = await usageFor(tenants.map((x) => x.id));
+      return {
+        sheetName: "Schools",
+        headers: ["name", "slug", "plan", "status", "students", "staff", "parents", "last_activity", "joined", "trial_days_left", "suspended_reason"],
+        rows: tenants.map((x) => {
+          const u = usage.get(x.id)!;
+          return [x.name, x.slug, x.plan.toLowerCase(), x.status.toLowerCase(), u.students, u.staff, u.parents, u.lastActivity?.toISOString() ?? "", iso(x.createdAt), trialDaysLeft(x) ?? "", x.suspendedReason ?? ""];
+        }),
+      };
+    },
+  },
   debtors: {
     permission: "invoice",
     async build(ctx, sp) {
@@ -283,7 +302,8 @@ export async function GET(req: NextRequest, { params }: { params: { kind: string
   if (!spec) return NextResponse.json({ error: "Not found" }, { status: 404 });
   try {
     const ctx = await requireUser();
-    if (!can(ctx.user.role, spec.permission, "export") || ctx.isPlatformAdmin) throw new ForbiddenError();
+    // School exports are per school (platform admins have none); the schools list is platform-only.
+    if (params.kind === "tenants" ? !ctx.isPlatformAdmin : !can(ctx.user.role, spec.permission, "export") || ctx.isPlatformAdmin) throw new ForbiddenError();
     // Staff export includes teachers, so it needs both permissions.
     if (params.kind === "staff" && !can(ctx.user.role, "teacher", "export")) throw new ForbiddenError();
 

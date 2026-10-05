@@ -2,7 +2,8 @@ import { headers } from "next/headers";
 import { forTenant, platformPrisma, Role, type AuditContext, type TenantScopedClient } from "@educore/db";
 import { clientIpFromHeaders, userAgentFromHeaders } from "./request-meta";
 import { can, type Action, type Resource, type AuthUser } from "@educore/auth";
-import { auth } from "./auth";
+import type { Impersonation } from "./impersonation";
+import { getEffectiveSession } from "./session";
 import { getTenantForUser } from "./tenant";
 
 export class UnauthenticatedError extends Error {
@@ -31,6 +32,8 @@ export interface RequestContext {
    */
   db: TenantScopedClient;
   isPlatformAdmin: boolean;
+  /** Set while a platform admin is working as this school admin for support (Phase 4.0). */
+  impersonation: Impersonation | null;
 }
 
 /**
@@ -41,9 +44,10 @@ export interface RequestContext {
  * (architecture rule #1's "operates above tenant isolation").
  */
 export async function requireUser(): Promise<RequestContext> {
-  const session = await auth();
-  if (!session?.user) throw new UnauthenticatedError();
+  const session = await getEffectiveSession();
+  if (!session) throw new UnauthenticatedError();
 
+  // While impersonating, everything below sees the school admin (tenant-scoped client, their role).
   const { id, role, tenantId, name, email } = session.user;
   const isPlatformAdmin = role === Role.PLATFORM_ADMIN;
 
@@ -61,6 +65,7 @@ export async function requireUser(): Promise<RequestContext> {
     user: { id, role, tenantId, name: name ?? "", email: email ?? "" },
     db,
     isPlatformAdmin,
+    impersonation: session.impersonation,
   };
 }
 
@@ -113,5 +118,11 @@ export function auditContextFor(ctx: RequestContext, tenantId: string | null = c
     actorId: ctx.user.id,
     ipAddress: clientIpFromHeaders(h),
     userAgent: userAgentFromHeaders(h),
+    impersonatorId: ctx.impersonation?.platformAdminId ?? null,
   };
+}
+
+/** Some things support must never do while working as a school admin (credentials, billing). */
+export function forbidWhileImpersonating(ctx: RequestContext) {
+  if (ctx.impersonation) throw new ForbiddenError("Not allowed while signed in as a school admin for support");
 }

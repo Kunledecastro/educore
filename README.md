@@ -112,6 +112,13 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   all call it). Rules are pure in `settle-rules.ts`. Anything that doesn't
   match exactly — or arrives after the invoice was settled — becomes
   NEEDS_REVIEW for the bursar instead of being applied.
+- **Platform console & support sign-in**: platform pages check
+  `ctx.isPlatformAdmin` and use `platformPrisma()`; every platform action
+  writes `recordPlatformAudit()`. Who a request acts as comes ONLY from
+  `getEffectiveSession()` (`lib/session.ts`): while a platform admin is signed
+  in as a school admin, it returns the school admin and `requireUser()` gives a
+  tenant-scoped client — so never read `auth()` directly. Things support must
+  not do (credentials, billing) call `forbidWhileImpersonating(ctx)`.
 - **Every string** is in `apps/web/messages/{en,fr}.json`; a unit test fails
   if the two files ever have different keys or placeholders.
 
