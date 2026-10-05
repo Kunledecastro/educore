@@ -41,7 +41,7 @@
     "myChildren": "My children",
     "imports": "Import & export",
     "platformAudit": "Platform activity",
-    "plan": "Your plan",
+    "plan": "Plan & billing",
     "platformPlans": "Plans"
   },
   "login": {
@@ -1863,11 +1863,26 @@
       "isPublic": "Show on the pricing page and to schools",
       "save": "Save plan",
       "saved": "Plan saved"
+    },
+    "billing": {
+      "title": "Billing",
+      "card": "Card on file",
+      "noCard": "No card saved",
+      "status": "Subscription",
+      "paidUntil": "paid until",
+      "autoRenewOff": "automatic payment off",
+      "pending": "moving to {plan} at renewal",
+      "failures": "{count, plural, one {# failed payment} other {# failed payments}} (last: {reason}). Next try: {next}.",
+      "noRetry": "none — the school must pay",
+      "none": "No subscription yet (trial, or plan set by hand).",
+      "review": "Payments to check (paid, but couldn't be matched — refund or apply by hand):",
+      "paid": "Paid",
+      "open": "Open"
     }
   },
   "plan": {
-    "title": "Your plan",
-    "description": "What your school's EduCore plan includes, and what the others cost.",
+    "title": "Plan & billing",
+    "description": "Your school's EduCore plan, what it includes, and paying for it.",
     "need": "{module} isn't included in the {plan} plan.",
     "needUpgrade": "The {plan} plan includes it.",
     "askAdmin": "To change your school's plan, ask a school administrator.",
@@ -1891,7 +1906,7 @@
     "noLimit": "No student limit",
     "upTo": "Up to {max} students",
     "estimate": "About {amount} a month for your {count} students",
-    "howToChange": "Paying for a plan online is coming in the next update. Until then, EduCore support can change your plan for you.",
+    "howToChange": "Prices are per active student per month, in naira, paid by card through Paystack. Upgrades apply at once (the new price from your next payment); downgrades apply when the month ends.",
     "states": {
       "trial": "Free trial",
       "active": "Active",
@@ -1915,6 +1930,90 @@
       "readOnly": "Your school's subscription has ended. You can view and download, but not make changes.",
       "readOnlyAdmin": "Your subscription has ended, so EduCore is read-only: everyone can view and export, but nothing can be changed until you renew.",
       "seePlan": "See your plan"
+    },
+    "fromRenewal": "From renewal",
+    "outcome": {
+      "paid": "Payment received — thank you. Your plan is active and your card is saved for monthly payments.",
+      "pending": "Paystack is still confirming your payment. This page will update once it does.",
+      "failed": "The payment didn't go through. Nothing was charged; you can try again.",
+      "abandoned": "The payment was cancelled. Nothing was charged.",
+      "review": "We received a payment we couldn't match exactly. EduCore support will check it and be in touch.",
+      "checking": "We couldn't reach Paystack just now. If you paid, your plan updates automatically within a few minutes.",
+      "unknown": "We couldn't find that payment."
+    },
+    "errors": {
+      "planNotForSale": "That plan isn't available.",
+      "notConfigured": "Online payment isn't set up yet. Please contact EduCore support.",
+      "schoolNotActive": "This school is suspended. Please contact EduCore support.",
+      "nothingToChange": "You're already on that plan.",
+      "notPaying": "There's no active subscription with a saved card to change.",
+      "startFailed": "We couldn't open the payment page. Please try again in a moment."
+    },
+    "billing": {
+      "title": "Billing",
+      "card": "{brand} ending {last4}, expires {expiry}",
+      "receiptsTo": "Receipts go to {email}",
+      "noCard": "No card saved yet. When you choose a plan, you pay the first month on Paystack and the card is saved for monthly payments.",
+      "nextCharge": "Next payment on {date}: about {amount} for {plan} ({count} students — counted that day).",
+      "ending": "Automatic payment is off. Your plan ends on {date}, then EduCore becomes read-only.",
+      "pendingDowngrade": "Changing to {plan} on {date}.",
+      "failedRetry": "Your last payment failed ({reason}). We'll try your card again on {date}. Everything keeps working meanwhile.",
+      "failedNoRetry": "Your payment failed ({reason}) and we've stopped retrying. Choose your plan below to pay with a card.",
+      "turnOff": "Stop automatic payment",
+      "turnOn": "Turn automatic payment back on",
+      "turnOffTitle": "Stop automatic payment?",
+      "turnOffDescription": "Your plan stays active until {date}, then EduCore becomes read-only: everyone can view and export, but nothing can be changed until you pay again.",
+      "turnOnTitle": "Turn automatic payment back on?",
+      "turnOnDescription": "Your saved card will be charged each month for your active students.",
+      "turnedOff": "Automatic payment stopped",
+      "turnedOn": "Automatic payment is back on",
+      "supportCannotPay": "EduCore support can't change billing while signed in as your admin."
+    },
+    "invoices": {
+      "number": "Invoice",
+      "period": "Period",
+      "plan": "Plan",
+      "students": "Students",
+      "amount": "Amount",
+      "status": "Status",
+      "empty": "No EduCore invoices yet.",
+      "paidOn": "Paid {date}",
+      "payment": {
+        "PENDING": "Awaiting payment",
+        "FAILED": "Payment failed",
+        "ABANDONED": "Payment cancelled",
+        "NEEDS_REVIEW": "Being checked",
+        "SUCCEEDED": "Paid"
+      }
+    },
+    "choose": {
+      "button": {
+        "checkout": "Pay for {plan}",
+        "switchNow": "Upgrade to {plan}",
+        "scheduleDowngrade": "Switch to {plan}",
+        "cancelScheduled": "Keep {plan}"
+      },
+      "title": {
+        "checkout": "Pay for {plan}",
+        "switchNow": "Upgrade to {plan}?",
+        "scheduleDowngrade": "Switch to {plan}?",
+        "cancelScheduled": "Keep {plan}?"
+      },
+      "confirm": {
+        "checkout": "Continue to Paystack",
+        "switchNow": "Upgrade now",
+        "scheduleDowngrade": "Switch at renewal",
+        "cancelScheduled": "Keep my plan"
+      },
+      "describe": {
+        "checkout": "You'll pay {amount} on Paystack for {plan}, {count} students, {from} to {to}. Your card is saved and charged each month for your active students; you can stop that any time.",
+        "switchNow": "{plan}'s modules switch on now. From your next payment on {date} you'll pay about {amount} a month.",
+        "scheduleDowngrade": "You keep your current plan until {date}, then move to {plan} at about {amount} a month.",
+        "overCap": "You have more active students than {plan} allows ({max}): nobody is removed, but you won't be able to add students until you're under the limit.",
+        "cancelScheduled": "Cancel the scheduled change and stay on {plan}."
+      },
+      "redirecting": "Taking you to Paystack…",
+      "done": "Plan updated"
     }
   }
 }

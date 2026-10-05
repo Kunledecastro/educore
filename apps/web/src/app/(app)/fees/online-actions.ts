@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { Role } from "@educore/db";
 import { toMinor } from "@/lib/fees";
 import { getEntitlements } from "@/lib/entitlements-server";
+import { trustedHost } from "@/lib/request-meta";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { startOnlineCheckout, settleOnlinePayment } from "@/lib/payments/online";
 import { PAYSTACK_CURRENCIES, paystack } from "@/lib/payments/paystack";
@@ -78,12 +79,4 @@ export async function recheckOnlinePaymentAction(id: unknown) {
       throw new UserFacingError(t("checkFailed"));
     }
   });
-}
-
-/** The request's host if it's ours (a root domain or a school subdomain of one), else the first root domain. */
-function trustedHost(host: string | null): string {
-  const roots = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000").split(",").map((r) => r.trim().toLowerCase()).filter(Boolean);
-  const h = (host ?? "").toLowerCase();
-  const ok = roots.some((root) => h === root || h.endsWith(`.${root}`));
-  return ok ? h : roots[0]!;
 }

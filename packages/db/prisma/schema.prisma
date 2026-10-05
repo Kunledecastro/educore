@@ -192,6 +192,8 @@ model Tenant {
   messages             Message[]
   auditLogs            AuditLog[]
   subscription         Subscription?
+  platformInvoices     PlatformInvoice[]
+  platformPayments     PlatformPayment[]
   importJobs           ImportJob[]
   terms                Term[]
   timetablePeriods     TimetablePeriod[]
@@ -209,6 +211,73 @@ model Tenant {
 
 /// Platform-level billing record. One per tenant. Only PLATFORM_ADMIN and the
 /// owning tenant's SCHOOL_ADMIN may read it.
+enum PlatformInvoiceStatus {
+  OPEN
+  PAID
+  VOID
+}
+
+enum PlatformPaymentKind {
+  CHECKOUT
+  RENEWAL
+}
+
+enum PlatformPaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  ABANDONED
+  NEEDS_REVIEW
+}
+
+/// EduCore's own invoice to a school (Phase 4.2): one per billing month.
+/// Platform-level; amounts in kobo; amount = students × unit price (CHECK).
+model PlatformInvoice {
+  id             String                @id @default(cuid())
+  tenantId       String
+  tenant         Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  number         String                @unique @default(dbgenerated("('ECI-'::text || lpad((nextval('platform_invoice_no_seq'::regclass))::text, 6, '0'::text))"))
+  plan           Plan
+  periodStart    DateTime
+  periodEnd      DateTime
+  students       Int
+  unitPriceMinor Int
+  amountMinor    Int
+  currency       String                @default("NGN")
+  status         PlatformInvoiceStatus @default(OPEN)
+  paidAt         DateTime?
+  createdById    String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @default(now()) @updatedAt
+
+  payments PlatformPayment[]
+
+  @@index([tenantId, periodStart])
+  @@map("platform_invoices")
+}
+
+/// One attempt to collect a PlatformInvoice (checkout or saved-card renewal).
+model PlatformPayment {
+  id            String                @id @default(cuid())
+  tenantId      String
+  tenant        Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoiceId     String
+  invoice       PlatformInvoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  reference     String                @unique
+  kind          PlatformPaymentKind
+  amountMinor   Int
+  currency      String                @default("NGN")
+  status        PlatformPaymentStatus @default(PENDING)
+  channel       String?
+  message       String?
+  initiatedById String?
+  createdAt     DateTime              @default(now())
+  verifiedAt    DateTime?
+
+  @@index([invoiceId])
+  @@map("platform_payments")
+}
+
 /// Plan catalogue (Phase 4.1) — platform-level, edited in the platform console.
 /// Price is per active student per month, minor units (kobo).
 model PlanDefinition {
@@ -225,17 +294,29 @@ model PlanDefinition {
 }
 
 model Subscription {
-  id                   String             @id @default(cuid())
-  tenantId             String             @unique
-  tenant               Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  stripeCustomerId     String?            @unique
-  stripeSubscriptionId String?            @unique
-  plan                 Plan               @default(FREE_TRIAL)
-  status               SubscriptionStatus @default(TRIALING)
-  currentPeriodEnd     DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  id                        String             @id @default(cuid())
+  tenantId                  String             @unique
+  tenant                    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stripeCustomerId          String?            @unique
+  stripeSubscriptionId      String?            @unique
+  plan                      Plan               @default(FREE_TRIAL)
+  status                    SubscriptionStatus @default(TRIALING)
+  currentPeriodEnd          DateTime?
+  cancelAtPeriodEnd         Boolean            @default(false)
+  /// Phase 4.2 (Paystack): downgrade scheduled for the next renewal.
+  pendingPlan               Plan?
+  billingEmail              String?
+  /// Reusable Paystack card authorization. Server-only: never sent to a browser or written to an audit entry.
+  paystackAuthorizationCode String?
+  paystackCustomerCode      String?
+  cardBrand                 String?
+  cardLast4                 String?
+  cardExpiry                String?
+  failedAttempts            Int                @default(0)
+  nextChargeAt              DateTime?
+  lastChargeError           String?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
 
   @@map("subscriptions")
 }

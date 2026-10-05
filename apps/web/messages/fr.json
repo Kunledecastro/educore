@@ -41,7 +41,7 @@
     "myChildren": "Mes enfants",
     "imports": "Import et export",
     "platformAudit": "Activité de la plateforme",
-    "plan": "Votre formule",
+    "plan": "Formule et facturation",
     "platformPlans": "Formules"
   },
   "login": {
@@ -1863,11 +1863,26 @@
       "isPublic": "Afficher sur la page des tarifs et aux écoles",
       "save": "Enregistrer",
       "saved": "Formule enregistrée"
+    },
+    "billing": {
+      "title": "Facturation",
+      "card": "Carte enregistrée",
+      "noCard": "Aucune carte",
+      "status": "Abonnement",
+      "paidUntil": "payé jusqu'au",
+      "autoRenewOff": "paiement automatique désactivé",
+      "pending": "passage à {plan} au renouvellement",
+      "failures": "{count, plural, one {# paiement échoué} other {# paiements échoués}} (dernier : {reason}). Prochain essai : {next}.",
+      "noRetry": "aucun — l'école doit payer",
+      "none": "Pas encore d'abonnement (essai, ou formule définie manuellement).",
+      "review": "Paiements à vérifier (payés mais non rapprochés — rembourser ou appliquer manuellement) :",
+      "paid": "Payée",
+      "open": "Ouverte"
     }
   },
   "plan": {
-    "title": "Votre formule",
-    "description": "Ce que comprend la formule EduCore de votre école, et le prix des autres.",
+    "title": "Formule et facturation",
+    "description": "La formule EduCore de votre école, ce qu'elle comprend, et son paiement.",
     "need": "{module} n'est pas inclus dans la formule {plan}.",
     "needUpgrade": "La formule {plan} l'inclut.",
     "askAdmin": "Pour changer la formule de l'école, adressez-vous à un administrateur.",
@@ -1891,7 +1906,7 @@
     "noLimit": "Sans limite d'élèves",
     "upTo": "Jusqu'à {max} élèves",
     "estimate": "Environ {amount} par mois pour vos {count} élèves",
-    "howToChange": "Le paiement en ligne des formules arrive dans la prochaine mise à jour. D'ici là, le support EduCore peut changer votre formule.",
+    "howToChange": "Prix par élève actif et par mois, en naira, payés par carte via Paystack. Une formule supérieure s'applique tout de suite (nouveau prix au prochain paiement) ; une formule inférieure à la fin du mois.",
     "states": {
       "trial": "Essai gratuit",
       "active": "Active",
@@ -1915,6 +1930,90 @@
       "readOnly": "L'abonnement de l'école a pris fin. Vous pouvez consulter et télécharger, mais pas modifier.",
       "readOnlyAdmin": "Votre abonnement a pris fin : EduCore est en lecture seule. Chacun peut consulter et exporter, mais rien ne peut être modifié avant le renouvellement.",
       "seePlan": "Voir votre formule"
+    },
+    "fromRenewal": "Au renouvellement",
+    "outcome": {
+      "paid": "Paiement reçu — merci. Votre formule est active et votre carte est enregistrée pour les paiements mensuels.",
+      "pending": "Paystack confirme encore votre paiement. Cette page se mettra à jour ensuite.",
+      "failed": "Le paiement n'a pas abouti. Rien n'a été débité ; vous pouvez réessayer.",
+      "abandoned": "Le paiement a été annulé. Rien n'a été débité.",
+      "review": "Nous avons reçu un paiement qui ne correspond pas exactement. Le support EduCore va le vérifier et vous contacter.",
+      "checking": "Paystack est injoignable pour le moment. Si vous avez payé, votre formule se mettra à jour d'elle-même sous peu.",
+      "unknown": "Paiement introuvable."
+    },
+    "errors": {
+      "planNotForSale": "Cette formule n'est pas disponible.",
+      "notConfigured": "Le paiement en ligne n'est pas encore configuré. Contactez le support EduCore.",
+      "schoolNotActive": "Cette école est suspendue. Contactez le support EduCore.",
+      "nothingToChange": "Vous avez déjà cette formule.",
+      "notPaying": "Aucun abonnement actif avec carte enregistrée.",
+      "startFailed": "Impossible d'ouvrir la page de paiement. Réessayez dans un instant."
+    },
+    "billing": {
+      "title": "Facturation",
+      "card": "{brand} se terminant par {last4}, expire {expiry}",
+      "receiptsTo": "Reçus envoyés à {email}",
+      "noCard": "Aucune carte enregistrée. En choisissant une formule, vous payez le premier mois sur Paystack et la carte est enregistrée pour les paiements mensuels.",
+      "nextCharge": "Prochain paiement le {date} : environ {amount} pour {plan} ({count} élèves — comptés ce jour-là).",
+      "ending": "Le paiement automatique est désactivé. Votre formule se termine le {date}, puis EduCore passe en lecture seule.",
+      "pendingDowngrade": "Passage à {plan} le {date}.",
+      "failedRetry": "Votre dernier paiement a échoué ({reason}). Nouvel essai sur votre carte le {date}. Tout continue de fonctionner d'ici là.",
+      "failedNoRetry": "Votre paiement a échoué ({reason}) et les essais sont arrêtés. Choisissez votre formule ci-dessous pour payer par carte.",
+      "turnOff": "Arrêter le paiement automatique",
+      "turnOn": "Réactiver le paiement automatique",
+      "turnOffTitle": "Arrêter le paiement automatique ?",
+      "turnOffDescription": "Votre formule reste active jusqu'au {date}, puis EduCore passe en lecture seule : consultation et export uniquement jusqu'au prochain paiement.",
+      "turnOnTitle": "Réactiver le paiement automatique ?",
+      "turnOnDescription": "Votre carte enregistrée sera débitée chaque mois pour vos élèves actifs.",
+      "turnedOff": "Paiement automatique arrêté",
+      "turnedOn": "Paiement automatique réactivé",
+      "supportCannotPay": "Le support EduCore ne peut pas modifier la facturation lorsqu'il est connecté en tant que votre administrateur."
+    },
+    "invoices": {
+      "number": "Facture",
+      "period": "Période",
+      "plan": "Formule",
+      "students": "Élèves",
+      "amount": "Montant",
+      "status": "Statut",
+      "empty": "Aucune facture EduCore pour l'instant.",
+      "paidOn": "Payée le {date}",
+      "payment": {
+        "PENDING": "En attente de paiement",
+        "FAILED": "Paiement échoué",
+        "ABANDONED": "Paiement annulé",
+        "NEEDS_REVIEW": "En vérification",
+        "SUCCEEDED": "Payée"
+      }
+    },
+    "choose": {
+      "button": {
+        "checkout": "Payer {plan}",
+        "switchNow": "Passer à {plan}",
+        "scheduleDowngrade": "Passer à {plan}",
+        "cancelScheduled": "Garder {plan}"
+      },
+      "title": {
+        "checkout": "Payer {plan}",
+        "switchNow": "Passer à {plan} ?",
+        "scheduleDowngrade": "Passer à {plan} ?",
+        "cancelScheduled": "Garder {plan} ?"
+      },
+      "confirm": {
+        "checkout": "Continuer vers Paystack",
+        "switchNow": "Passer maintenant",
+        "scheduleDowngrade": "Changer au renouvellement",
+        "cancelScheduled": "Garder ma formule"
+      },
+      "describe": {
+        "checkout": "Vous paierez {amount} sur Paystack pour {plan}, {count} élèves, du {from} au {to}. Votre carte est enregistrée et débitée chaque mois pour vos élèves actifs ; vous pouvez arrêter à tout moment.",
+        "switchNow": "Les modules de {plan} s'activent maintenant. À partir du prochain paiement le {date}, environ {amount} par mois.",
+        "scheduleDowngrade": "Vous gardez votre formule actuelle jusqu'au {date}, puis passez à {plan} pour environ {amount} par mois.",
+        "overCap": "Vous avez plus d'élèves actifs que {plan} n'en permet ({max}) : personne n'est retiré, mais vous ne pourrez plus en ajouter tant que vous dépassez la limite.",
+        "cancelScheduled": "Annuler le changement prévu et rester sur {plan}."
+      },
+      "redirecting": "Redirection vers Paystack…",
+      "done": "Formule mise à jour"
     }
   }
 }

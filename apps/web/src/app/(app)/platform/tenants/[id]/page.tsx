@@ -16,6 +16,7 @@ import { trialDaysLeft, usageFor } from "@/lib/platform-data";
 import { idSchema } from "@/lib/validation/common";
 import { STATE_VARIANT } from "@/components/plan/display";
 import { loadEntitlements } from "@/lib/entitlements-data";
+import { loadBilling } from "@/lib/billing/subscription-billing";
 import { ChangePlanButton, ImpersonateButton, ReactivateButton, SuspendButton } from "./tenant-actions";
 
 /** One school, for the platform team (Phase 4.0): usage, setup progress, admins, activity, support sessions. */
@@ -40,7 +41,12 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
   const firstAdmin = admins.find((a) => a.isActive);
   const checklist = firstAdmin ? await loadOnboardingChecklist(forTenant(tenant.id), firstAdmin.id) : null;
   const days = trialDaysLeft(tenant);
-  const entitlements = await loadEntitlements(tenant.id);
+  const [entitlements, billing, toReview] = await Promise.all([
+    loadEntitlements(tenant.id),
+    loadBilling(tenant.id),
+    db.platformPayment.findMany({ where: { tenantId: tenant.id, status: "NEEDS_REVIEW" }, orderBy: { createdAt: "desc" }, include: { invoice: { select: { number: true } } } }),
+  ]);
+  const tb = await getTranslations("platform.billing");
   const tPlan = await getTranslations("plan");
   const tOn = await getTranslations("onboarding.steps");
 
@@ -134,6 +140,60 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{tb("title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          {billing.subscription ? (
+            <dl className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <dt className="text-muted-foreground">{tb("card")}</dt>
+                <dd>{billing.subscription.hasCard ? `${(billing.subscription.cardBrand ?? "card").toUpperCase()} ···· ${billing.subscription.cardLast4 ?? "????"} (${billing.subscription.cardExpiry ?? "—"}) · ${billing.subscription.billingEmail ?? "—"}` : tb("noCard")}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{tb("status")}</dt>
+                <dd>
+                  {`${billing.subscription.status} · ${tb("paidUntil")} ${billing.subscription.currentPeriodEnd ? formatDateOnly(billing.subscription.currentPeriodEnd, fmt) : "—"}`}
+                  {billing.subscription.cancelAtPeriodEnd ? ` · ${tb("autoRenewOff")}` : ""}
+                  {billing.subscription.pendingPlan ? ` · ${tb("pending", { plan: t(`plans.${billing.subscription.pendingPlan}`) })}` : ""}
+                </dd>
+              </div>
+              {billing.subscription.failedAttempts > 0 ? (
+                <div className="sm:col-span-2 text-warning-foreground">
+                  {tb("failures", { count: billing.subscription.failedAttempts, reason: billing.subscription.lastChargeError ?? "—", next: billing.subscription.nextChargeAt ? formatDateOnly(billing.subscription.nextChargeAt, fmt) : tb("noRetry") })}
+                </div>
+              ) : null}
+            </dl>
+          ) : (
+            <p className="text-muted-foreground">{tb("none")}</p>
+          )}
+          {toReview.length > 0 ? (
+            <div role="alert" className="rounded-md border border-warning bg-warning/10 p-3">
+              <p className="font-medium">{tb("review")}</p>
+              <ul className="mt-1 list-disc pl-5">
+                {toReview.map((p) => (
+                  <li key={p.id}>{`${p.reference} · ${p.invoice.number} · ${formatMoney(p.amountMinor / 100, fmt)} · ${p.message ?? ""}`}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {billing.invoices.length > 0 ? (
+            <ul className="divide-y rounded-md border">
+              {billing.invoices.slice(0, 6).map((inv) => (
+                <li key={inv.id} className="flex flex-wrap justify-between gap-2 px-3 py-2">
+                  <span className="font-medium">{inv.number}</span>
+                  <span>{`${formatDateOnly(inv.periodStart, fmt)} – ${formatDateOnly(inv.periodEnd, fmt)}`}</span>
+                  <span>{`${t(`plans.${inv.plan}`)} · ${formatNumber(inv.students, fmt)}`}</span>
+                  <span className="tabular-nums">{formatMoney(inv.amountMinor / 100, fmt)}</span>
+                  <Badge variant={inv.status === "PAID" ? "success" : "warning"}>{inv.status === "PAID" ? tb("paid") : tb("open")}</Badge>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </CardContent>
+      </Card>
 
       <section aria-labelledby="activity" className="space-y-2">
         <h2 id="activity" className="text-lg font-semibold">

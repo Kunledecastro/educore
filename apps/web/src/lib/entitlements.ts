@@ -106,6 +106,8 @@ export type EntitlementRefusal = { reason: "module"; module: Module } | { reason
 export function checkEntitlement(e: Entitlements, resource: Resource, action: Action): EntitlementRefusal {
   const module = RESOURCE_MODULE[resource];
   if (module && !e.modules.has(module)) return { reason: "module", module };
+  // A lapsed school must still be able to pay to get going again.
+  if (e.state === "readOnly" && resource === "subscription") return null;
   if (!e.canWrite && WRITE_ACTIONS.has(action)) return { reason: "readOnly" };
   return null;
 }

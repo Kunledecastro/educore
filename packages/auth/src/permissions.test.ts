@@ -19,6 +19,15 @@ describe("RBAC permission matrix", () => {
     expect(can(Role.SCHOOL_ADMIN, "auditLog", "delete")).toBe(false);
   });
 
+  it("only school admins can pay for and change their school's EduCore plan (4.2)", () => {
+    expect(can(Role.SCHOOL_ADMIN, "subscription", "update")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "subscription", "delete")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "tenant", "update")).toBe(false); // can't set its own plan by hand
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) {
+      expect(can(role, "subscription", "update")).toBe(false);
+    }
+  });
+
   it("never lets ANY role delete the audit log", () => {
     for (const role of Object.values(Role)) {
       expect(can(role, "auditLog", "delete")).toBe(false);

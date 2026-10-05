@@ -33,6 +33,9 @@ const fake: PaymentProvider = {
     return verifications.get(reference) ?? { status: "pending", amountMinor: 0, currency: "NGN", reference, paidAt: null, channel: null, message: null };
   },
   verifySignature: () => true,
+  chargeAuthorization: async () => {
+    throw new Error("not used");
+  },
 };
 const ok = (reference: string, amountMinor: number, over: Partial<Verification> = {}): Verification => ({
   status: "success", amountMinor, currency: "NGN", reference, paidAt: new Date("2026-09-15T10:00:00Z"), channel: "card", message: "Approved", ...over,

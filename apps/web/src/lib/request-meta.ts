@@ -20,3 +20,11 @@ export function userAgentFromHeaders(headers: Headers): string | null {
   const ua = headers.get("user-agent")?.trim();
   return ua ? ua.slice(0, 512) : null;
 }
+
+/** The request's host if it's ours (a root domain or a school subdomain of one), else the first root domain. */
+export function trustedHost(host: string | null): string {
+  const roots = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000").split(",").map((r) => r.trim().toLowerCase()).filter(Boolean);
+  const h = (host ?? "").toLowerCase();
+  const ok = roots.some((root) => h === root || h.endsWith(`.${root}`));
+  return ok ? h : roots[0]!;
+}

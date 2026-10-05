@@ -51,3 +51,12 @@ export const planEditSchema = z
     }
   });
 export type PlanEditInput = z.input<typeof planEditSchema>;
+
+// ---------------------------------------------------------------------------
+// Subscription billing (4.2) — school admins
+// ---------------------------------------------------------------------------
+
+export const choosePlanSchema = z.object({
+  plan: z.enum(["STARTER", "STANDARD", "PREMIUM"], { errorMap: () => ({ message: "validation.invalidChoice" }) }),
+});
+export type ChoosePlanInput = z.input<typeof choosePlanSchema>;

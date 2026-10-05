@@ -139,4 +139,5 @@ export { generateReportCards } from "./generate-report-cards";
 export { billTerm } from "./bill-term";
 import { billTerm } from "./bill-term";
 import { generateReportCards } from "./generate-report-cards";
-export const FUNCTIONS = [runImport, generateReportCards, billTerm];
+import { renewSubscriptions } from "./renew-subscriptions";
+export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions];

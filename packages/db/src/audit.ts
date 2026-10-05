@@ -83,7 +83,7 @@ export async function recordPlatformAudit(
 }
 
 /** Fields that must never be copied into an audit trail, at any depth. */
-const REDACTED_KEYS = new Set(["passwordHash", "password", "token", "access_token", "refresh_token", "id_token"]);
+const REDACTED_KEYS = new Set(["passwordHash", "password", "token", "access_token", "refresh_token", "id_token", "paystackAuthorizationCode", "authorizationCode", "authorization_code"]);
 
 /**
  * Converts a row snapshot to plain JSON for the audit log: Dates become ISO

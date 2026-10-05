@@ -30,6 +30,28 @@ export interface Verification {
   paidAt: Date | null;
   channel: string | null;
   message: string | null;
+  /** The card, when Paystack lets us charge it again (subscriptions, 4.2). Never sent to a browser. */
+  authorization?: SavedCard | null;
+  customerCode?: string | null;
+  /** The email Paystack holds the card under — saved-card charges must use it. */
+  customerEmail?: string | null;
+}
+
+export interface SavedCard {
+  code: string;
+  brand: string | null;
+  last4: string | null;
+  /** "MM/YYYY" */
+  expiry: string | null;
+}
+
+export interface ChargeRequest {
+  authorizationCode: string;
+  email: string;
+  amountMinor: number;
+  currency: string;
+  reference: string;
+  metadata: Record<string, string>;
 }
 
 export interface PaymentProvider {
@@ -38,6 +60,8 @@ export interface PaymentProvider {
   /** Starts a hosted checkout; returns the URL to send the payer to. */
   initialize(req: CheckoutRequest): Promise<{ authorizationUrl: string }>;
   verify(reference: string): Promise<Verification>;
+  /** Charges a saved card (subscription renewals, 4.2). Returns the transaction as Paystack sees it. */
+  chargeAuthorization(req: ChargeRequest): Promise<Verification>;
   /** True if a webhook body really came from the provider. */
   verifySignature(rawBody: string, signature: string | null): boolean;
 }
@@ -81,7 +105,19 @@ export function parseVerification(data: {
   paid_at?: string | null;
   channel?: string | null;
   gateway_response?: string | null;
+  authorization?: { authorization_code?: string; reusable?: boolean; brand?: string; card_type?: string; last4?: string; exp_month?: string; exp_year?: string } | null;
+  customer?: { customer_code?: string; email?: string } | null;
 }): Verification {
+  const a = data.authorization;
+  const card: SavedCard | null =
+    a?.reusable === true && typeof a.authorization_code === "string" && /^AUTH_[A-Za-z0-9]+$/.test(a.authorization_code)
+      ? {
+          code: a.authorization_code,
+          brand: (a.brand ?? a.card_type ?? null)?.trim().slice(0, 30) || null,
+          last4: /^\d{4}$/.test(a.last4 ?? "") ? a.last4! : null,
+          expiry: /^\d{1,2}$/.test(a.exp_month ?? "") && /^\d{4}$/.test(a.exp_year ?? "") ? `${a.exp_month!.padStart(2, "0")}/${a.exp_year}` : null,
+        }
+      : null;
   const known: VerifiedStatus[] = ["success", "failed", "abandoned"];
   const status = known.includes(data.status as VerifiedStatus) ? (data.status as VerifiedStatus) : "pending";
   return {
@@ -92,6 +128,9 @@ export function parseVerification(data: {
     paidAt: data.paid_at ? new Date(data.paid_at) : null,
     channel: data.channel ?? null,
     message: data.gateway_response ?? null,
+    authorization: card,
+    customerCode: typeof data.customer?.customer_code === "string" ? data.customer.customer_code : null,
+    customerEmail: typeof data.customer?.email === "string" && data.customer.email.includes("@") ? data.customer.email.slice(0, 254) : null,
   };
 }
 
@@ -123,6 +162,21 @@ export const paystack: PaymentProvider = {
   },
   async verify(reference) {
     return parseVerification(await call(`/transaction/verify/${encodeURIComponent(reference)}`));
+  },
+  async chargeAuthorization(req) {
+    return parseVerification(
+      await call("/transaction/charge_authorization", {
+        method: "POST",
+        body: JSON.stringify({
+          authorization_code: req.authorizationCode,
+          email: req.email,
+          amount: req.amountMinor,
+          currency: req.currency,
+          reference: req.reference,
+          metadata: req.metadata,
+        }),
+      }),
+    );
   },
   verifySignature(rawBody, signature) {
     const key = process.env.PAYSTACK_SECRET_KEY;

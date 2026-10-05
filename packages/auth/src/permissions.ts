@@ -72,7 +72,7 @@ export const PERMISSION_MATRIX: Matrix = {
 
   [Role.SCHOOL_ADMIN]: {
     tenant: R, // read own tenant's settings/branding; cannot escalate plan
-    subscription: R,
+    subscription: ["read", "update"], // see the plan and pay EduCore for it (4.2); update = choose plan, pay, auto-renew
     user: CRUDE,
     academicYear: CRUDE,
     classGrade: CRUDE,

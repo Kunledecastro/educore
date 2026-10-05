@@ -11,6 +11,58 @@ Stripe Billing, same reason as school fees); editable placeholder prices
 (Starter ₦300 / Standard ₦500 / Premium ₦800 per student per month); open
 self-serve sign-up with a 30-day trial; announcements + teacher–parent chat.
 
+### Added (milestone 4.2 — subscription billing with Paystack, 2026-10-05)
+
+- **Plan & billing** (`/plan`, school admins): choose a plan and pay on
+  Paystack (naira, by card); the card is saved as a reusable authorization
+  for monthly payments. Shows the saved card, the next payment (date, plan,
+  estimate for today's active students), a scheduled downgrade, failed
+  payments and retries, and every EduCore invoice (`ECI-000001`…).
+- **Billing rules** (pure, tested): billed monthly in advance per active
+  student (minimum one). Paying during the trial keeps the remaining trial
+  days (the first month starts when it ends); paying while overdue pays the
+  overdue month; after read-only a new month starts that day. Upgrades apply
+  at once (new price from the next payment — no proration); downgrades at
+  renewal (cancellable). Automatic payment can be stopped (plan ends with the
+  paid month, then read-only) and turned back on.
+- **Renewals**: daily Inngest job (06:00 Lagos) charges saved cards; a
+  declined card is retried 1, 3 and 6 days later inside the 7-day grace
+  window, then stops (the school pays from Plan & billing). Paying reactivates
+  everything at once.
+- **Platform console**: each school's card, subscription status, failures,
+  recent EduCore invoices, and any payment needing review.
+- Paystack callback `/api/billing/paystack/callback`; the existing webhook now
+  routes `ECB-…` references to subscription billing.
+- Assumptions (stated): no proration on upgrades; minimum one billable
+  student; EduCore invoices are in naira whatever the school's currency.
+
+### Security (milestone 4.2)
+
+- Migration `0019_subscription_billing` (additive): `platform_invoices` and
+  `platform_payments` (platform-only: RLS forced, revoked from `educore_app`);
+  CHECKs: amount = students × price, paid ⇔ paid date, reference format;
+  unique: one live invoice per school per month, one successful payment per
+  invoice, unique references.
+- Migration `0020_subscription_lockdown`: subscriptions (which now hold the
+  card authorization) are no longer readable by school sessions at all.
+- The card authorization never leaves the server: not in page data, not in
+  either audit log (added to the audit redaction list).
+- Only school admins (`subscription:update`) can pay or change plan — never
+  EduCore support while signed in as them. A read-only school can still pay.
+- Money counts only after Paystack confirms server to server; settlement
+  locks the payment row and is idempotent (return page, webhook, job). A
+  renewal that got no answer is checked, never charged blind a second time;
+  two job runs can't charge a school twice. Mismatched or late payments go to
+  review, never onto the subscription.
+- Every payment, failure, plan change and auto-renew change is in the platform
+  audit log; school-side changes also in the school's audit log.
+- Tests: 11 billing-rule unit tests, RBAC test, entitlement test (read-only
+  can pay), 12 integration tests (checkout keeps trial days and saves the
+  card; idempotent settle; review on mismatch; upgrade/downgrade/undo;
+  concurrent renewals charge once; decline → retries → read-only; pay to
+  reactivate; no-answer never double-charges; auto-renew off → cancelled;
+  isolation of invoices; no card token in data or audits; DB constraints).
+
 ### Added (milestone 4.1 — plans, limits and feature flags, 2026-10-05)
 
 - **Plan catalogue** (`plans` table, edited at `/platform/plans`): name, price

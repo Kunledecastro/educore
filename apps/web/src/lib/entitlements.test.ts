@@ -66,6 +66,12 @@ describe("checkEntitlement", () => {
     }
   });
 
+  it("a read-only school can still pay to renew; a suspended one can't", () => {
+    expect(checkEntitlement(readOnly, "subscription", "update")).toBeNull();
+    const suspended = computeEntitlements({ ...base, tenantStatus: "SUSPENDED" }, d("2026-09-05"));
+    expect(checkEntitlement(suspended, "subscription", "update")).toEqual({ reason: "readOnly" });
+  });
+
   it("every module named in RESOURCE_MODULE is a real resource", () => {
     for (const r of Object.keys(RESOURCE_MODULE)) expect(RESOURCES).toContain(r);
   });
