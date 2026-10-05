@@ -42,6 +42,13 @@ describe("RBAC permission matrix", () => {
     for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "branding", "update")).toBe(false);
   });
 
+  it("student logins: admins manage, teachers reset (own form sections, checked in code), nobody else (5.0)", () => {
+    expect(can(Role.SCHOOL_ADMIN, "studentLogin", "create")).toBe(true);
+    expect(can(Role.TEACHER, "studentLogin", "update")).toBe(true);
+    expect(can(Role.TEACHER, "studentLogin", "create")).toBe(false);
+    for (const role of [Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(can(role, "studentLogin", "read")).toBe(false);
+  });
+
   it("never lets ANY role delete the audit log", () => {
     for (const role of Object.values(Role)) {
       expect(can(role, "auditLog", "delete")).toBe(false);

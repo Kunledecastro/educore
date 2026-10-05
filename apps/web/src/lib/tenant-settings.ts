@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseStudentLogins } from "./student-logins";
 
 /**
  * Per-school configuration (architecture rule #8: config-first). Stored in
@@ -75,6 +76,8 @@ export const tenantSettingsSchema = z.object({
   receiptPrefix: z.string().regex(/^[A-Z0-9]{1,8}$/).catch(DEFAULT_TENANT_SETTINGS.receiptPrefix).default(DEFAULT_TENANT_SETTINGS.receiptPrefix),
   /** Default days from billing to the due date. */
   paymentTermDays: z.number().int().min(0).max(120).catch(DEFAULT_TENANT_SETTINGS.paymentTermDays).default(DEFAULT_TENANT_SETTINGS.paymentTermDays),
+  /** Student logins (Phase 5.0): off unless the school turns them on for chosen classes. */
+  studentLogins: z.unknown().transform(parseStudentLogins),
 });
 
 export type TenantSettings = z.infer<typeof tenantSettingsSchema>;

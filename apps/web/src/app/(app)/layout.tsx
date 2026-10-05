@@ -19,6 +19,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
+  // First sign-in with a printed one-time password: choose your own before anything else.
+  if (session.user.mustChangePassword) redirect("/change-password");
+
   const isPlatformAdmin = session.user.role === Role.PLATFORM_ADMIN;
   const { tenant, mismatch } = await getTenantForUser(session.user.tenantId ?? null);
 

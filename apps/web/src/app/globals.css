@@ -64,3 +64,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Student login slips (Phase 5.0): print only the slips, nothing else on the page. */
+@media print {
+  body.print-slips * {
+    visibility: hidden;
+  }
+  body.print-slips .slips-print,
+  body.print-slips .slips-print * {
+    visibility: visible;
+  }
+  body.print-slips .slips-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { KeyRound, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { can } from "@educore/auth";
 import { Role, type Prisma } from "@educore/db";
@@ -86,6 +86,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
     user.role === Role.PARENT ? t("descriptionParent") : user.role === Role.TEACHER ? t("descriptionTeacher") : t("description");
   const newButton = canManage && classes.length > 0 ? <NewStudentButton classes={classes} /> : null;
   const canExport = can(user.role, "student", "export") && user.role !== Role.PLATFORM_ADMIN;
+  const canLogins = can(user.role, "studentLogin", "read") && user.role !== Role.PLATFORM_ADMIN;
 
   let empty: React.ReactNode = null;
   if (all === 0) {
@@ -123,6 +124,12 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
         actions={
           all > 0 ? (
             <>
+              {canLogins ? (
+                <Link href="/students/logins" className={buttonVariants({ variant: "outline" })}>
+                  <KeyRound className="h-4 w-4" aria-hidden="true" />
+                  {t("studentLogins")}
+                </Link>
+              ) : null}
               {canExport ? <ExportMenu kind="students" /> : null}
               {newButton}
             </>

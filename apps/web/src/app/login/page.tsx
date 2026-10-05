@@ -13,7 +13,7 @@ type KnownError = (typeof KNOWN_ERRORS)[number];
 /** `?notice=` codes for good news (e.g. after setting a password from an invite). */
 const KNOWN_NOTICES = ["PasswordSet"] as const;
 
-export default async function LoginPage({ searchParams }: { searchParams: { error?: string | string[]; notice?: string | string[] } }) {
+export default async function LoginPage({ searchParams }: { searchParams: { error?: string | string[]; notice?: string | string[]; as?: string } }) {
   const [tenant, t] = await Promise.all([getCurrentTenant(), getTranslations("login")]);
   const raw = Array.isArray(searchParams.error) ? searchParams.error[0] : searchParams.error;
   const errorKey: KnownError | "Unknown" | null = raw
@@ -54,7 +54,7 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
             <p>{t(`errors.${errorKey}`)}</p>
           </div>
         ) : null}
-        <LoginForm />
+        <LoginForm schoolSlug={tenant?.slug ?? null} initialMode={searchParams.as === "student" ? "student" : "email"} />
         {!tenant ? (
           <p className="text-center text-sm text-muted-foreground">
             {t("newSchool")}{" "}

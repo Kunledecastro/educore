@@ -341,19 +341,23 @@ model Subscription {
 // ---------------------------------------------------------------------------
 
 model User {
-  id            String    @id @default(cuid())
+  id                 String    @id @default(cuid())
   // Nullable ONLY for PLATFORM_ADMIN — see assumption note at top of file.
-  tenantId      String?
-  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  email         String    @unique
-  emailVerified DateTime?
-  name          String
-  image         String?
-  role          Role
-  passwordHash  String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  tenantId           String?
+  tenant             Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email              String    @unique
+  /// Students only (Phase 5.0): "<school-short-name>:<admission-no>", how they sign in.
+  username           String?   @unique
+  /// Set on a one-time password (student login slips); cleared when they choose their own.
+  mustChangePassword Boolean   @default(false)
+  emailVerified      DateTime?
+  name               String
+  image              String?
+  role               Role
+  passwordHash       String?
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   accounts Account[]
 
@@ -366,6 +370,7 @@ model User {
   marksEntered          Mark[]                 @relation("MarkEnteredBy")
   announcementsMade     Announcement[]         @relation("AnnouncementPublishedBy")
   threadsStarted        MessageThread[]        @relation("ThreadCreatedBy")
+  consentsRecorded      Student[]              @relation("StudentConsentRecordedBy")
   messagesSent          Message[]              @relation("MessageSender")
   threadParticipants    ThreadParticipant[]
   auditLogEntries       AuditLog[]             @relation("AuditActor")
@@ -533,27 +538,31 @@ model ClassSectionSubject {
 // ---------------------------------------------------------------------------
 
 model Student {
-  id             String        @id @default(cuid())
-  tenantId       String
-  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  userId         String?       @unique
-  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  admissionNo    String
-  firstName      String
-  lastName       String
-  dateOfBirth    DateTime?
-  gender         String?
-  classId        String?
-  class          ClassGrade?   @relation(fields: [classId], references: [id], onDelete: SetNull)
-  sectionId      String?
-  section        Section?      @relation(fields: [sectionId], references: [id], onDelete: SetNull)
-  academicYearId String?
-  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
-  admissionDate  DateTime      @default(now())
-  status         StudentStatus @default(ACTIVE)
-  photoUrl       String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  tenantId          String
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  /// When a parent's consent to the child having a login was recorded (Phase 5.0), and by whom.
+  parentConsentAt   DateTime?
+  parentConsentById String?
+  parentConsentBy   User?         @relation("StudentConsentRecordedBy", fields: [parentConsentById], references: [id], onDelete: SetNull)
+  userId            String?       @unique
+  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  admissionNo       String
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime?
+  gender            String?
+  classId           String?
+  class             ClassGrade?   @relation(fields: [classId], references: [id], onDelete: SetNull)
+  sectionId         String?
+  section           Section?      @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  academicYearId    String?
+  academicYear      AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  admissionDate     DateTime      @default(now())
+  status            StudentStatus @default(ACTIVE)
+  photoUrl          String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   guardians      StudentGuardian[]
   attendance     Attendance[]

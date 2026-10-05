@@ -22,6 +22,7 @@ export const RESOURCES = [
   "tenant",
   "subscription",
   "branding",
+  "studentLogin",
   "user",
   "academicYear",
   "classGrade",
@@ -74,6 +75,7 @@ export const PERMISSION_MATRIX: Matrix = {
   [Role.SCHOOL_ADMIN]: {
     tenant: R, // read own tenant's settings/branding; cannot escalate plan
     branding: ["read", "update"], // the school's logo, brand colour and contact line
+    studentLogin: ["create", "read", "update"], // turn student logins on for classes, issue/reset/disable (Phase 5.0)
     subscription: ["read", "update"], // see the plan and pay EduCore for it (4.2); update = choose plan, pay, auto-renew
     user: CRUDE,
     academicYear: CRUDE,
@@ -125,6 +127,7 @@ export const PERMISSION_MATRIX: Matrix = {
     timetable: R,
     academicSettings: R, // needs the terms, scale and components to enter scores
     results: R, // class results for sections they teach
+    studentLogin: ["read", "update"], // form teachers: reset passwords and print slips for their own form sections
     announcement: RW,
     message: RW,
   },

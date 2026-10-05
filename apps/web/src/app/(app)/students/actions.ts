@@ -8,6 +8,7 @@ import { idSchema } from "@/lib/validation/common";
 import { existingGuardianLinkSchema, newGuardianLinkSchema, studentSchema, studentStatusSchema } from "@/lib/validation/people";
 import { getTranslations } from "next-intl/server";
 import { hasStudentCapacity } from "@/lib/entitlements-data";
+import { studentUsername } from "@/lib/student-logins";
 import { getEntitlements } from "@/lib/entitlements-server";
 
 /** The plan's student limit (4.1): refuses enrolling past it, with a friendly upgrade message. */
@@ -107,6 +108,11 @@ export async function updateStudent(id: unknown, input: unknown) {
             ...placement,
           },
         });
+        // A student with a login signs in with their admission number: keep it in step (Phase 5.0).
+        if (after.userId && (before.admissionNo !== after.admissionNo || before.firstName !== after.firstName || before.lastName !== after.lastName)) {
+          const tenant = await tx.tenant.findFirst({ where: { id: audit.tenantId }, select: { slug: true } });
+          if (tenant) await tx.user.update({ where: { id: after.userId }, data: { username: studentUsername(tenant.slug, after.admissionNo), name: `${after.firstName} ${after.lastName}` } });
+        }
         return { before, after };
       },
     });

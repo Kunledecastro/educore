@@ -68,7 +68,17 @@
       "PasswordSet": "Votre mot de passe est défini. Connectez-vous avec votre e-mail et ce nouveau mot de passe."
     },
     "newSchool": "Nouvelle école ?",
-    "startTrial": "Commencer l'essai gratuit"
+    "startTrial": "Commencer l'essai gratuit",
+    "whoLabel": "Qui se connecte",
+    "tabStaff": "Personnel et parents",
+    "tabStudent": "Élève",
+    "studentError": "Ce nom court d'école, ce numéro d'inscription et ce mot de passe ne correspondent à aucun compte élève, ou les connexions ne sont pas ouvertes pour votre classe. Demandez à votre professeur principal.",
+    "schoolRequired": "Saisissez le nom court de votre école",
+    "admissionRequired": "Saisissez votre numéro d'inscription",
+    "school": "Nom court de l'école",
+    "schoolHint": "Il figure sur votre fiche de connexion, ex. greenfield-academy",
+    "admissionNo": "Numéro d'inscription",
+    "studentPasswordHint": "La première fois, utilisez le mot de passe de votre fiche"
   },
   "dashboard": {
     "welcome": "Bon retour, {name}",
@@ -507,7 +517,8 @@
     "unlinkDescription": "{name} ne verra plus {student} dans son compte. Son compte parent n'est pas supprimé.",
     "unlinked": "Parent dissocié",
     "backToList": "Tous les élèves",
-    "age": "{age, plural, one {# an} other {# ans}}"
+    "age": "{age, plural, one {# an} other {# ans}}",
+    "studentLogins": "Connexions élèves"
   },
   "invitePage": {
     "title": "Bienvenue, {name}",
@@ -2386,6 +2397,91 @@
       "recipientNotAllowed": "Vous ne pouvez pas écrire à l'une des personnes choisies au sujet de cet élève.",
       "classNotTaught": "Non autorisé.",
       "pinAdminOnly": "Non autorisé."
+    }
+  },
+  "changePassword": {
+    "titleFirst": "Choisissez votre mot de passe",
+    "title": "Changer de mot de passe",
+    "introFirst": "Bienvenue, {name}. Le mot de passe de votre fiche ne sert qu'une fois — choisissez-en un que vous seul connaissez.",
+    "intro": "Choisissez un nouveau mot de passe.",
+    "password": "Nouveau mot de passe",
+    "passwordHint": "Au moins 10 caractères, avec une lettre et un chiffre",
+    "confirm": "Confirmer le mot de passe",
+    "submit": "Enregistrer",
+    "saving": "Enregistrement…",
+    "done": "Mot de passe enregistré",
+    "notAllowed": "Vous ne pouvez pas changer ce mot de passe ici.",
+    "tooMany": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "fixErrors": "Veuillez corriger les champs signalés."
+  },
+  "studentLogins": {
+    "back": "Tous les élèves",
+    "title": "Connexions élèves",
+    "description": "Permettre aux élèves des classes choisies de consulter leur emploi du temps, leurs résultats et leurs devoirs.",
+    "settings": {
+      "title": "Qui peut se connecter",
+      "enable": "Activer les connexions élèves",
+      "enableHint": "Désactivé par défaut. Seules les classes cochées ci-dessous peuvent se connecter ; décochez une classe pour fermer toutes ses connexions d'un coup.",
+      "classes": "Classes avec connexion élève",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Paramètres enregistrés"
+    },
+    "noneTitle": "Aucune classe avec connexion élève",
+    "noneAdmin": "Activez les connexions ci-dessus et cochez au moins une classe.",
+    "noneTeacher": "Votre classe n'a pas de connexions élèves. Adressez-vous à un administrateur.",
+    "rosterTitle": "Élèves",
+    "class": "Classe",
+    "emptyClass": "Aucun élève actif dans cette classe.",
+    "howItWorks": "Chaque élève reçoit une fiche imprimée avec un mot de passe à usage unique. Il se connecte dans l'onglet Élève avec le nom court de l'école ({school}) et son numéro d'inscription, puis choisit son propre mot de passe.",
+    "issueAll": "Créer les connexions de {count, plural, one {# élève} other {# élèves}} sans compte",
+    "issueOne": "Créer la connexion",
+    "resetSelected": "Nouveaux mots de passe pour la sélection ({count})",
+    "issuing": "Création des fiches…",
+    "reset": "Nouveau mot de passe",
+    "disable": "Désactiver",
+    "enable": "Réactiver",
+    "disableTitle": "Désactiver la connexion de {name} ?",
+    "disableDescription": "L'élève ne pourra plus se connecter jusqu'à réactivation. Rien n'est supprimé.",
+    "enableTitle": "Réactiver la connexion de {name} ?",
+    "enableDescription": "L'élève pourra se reconnecter avec son mot de passe actuel.",
+    "updated": "Connexion mise à jour",
+    "selectAll": "Tout sélectionner",
+    "select": "Sélectionner {name}",
+    "student": "Élève",
+    "admissionNo": "N° d'inscription",
+    "section": "Section",
+    "login": "Connexion",
+    "consent": "Accord parental",
+    "consentFor": "Accord parental enregistré pour {name}",
+    "actions": "Actions",
+    "states": {
+      "none": "Pas de connexion",
+      "firstSignIn": "Jamais connecté",
+      "active": "Active",
+      "disabled": "Désactivée"
+    },
+    "slips": {
+      "title": "{count, plural, one {# fiche de connexion} other {# fiches de connexion}}",
+      "onceOnly": "Imprimez ou notez-les maintenant — les mots de passe ne s'affichent qu'une fois et ne sont pas conservés.",
+      "print": "Imprimer les fiches",
+      "close": "Fermer",
+      "closeTitle": "Fermer les fiches ?",
+      "closeDescription": "Les mots de passe à usage unique ne pourront plus être affichés. Si vous ne les avez pas imprimés, il faudra en créer de nouveaux.",
+      "closed": "Fiches fermées",
+      "website": "Site",
+      "schoolShort": "École",
+      "admissionNo": "N° d'inscription",
+      "password": "Mot de passe",
+      "instructions": "Ouvrez le site, choisissez « Élève », saisissez ces informations, puis choisissez votre propre mot de passe. Gardez-le secret."
+    },
+    "errors": {
+      "notFound": "Cet élève ou cette classe n'appartient pas à votre école.",
+      "notAllowed": "Vous ne gérez que les connexions de votre propre classe.",
+      "classNotEnabled": "Les connexions élèves ne sont pas activées pour la classe de cet élève.",
+      "notActive": "Seuls les élèves actifs peuvent avoir une connexion.",
+      "noLogin": "Cet élève n'a pas encore de connexion — demandez à un administrateur.",
+      "tooMany": "Pas plus de {max} élèves à la fois."
     }
   }
 }

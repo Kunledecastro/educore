@@ -5,6 +5,7 @@ import { Role } from "@educore/db";
 import { auth } from "./auth";
 import { resolveImpersonation, type Impersonation } from "./impersonation";
 import { IMPERSONATION_COOKIE } from "./impersonation-token";
+import { studentMayUseLogin } from "./student-logins-data";
 
 export interface EffectiveUser {
   id: string;
@@ -12,6 +13,8 @@ export interface EffectiveUser {
   tenantId: string | null;
   name: string;
   email: string;
+  /** Students on a one-time password must choose their own before anything else (Phase 5.0). */
+  mustChangePassword?: boolean;
 }
 
 /**
@@ -31,6 +34,12 @@ export const getEffectiveSession = cache(async (): Promise<{ user: EffectiveUser
     name: session.user.name ?? "",
     email: session.user.email ?? "",
   };
+  if (real.role === Role.STUDENT) {
+    // A student's login can be switched off at any time (them, their class, or the school): checked on every request.
+    const access = await studentMayUseLogin(real.id);
+    if (!access.ok) return null;
+    return { user: { ...real, mustChangePassword: access.mustChangePassword }, impersonation: null };
+  }
   if (real.role !== Role.PLATFORM_ADMIN) return { user: real, impersonation: null };
   const cookie = cookies().get(IMPERSONATION_COOKIE)?.value;
   if (!cookie) return { user: real, impersonation: null };

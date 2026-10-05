@@ -8,6 +8,8 @@
  * who wrote, about whom, and link back to EduCore, where access is checked.
  */
 
+import { isInternalStudentEmail } from "../student-logins";
+
 export interface OutgoingNotification {
   to: { email: string; name: string };
   subject: string;
@@ -30,7 +32,8 @@ export class ResendEmailChannel implements NotificationChannel {
   }
 
   async send(n: OutgoingNotification): Promise<void> {
-    if (!this.enabled()) return;
+    // Students' accounts carry an internal address that must never be emailed.
+    if (!this.enabled() || isInternalStudentEmail(n.to.email)) return;
     const res = await this.fetchImpl("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${this.env.RESEND_API_KEY}`, "Content-Type": "application/json" },

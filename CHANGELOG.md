@@ -3,6 +3,49 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 5 — Student accounts and assignments (in progress)
+
+Spec: `claude/phase-5-spec.md` (confirmed 2026-10-05): student logins off by
+default and switched on per class; students sign in with school short name +
+admission number; submitted work in Supabase Storage; assignment marks can
+optionally count towards CA.
+
+### Added (milestone 5.0 — student accounts, 2026-10-05)
+
+- **Students → Student logins** (school admins): turn student logins on and
+  tick the classes that may sign in. Create logins for a whole class (or one
+  student); each gets a **printable login slip** with the school short name,
+  admission number and a one-time password (shown once, never stored).
+- **Form teachers** can give students in their own form section a new
+  password (new slip) and switch a login off/on; admins can do it for anyone.
+- **Parent consent** can be recorded per student (who and when).
+- **Sign-in** has a "Student" tab: school short name (pre-filled on a
+  school's own address) + admission number + password. The first sign-in
+  forces the student to choose their own password.
+- Students see only their own timetable, results, report cards and
+  announcements (no messaging).
+
+### Security (milestone 5.0)
+
+- Migration `0023_student_logins` (additive): `users.username` (unique,
+  format-checked `<school>:<admission-no>`), `users.mustChangePassword`;
+  `students.parentConsentAt/By`.
+- Student accounts carry an internal `@students.educore.invalid` address:
+  never emailed (the email channel skips it), never shown.
+- A student account can only sign in through the Student tab and staff never
+  through it. Each request re-checks that the student is active, their login
+  is on and their class still allows logins — switching a class off locks its
+  students out at once.
+- One-time passwords: ~49 bits from crypto randomness, no look-alike
+  characters; argon2-hashed; never in the audit log. Issuing is limited to 20
+  students per call; sign-in rate limits apply per student login.
+- `studentLogin` permission: admins create/read/update; teachers read/update
+  (own form sections, checked in code); nobody else.
+- Changing a student's admission number or name updates their login.
+- Tests: 6 unit, RBAC, 6 integration (off until enabled, issue + slips + no
+  password in audit, form-teacher limits, first-sign-in change, switch-off by
+  student/class/withdrawal, consent, school isolation).
+
 ## School branding (2026-10-05)
 
 ### Added

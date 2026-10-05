@@ -68,7 +68,17 @@
       "PasswordSet": "Your password is set. Sign in with your email and new password."
     },
     "newSchool": "New school?",
-    "startTrial": "Start a free trial"
+    "startTrial": "Start a free trial",
+    "whoLabel": "Who's signing in",
+    "tabStaff": "Staff & parents",
+    "tabStudent": "Student",
+    "studentError": "That school short name, admission number and password don't match a student login, or logins aren't switched on for your class. Ask your class teacher.",
+    "schoolRequired": "Enter your school's short name",
+    "admissionRequired": "Enter your admission number",
+    "school": "School short name",
+    "schoolHint": "It's on your login slip, e.g. greenfield-academy",
+    "admissionNo": "Admission number",
+    "studentPasswordHint": "The first time, use the password on your login slip"
   },
   "dashboard": {
     "welcome": "Welcome back, {name}",
@@ -507,7 +517,8 @@
     "unlinkDescription": "{name} will no longer see {student} in their account. Their parent account isn't deleted.",
     "unlinked": "Parent unlinked",
     "backToList": "All students",
-    "age": "{age, plural, one {# year} other {# years}}"
+    "age": "{age, plural, one {# year} other {# years}}",
+    "studentLogins": "Student logins"
   },
   "invitePage": {
     "title": "Welcome, {name}",
@@ -2386,6 +2397,91 @@
       "recipientNotAllowed": "You can't write to one of the people chosen about this student.",
       "classNotTaught": "Not allowed.",
       "pinAdminOnly": "Not allowed."
+    }
+  },
+  "changePassword": {
+    "titleFirst": "Choose your own password",
+    "title": "Change your password",
+    "introFirst": "Welcome, {name}. The password on your slip only works once — choose one only you know.",
+    "intro": "Choose a new password.",
+    "password": "New password",
+    "passwordHint": "At least 10 characters, with a letter and a number",
+    "confirm": "Confirm new password",
+    "submit": "Save password",
+    "saving": "Saving…",
+    "done": "Password saved",
+    "notAllowed": "You can't change this password here.",
+    "tooMany": "Too many attempts. Try again in a few minutes.",
+    "fixErrors": "Please fix the highlighted fields."
+  },
+  "studentLogins": {
+    "back": "All students",
+    "title": "Student logins",
+    "description": "Let students in chosen classes sign in to see their timetable, results and assignments.",
+    "settings": {
+      "title": "Who can sign in",
+      "enable": "Turn on student logins",
+      "enableHint": "Off by default. Only the classes you tick below can sign in; untick a class to switch all its logins off at once.",
+      "classes": "Classes with student logins",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Student login settings saved"
+    },
+    "noneTitle": "No classes with student logins",
+    "noneAdmin": "Turn logins on above and tick at least one class.",
+    "noneTeacher": "Your form class doesn't have student logins switched on. Ask a school admin.",
+    "rosterTitle": "Students",
+    "class": "Class",
+    "emptyClass": "No active students in this class.",
+    "howItWorks": "Each student gets a printed slip with a one-time password. They sign in on the Student tab with the school short name ({school}) and their admission number, then choose their own password.",
+    "issueAll": "Create logins for {count, plural, one {# student} other {# students}} without one",
+    "issueOne": "Create login",
+    "resetSelected": "New passwords for selected ({count})",
+    "issuing": "Creating slips…",
+    "reset": "New password",
+    "disable": "Switch off",
+    "enable": "Switch on",
+    "disableTitle": "Switch off {name}'s login?",
+    "disableDescription": "They won't be able to sign in until it's switched back on. Nothing is deleted.",
+    "enableTitle": "Switch {name}'s login back on?",
+    "enableDescription": "They can sign in again with their current password.",
+    "updated": "Login updated",
+    "selectAll": "Select all",
+    "select": "Select {name}",
+    "student": "Student",
+    "admissionNo": "Admission no.",
+    "section": "Section",
+    "login": "Login",
+    "consent": "Parent consent",
+    "consentFor": "Parent consent recorded for {name}",
+    "actions": "Actions",
+    "states": {
+      "none": "No login",
+      "firstSignIn": "Not signed in yet",
+      "active": "Active",
+      "disabled": "Switched off"
+    },
+    "slips": {
+      "title": "{count, plural, one {# login slip} other {# login slips}}",
+      "onceOnly": "Print or write these down now — the passwords are shown only once and aren't stored.",
+      "print": "Print slips",
+      "close": "Close",
+      "closeTitle": "Close the slips?",
+      "closeDescription": "The one-time passwords can't be shown again. If you haven't printed them, you'll need to give these students new passwords.",
+      "closed": "Slips closed",
+      "website": "Website",
+      "schoolShort": "School",
+      "admissionNo": "Admission no.",
+      "password": "Password",
+      "instructions": "Open the website, choose “Student”, enter these details, then choose your own password. Keep it secret."
+    },
+    "errors": {
+      "notFound": "That student or class isn't in your school.",
+      "notAllowed": "You can only manage logins for your own form class.",
+      "classNotEnabled": "Student logins aren't switched on for this student's class.",
+      "notActive": "Only active students can have logins.",
+      "noLogin": "This student doesn't have a login yet — ask a school admin to create one.",
+      "tooMany": "Please do at most {max} students at a time."
     }
   }
 }

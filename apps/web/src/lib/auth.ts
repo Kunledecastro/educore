@@ -9,6 +9,8 @@ import { verifyPassword } from "@educore/auth";
 import { isLoginAllowed, loginHostFromHeaders } from "./login-guard";
 import { allowLoginAttempt } from "./rate-limit";
 import { clientIpFromHeaders } from "./request-meta";
+import { studentUsername } from "./student-logins";
+import { studentMayUseLogin } from "./student-logins-data";
 
 /** Too many attempts. The code reaches the login form so it can show a specific message. */
 class RateLimitedSignin extends CredentialsSignin {
@@ -18,6 +20,13 @@ class RateLimitedSignin extends CredentialsSignin {
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+});
+
+/** Students (Phase 5.0): school short name + admission number instead of an email. */
+const studentCredentialsSchema = z.object({
+  school: z.string().trim().min(3).max(30),
+  admissionNo: z.string().trim().min(1).max(40),
+  password: z.string().min(1).max(200),
 });
 
 const oauthProviders = [];
@@ -56,24 +65,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(raw, request) {
-        const parsed = credentialsSchema.safeParse(raw);
-        if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+        // Staff and parents sign in with their email; students with school short name + admission number.
+        const asStudent = studentCredentialsSchema.safeParse(raw);
+        const asEmail = asStudent.success ? null : credentialsSchema.safeParse(raw);
+        if (!asStudent.success && !asEmail?.success) return null;
+        const password = asStudent.success ? asStudent.data.password : asEmail!.data!.password;
+        const loginKey = asStudent.success ? studentUsername(asStudent.data.school, asStudent.data.admissionNo) : asEmail!.data!.email;
 
         // Checked before any database lookup or password hashing, so a
         // flood of attempts costs us almost nothing.
-        if (!(await allowLoginAttempt(email, clientIpFromHeaders(request.headers)))) {
+        if (!(await allowLoginAttempt(loginKey, clientIpFromHeaders(request.headers)))) {
           throw new RateLimitedSignin();
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: email.toLowerCase() },
-          include: { tenant: true },
-        });
+        const user = asStudent.success
+          ? await prisma.user.findUnique({ where: { username: loginKey }, include: { tenant: true } })
+          : await prisma.user.findUnique({ where: { email: loginKey.toLowerCase() }, include: { tenant: true } });
         if (!user || !user.isActive || !user.passwordHash) return null;
+        // A student account can only be used through the student sign-in, and staff never through it.
+        if (asStudent.success !== (user.role === Role.STUDENT)) return null;
 
         const valid = await verifyPassword(user.passwordHash, password);
         if (!valid) return null;
+
+        // Students: their class must (still) have logins switched on.
+        if (user.role === Role.STUDENT && !(await studentMayUseLogin(user.id)).ok) return null;
 
         // Cross-tenant login guard — the school comes from the request host
         // (set by middleware), never from client input. See login-guard.ts.
