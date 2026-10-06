@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { auditContextFor, type RequestContext } from "@/lib/guard";
 import { AssignmentError, assignmentViewer, attachWorksheet, createAssignments, deleteAssignment, removeWorksheet, requestUpload, setAssignmentStatus, updateAssignment } from "@/lib/assignments/data";
 import type { AnyRole } from "@/lib/assignments/rules";
+import { caPreview, caSend, linkComponent } from "@/lib/assignments/ca-data";
 import { handIn, markMissing, markSubmission, recordWork, releaseMarks, returnSubmission, saveAssignmentSettings } from "@/lib/assignments/submissions";
 import { inngest } from "@/lib/inngest/client";
 import { runAction, UserFacingError } from "@/lib/run-action";
@@ -264,5 +265,50 @@ export async function saveAssignmentSettingsAction(input: unknown) {
       return friendly(err);
     }
     refresh();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5.3: counting towards CA
+// ---------------------------------------------------------------------------
+
+export async function linkComponentAction(assignmentId: unknown, assessmentTypeId: unknown) {
+  return runAction(["assignment", "update"], async (ctx) => {
+    const aid = idSchema.parse(assignmentId);
+    const typeId = assessmentTypeId === "" || assessmentTypeId === null ? null : idSchema.parse(assessmentTypeId);
+    const { viewer, meta } = await context(ctx);
+    try {
+      await linkComponent(viewer, aid, typeId, meta);
+    } catch (err) {
+      return friendly(err);
+    }
+    refresh(aid);
+  });
+}
+
+/** What sending to the gradebook would do (nothing is written). */
+export async function caPreviewAction(assignmentId: unknown) {
+  return runAction(["mark", "update"], async (ctx) => {
+    const { viewer } = await context(ctx);
+    try {
+      return await caPreview(viewer, idSchema.parse(assignmentId));
+    } catch (err) {
+      return friendly(err);
+    }
+  });
+}
+
+export async function caSendAction(assignmentId: unknown) {
+  return runAction(["mark", "update"], async (ctx) => {
+    const aid = idSchema.parse(assignmentId);
+    const { viewer, meta } = await context(ctx);
+    try {
+      const r = await caSend(viewer, aid, meta);
+      refresh(aid);
+      revalidatePath("/assessments", "layout");
+      return r;
+    } catch (err) {
+      return friendly(err);
+    }
   });
 }

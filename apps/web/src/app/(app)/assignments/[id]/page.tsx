@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { AssignmentStatusControls, EditAssignmentButton } from "@/components/assignments/assignment-form";
 import { FileList, WorksheetUpload } from "@/components/assignments/file-upload";
 import { STATUS_VARIANT } from "@/components/assignments/status";
+import { CaLink } from "@/components/assignments/ca-link";
 import { HandIn } from "@/components/assignments/hand-in";
+import { scoreComponents } from "@/lib/assignments/ca-data";
+import { can } from "@educore/auth";
 import { MarkingSheet } from "@/components/assignments/marking";
 import { assignmentViewer, getAssignment } from "@/lib/assignments/data";
 import { familySubmissions, markingSheet } from "@/lib/assignments/submissions";
@@ -33,6 +36,7 @@ export default async function AssignmentPage({ params }: { params: { id: string 
   const isStaff = viewer.role === "SCHOOL_ADMIN" || viewer.role === "TEACHER";
   const [sheet, family] = await Promise.all([isStaff && a.status !== "DRAFT" ? markingSheet(viewer, a.id) : null, isStaff ? null : familySubmissions(viewer, a.id)]);
   const when = (d: Date) => formatDateTime(d, settings);
+  const components = a.canManage ? await scoreComponents(tenantId) : [];
 
   return (
     <div className="space-y-6">
@@ -102,6 +106,26 @@ export default async function AssignmentPage({ params }: { params: { id: string 
           ) : null}
         </CardContent>
       </Card>
+
+      {a.canManage ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("ca.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CaLink
+              assignmentId={a.id}
+              components={components.map((c) => ({ id: c.id, name: c.name }))}
+              linkedId={a.assessmentType?.id ?? null}
+              linkedName={a.assessmentType?.name ?? null}
+              termName={a.term?.name ?? null}
+              scored={a.maxScore !== null}
+              sentAt={a.caSentAt ? when(a.caSentAt) : null}
+              canSend={can(user.role, "mark", "update") && a.status !== "DRAFT"}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {sheet ? (
         <MarkingSheet

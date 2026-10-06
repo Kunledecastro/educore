@@ -56,7 +56,18 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("staffDescription")} actions={subjects.length > 0 ? <NewAssignmentButton options={{ subjects, defaultDue }} /> : null} />
+      <PageHeader
+        title={t("pageTitle")}
+        description={t("staffDescription")}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link href="/assignments/reports" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
+              {t("reports.link")}
+            </Link>
+            {subjects.length > 0 ? <NewAssignmentButton options={{ subjects, defaultDue }} /> : null}
+          </div>
+        }
+      />
       {assignmentSettings ? <ParentSubmitSetting initial={assignmentSettings.parentSubmit} /> : null}
       <nav aria-label={t("filter")} className="flex flex-wrap gap-2 text-sm">
         {[undefined, ...STATUSES].map((s) => (

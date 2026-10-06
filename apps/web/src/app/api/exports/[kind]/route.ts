@@ -19,6 +19,9 @@ import { invoiceListQuery } from "@/lib/invoice-list";
 import { displayStatus, type StoredInvoiceStatus } from "@/lib/invoicing";
 import { paymentListQuery } from "@/lib/payment-list";
 import { tenantListQuery, trialDaysLeft, usageFor } from "@/lib/platform-data";
+import { assignmentViewer } from "@/lib/assignments/data";
+import { completionReport, missingWork } from "@/lib/assignments/reports";
+import type { AnyRole } from "@/lib/assignments/rules";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +34,45 @@ const iso = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : 
  * filters (the Export button passes the page's query string), so you export
  * exactly what you're looking at. Column names match the import templates.
  */
+async function reportViewer(ctx: RequestContext) {
+  return assignmentViewer(ctx.user.tenantId!, { id: ctx.user.id, role: ctx.user.role as AnyRole });
+}
+
+/** A term of the active year, or undefined (whole year). */
+async function reportTerm(ctx: RequestContext, sp: URLSearchParams) {
+  const id = sp.get("term");
+  if (!id) return undefined;
+  const t = await ctx.db.term.findFirst({ where: { id, academicYear: { isActive: true } }, select: { id: true } });
+  return t?.id;
+}
+
 const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContext, sp: URLSearchParams) => Promise<ExportTable> }> = {
+  // Phase 5.3: assignment reports (same scope as the reports page).
+  "assignment-completion": {
+    permission: "submission",
+    async build(ctx, sp) {
+      const rows = await completionReport(await reportViewer(ctx), { termId: await reportTerm(ctx, sp) });
+      return {
+        sheetName: "Assignment completion",
+        headers: ["class", "subject", "assignments", "pupil_work_due", "handed_in", "late", "not_handed_in", "marked", "completion_percent"],
+        rows: rows.map((r) => [r.className, r.subject, r.assignments, r.due, r.handedIn, r.late, r.missing, r.marked, r.rate]),
+      };
+    },
+  },
+  "assignment-missing": {
+    permission: "submission",
+    async build(ctx, sp) {
+      const section = sp.get("section");
+      if (!section) throw new NotFoundError();
+      const r = await missingWork(await reportViewer(ctx), section, { termId: await reportTerm(ctx, sp) });
+      if (!r) throw new NotFoundError();
+      return {
+        sheetName: "Missing work",
+        headers: ["class", "admission_no", "student", "subject", "assignment", "due"],
+        rows: r.rows.flatMap((x) => x.missing.map((m) => [r.className, x.student.admissionNo, x.student.name, m.subject, m.title, iso(m.dueAt)])),
+      };
+    },
+  },
   students: {
     permission: "student",
     async build(ctx, sp) {

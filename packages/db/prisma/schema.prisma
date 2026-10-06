@@ -701,6 +701,7 @@ model AssessmentType {
   order    Int    @default(0)
 
   assessments Assessment[]
+  assignments Assignment[]
 
   // Also enforced in migration 0009: CHECK (weight > 0 AND weight <= 100)
   @@unique([tenantId, name])
@@ -1469,31 +1470,36 @@ enum SubmissionStatus {
 
 /// Homework / coursework for one section and subject (Phase 5.1).
 model Assignment {
-  id              String           @id @default(cuid())
-  tenantId        String
-  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  academicYearId  String
-  academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  termId          String?
-  term            Term?            @relation(fields: [termId], references: [id], onDelete: SetNull)
-  sectionId       String
-  section         Section          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  subjectId       String
-  subject         Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  title           String
-  instructions    String           @default("")
-  dueAt           DateTime
+  id               String           @id @default(cuid())
+  tenantId         String
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  academicYearId   String
+  academicYear     AcademicYear     @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  termId           String?
+  term             Term?            @relation(fields: [termId], references: [id], onDelete: SetNull)
+  sectionId        String
+  section          Section          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subjectId        String
+  subject          Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title            String
+  instructions     String           @default("")
+  dueAt            DateTime
   /// null = not scored
-  maxScore        Decimal?         @db.Decimal(6, 2)
-  mode            AssignmentMode   @default(ONLINE)
-  status          AssignmentStatus @default(DRAFT)
-  publishedAt     DateTime?
-  closedAt        DateTime?
-  marksReleasedAt DateTime?
-  createdById     String?
-  createdBy       User?            @relation("AssignmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
+  maxScore         Decimal?         @db.Decimal(6, 2)
+  mode             AssignmentMode   @default(ONLINE)
+  status           AssignmentStatus @default(DRAFT)
+  publishedAt      DateTime?
+  closedAt         DateTime?
+  /// Counts towards this score component (Phase 5.3); only scored work.
+  assessmentTypeId String?
+  assessmentType   AssessmentType?  @relation(fields: [assessmentTypeId], references: [id], onDelete: SetNull)
+  /// Last time its marks were sent to the gradebook.
+  caSentAt         DateTime?
+  marksReleasedAt  DateTime?
+  createdById      String?
+  createdBy        User?            @relation("AssignmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
 
   submissions AssignmentSubmission[]
   files       AssignmentFile[]

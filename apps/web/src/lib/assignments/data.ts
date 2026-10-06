@@ -34,7 +34,12 @@ export class AssignmentError extends Error {
       | "emptyWork"
       | "badScore"
       | "notYetDue"
-      | "feedbackNeeded",
+      | "feedbackNeeded"
+      | "caNeedsScore"
+      | "caNotLinked"
+      | "caNoTerm"
+      | "caPublished"
+      | "caYearInactive",
   ) {
     super(code);
     this.name = "AssignmentError";
@@ -153,6 +158,7 @@ export async function updateAssignment(v: AssignmentViewer, id: string, input: A
     const work = await tx.assignmentSubmission.aggregate({ where: { tenantId: v.tenantId, assignmentId: id }, _count: { _all: true }, _max: { score: true } });
     if (work._count._all > 0 && input.mode !== before.mode) throw new AssignmentError("modeLocked");
     const highest = work._max.score ? Number(work._max.score) : null;
+    if (before.assessmentTypeId && input.maxScore === null) throw new AssignmentError("caNeedsScore");
     if (highest !== null && (input.maxScore === null || input.maxScore < highest)) throw new AssignmentError("scoreBelowMarks");
     const after = await tx.assignment.update({
       where: { id },
@@ -290,6 +296,8 @@ export async function getAssignment(v: AssignmentViewer, id: string) {
         section: { select: { name: true, class: { select: { name: true } } } },
         subject: { select: { name: true } },
         createdBy: { select: { name: true } },
+        assessmentType: { select: { id: true, name: true } },
+        term: { select: { name: true } },
         files: { where: { submissionId: null }, orderBy: { createdAt: "asc" }, select: { id: true, fileName: true, contentType: true, sizeBytes: true } },
         _count: { select: { submissions: true } },
       },

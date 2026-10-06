@@ -3,12 +3,49 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 5 — Student accounts and assignments (in progress)
+## Phase 5 — Student accounts and assignments (complete, 2026-10-06)
 
 Spec: `claude/phase-5-spec.md` (confirmed 2026-10-05): student logins off by
 default and switched on per class; students sign in with school short name +
 admission number; submitted work in Supabase Storage; assignment marks can
 optionally count towards CA.
+
+### Added (milestone 5.3 — assignments count towards CA, and reports, 2026-10-06)
+
+- **"Counts towards" a score component** on each scored assignment (e.g.
+  CA1). Teachers of the subject and admins choose it.
+- **Send marks to the gradebook**: a pupil-by-pupil preview ("in gradebook
+  now" → "from assignments"), then the teacher confirms. Each pupil's marked
+  work is turned into percentages, averaged across every assignment linked
+  to that component for the class and term, and scaled to the gradebook
+  column (e.g. 5/10 and 18/20 → 70% → 14/20). "Not handed in" counts as 0;
+  unmarked work is left out; pupils with no marked work keep whatever the
+  gradebook already has. Sending again only changes what's different.
+- Follows the gradebook's rules: the subject's teacher or an admin only, the
+  active year only, **never into published results**, each score audited
+  (marked "From N assignments"). Term results and report cards then use
+  these scores as usual.
+- **Assignment reports** (Assignments → Reports, staff): completion per
+  class and subject — assignments, handed in, late, not handed in, marked,
+  completion % — filterable by term; click a class for **each pupil's
+  missing work**. Both export to Excel or CSV.
+
+### Security (5.3)
+
+- Migration `0027_assignment_ca`: `assessmentTypeId` (only allowed on
+  scored work — database CHECK) and `caSentAt` on assignments. A linked
+  assignment can't have its maximum score removed.
+- Scores sent are always recomputed on the server; another school's
+  components and classes answer "not found". Reports are scoped like the
+  rest of assignments (teachers: their classes only).
+
+### Tests (5.3)
+
+- 9 integration tests (who may link and send, averaging and scaling,
+  existing scores kept, idempotent re-send, the column's own maximum,
+  published-results lock, school isolation, completion and missing-work
+  reports and their scoping) and 4 unit tests for the scoring rule.
+  Totals: unit 342, web integration 122, db 29, auth 35.
 
 ### Added (milestone 5.2 — handing in and marking, 2026-10-06)
 
