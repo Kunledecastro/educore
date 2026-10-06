@@ -360,6 +360,9 @@ model User {
   role               Role
   passwordHash       String?
   isActive           Boolean   @default(true)
+  /// Phase 6: 2FA on (not secret); bumping sessionVersion signs the account out everywhere.
+  twoFactorEnabled   Boolean   @default(false)
+  sessionVersion     Int       @default(0)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -392,6 +395,8 @@ model User {
   submissionsMarked     AssignmentSubmission[] @relation("SubmissionMarkedBy")
   assignmentFiles       AssignmentFile[]       @relation("AssignmentFileUploadedBy")
   pendingUploads        PendingUpload[]
+  security              UserSecurity?
+  passwordResets        PasswordResetToken[]
 
   @@index([tenantId])
   @@map("users")
@@ -1578,4 +1583,40 @@ model PendingUpload {
   @@index([tenantId])
   @@index([createdAt])
   @@map("pending_uploads")
+}
+
+/// Phase 6: 2FA secrets, kept out of the app role's reach (platform client only).
+model UserSecurity {
+  userId           String    @id
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// AES-256-GCM encrypted TOTP secret.
+  totpSecretEnc    String?
+  /// A secret being set up, not confirmed yet.
+  pendingSecretEnc String?
+  pendingCreatedAt DateTime?
+  /// HMAC hashes of unused backup codes.
+  backupCodeHashes String[]  @default([])
+  /// Last accepted 30-second step, so a code can't be used twice.
+  lastUsedStep     BigInt?
+  enabledAt        DateTime?
+  /// Bumped on enable/disable/reset: invalidates "remember this device".
+  twoFactorVersion Int       @default(0)
+  updatedAt        DateTime  @default(now()) @updatedAt
+
+  @@map("user_security")
+}
+
+/// Phase 6.1: forgot-password links (only the token's hash is stored).
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  requestIp String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }

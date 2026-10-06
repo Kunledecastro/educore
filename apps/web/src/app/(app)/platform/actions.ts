@@ -147,3 +147,30 @@ export async function updatePlan(input: unknown) {
     revalidatePath("/platform", "layout");
   });
 }
+
+/** Lost phone (Phase 6.0): clear a school admin's 2FA so they set it up again; they're signed out everywhere. */
+export async function platformResetTwoFactorAction(userId: unknown) {
+  return runAction(["tenant", "update"], async (ctx) => {
+    platformOnly(ctx);
+    const actor = actorFor(ctx);
+    const { adminResetTwoFactor, TwoFactorError } = await import("@/lib/security/two-factor");
+    try {
+      await adminResetTwoFactor({ id: ctx.user.id, role: "PLATFORM_ADMIN", tenantId: null }, idSchema.parse(userId), { ipAddress: actor.ipAddress, userAgent: actor.userAgent });
+    } catch (err) {
+      if (err instanceof TwoFactorError) throw new UserFacingError((await getTranslations("twoFactor.errors"))(err.code));
+      throw err;
+    }
+    revalidatePath("/platform", "layout");
+  });
+}
+
+/** Shared demo schools (Phase 6.0): don't require 2FA there, so testers sharing a login aren't locked out. */
+export async function setTwoFactorExemptAction(tenantId: unknown, exempt: unknown) {
+  return runAction(["tenant", "update"], async (ctx) => {
+    platformOnly(ctx);
+    const actor = actorFor(ctx);
+    const { setTwoFactorExempt } = await import("@/lib/security/school-security");
+    await setTwoFactorExempt({ id: ctx.user.id, ipAddress: actor.ipAddress, userAgent: actor.userAgent }, idSchema.parse(tenantId), exempt === true);
+    revalidatePath("/platform", "layout");
+  });
+}

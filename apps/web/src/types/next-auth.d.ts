@@ -8,6 +8,11 @@ declare module "next-auth" {
       role: Role;
       tenantId: string | null;
     } & DefaultSession["user"];
+    /** Phase 6: "pending" until this session passes the 2FA code step. */
+    mfa: "ok" | "pending";
+    /** Session version at sign-in; a mismatch means "signed out everywhere". -1 = a session from before Phase 6. */
+    sv: number;
+    sid: string;
   }
 
   interface User {
@@ -22,5 +27,8 @@ declare module "@auth/core/jwt" {
   interface JWT {
     role: Role;
     tenantId: string | null;
+    mfa?: "ok" | "pending";
+    sv?: number;
+    sid?: string;
   }
 }

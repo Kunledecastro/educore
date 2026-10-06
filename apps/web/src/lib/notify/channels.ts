@@ -71,3 +71,13 @@ export function workFeedbackEmail(input: { recipient: { email: string; name: str
       : `The marks for "${input.title}" are ready for ${input.pupilName}.`;
   return { to: input.recipient, subject, text: `Hello ${input.recipient.name || "there"},\n\n${body}\n\nSign in to see it:`, link: input.link };
 }
+
+/** "Reset your password" (Phase 6.1). Exported for tests. */
+export function passwordResetEmail(input: { recipient: { email: string; name: string }; link: string; minutes: number }): OutgoingNotification {
+  return {
+    to: input.recipient,
+    subject: "Reset your EduCore password",
+    text: `Hello ${input.recipient.name || "there"},\n\nSomeone (hopefully you) asked to reset the password for your EduCore account. The link below works once, for ${input.minutes} minutes.\n\nIf you didn't ask, ignore this email — your password won't change.\n\nReset your password:`,
+    link: input.link,
+  };
+}

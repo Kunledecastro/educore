@@ -3,6 +3,76 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 6 — Account security (2026-10-06)
+
+Spec: `claude/phase-6-spec.md` (confirmed 2026-10-06): authenticator-app
+2FA with backup codes; required for the platform admin, school admins and
+bursars, the school's choice for teachers, optional for parents, not
+offered to pupils; remember a device for 30 days; forgot password by email.
+
+### Added (6.0 — two-factor sign-in)
+
+- **Sign in with a second step**: after the password, a 6-digit code from an
+  authenticator app (Google/Microsoft Authenticator, etc.), or one of 10
+  one-time backup codes. "Remember this device for 30 days".
+- **Set-up** in three steps (get an app → scan the QR code → type a code),
+  then backup codes shown once (copy/print). The QR code is drawn on
+  EduCore's own server.
+- **Required** for the platform admin, school admins and bursars — they go
+  straight to set-up at their next sign-in and can't use anything else
+  until it's done. **Settings → Security**: "Require two-factor sign-in for
+  teachers". Parents can turn it on in **Sign-in security** (new menu
+  link); pupils aren't offered it.
+- **Lost phone**: school admins reset 2FA for others in their school
+  (Settings → Security, which also shows who has it on and who still needs
+  it); the platform team resets a school admin's from the school's platform
+  page. Resets sign the person out everywhere.
+- **Demo schools**: the platform team can mark a shared demo/test school as
+  not requiring 2FA (audited), so testers sharing a login aren't locked out.
+- Account → Sign-in security: status, new backup codes, turn off (only where
+  the role doesn't require it; needs a code).
+
+### Added (6.1 — forgot password)
+
+- **"Forgot password?"** on the sign-in page: a single-use link by email,
+  valid 30 minutes; only the newest link works. The page answers the same
+  whether or not the account exists. Resetting signs the account out
+  everywhere; 2FA still applies. Pupils are told to ask their teacher.
+  Needs Resend (`RESEND_API_KEY`, `EMAIL_FROM`).
+
+### Security
+
+- Migration `0028_account_security`: `users.twoFactorEnabled`,
+  `users.sessionVersion`; `user_security` (encrypted TOTP secret, keyed
+  hashes of backup codes, last used step) and `password_reset_tokens`
+  (SHA-256 of the token only) — both RLS-locked and revoked from the app's
+  database role, so tenant-scoped code can't read them at all.
+- TOTP per RFC 6238 (tested against the RFC vectors), ±1 step, **each code
+  usable once** (atomic last-step check); backup codes crossed off
+  atomically; 8 code attempts per 15 minutes; reset requests rate-limited
+  per IP and per email.
+- **Signed out everywhere** on password reset and on any 2FA change: each
+  session carries the account's session version, checked on every request.
+  The session is only upgraded after a correct code via a short-lived,
+  server-signed proof tied to that user and that session; anything a
+  browser sends to the session endpoint is ignored.
+- Break-glass `TWO_FACTOR_BREAK_GLASS=1` (operations only, logged).
+- Every sign-in-security change is audited (school log, and the platform
+  log for platform actions).
+- Note: deploying Phase 6 signs everyone out once.
+
+### Tests
+
+- Unit: RFC 6238/4226 vectors, base32, encryption and tamper detection,
+  backup codes, signed tokens, remember-device, the session-callback
+  decisions, who-must-use-2FA rules. Integration (real Postgres): set-up,
+  replay refused, drift, backup codes once, regeneration, turn-off rules,
+  admin resets across schools/self/teachers, platform reset and audit,
+  teachers setting, demo exemption that a school can't undo, app role
+  can't read secrets; reset links (hash only, single use, newest only,
+  expiry, race, sign-out everywhere, audit). Totals: unit 361, web
+  integration 140, db 29, auth 35.
+
 ## Phase 5 — Student accounts and assignments (complete, 2026-10-06)
 
 Spec: `claude/phase-5-spec.md` (confirmed 2026-10-05): student logins off by

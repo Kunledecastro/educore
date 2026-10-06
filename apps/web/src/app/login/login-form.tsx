@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -93,6 +94,11 @@ function EmailForm() {
       <FormField label={t("password")} htmlFor="password" error={errors.password?.message} required>
         <Input type="password" autoComplete="current-password" {...register("password")} />
       </FormField>
+      <p className="-mt-2 text-right text-sm">
+        <Link href="/forgot-password" className="underline underline-offset-2">
+          {t("forgot")}
+        </Link>
+      </p>
       <Button type="submit" className="w-full" disabled={submitting}>
         {submitting ? t("submitting") : t("submit")}
       </Button>

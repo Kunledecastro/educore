@@ -100,13 +100,29 @@ data.
 
 | Service | Free tier | Env vars |
 |---|---|---|
-| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Optional: without it, invites show a copyable one-time link instead of being emailed, and new-message notifications stay in-app (unread counts) only. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
+| Resend (email) | 100 emails/day | `RESEND_API_KEY`, `EMAIL_FROM`. Needed for **Forgot password?** (Phase 6.1). Optional otherwise: without it, invites show a copyable one-time link instead of being emailed, and new-message notifications stay in-app (unread counts) only. Verify a sending domain in Resend before inviting real parents (the `onboarding@resend.dev` sender only delivers to your own address). |
 | Paystack (school fees online + EduCore subscriptions) | free account; fees per transaction | `PAYSTACK_SECRET_KEY` (Test Secret Key, `sk_test_…`, Sensitive, Production + Preview). In Paystack → Settings → API Keys & Webhooks (Test mode) set **Test Webhook URL** to `https://<your-domain>/api/webhooks/paystack`. Without the key, parents don't see "Pay online"; bursary payments are unaffected. Money goes to the account that owns the key. The same key and webhook also take schools' EduCore subscription payments (Phase 4.2; references `ECB-…`), and the Inngest function "Renew EduCore subscriptions" charges saved cards daily at 06:00 Lagos — it syncs automatically on deploy. |
 | Stripe (EduCore subscriptions, test mode) | free | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` |
 | Supabase Storage (file storage, Phase 5) | 1 GB free on the same Supabase project | `SUPABASE_URL` (plain), `SUPABASE_SERVICE_ROLE_KEY` (**Sensitive**, Production + Preview), `STORAGE_BUCKET` (default `educore-uploads`). Create the private bucket once with `packages/db/supabase/0024_storage_bucket.sql` (Supabase SQL editor). Browsers upload straight to the bucket with one-time signed upload links (so large files never pass through Vercel's 4.5 MB request limit); downloads use links that expire after a few minutes. Without the key, assignments work but attachments and file submissions are switched off. |
 | Inngest (background jobs — CSV imports) | free tier | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`. Install **Inngest from the Vercel Marketplace** (Integrations → Inngest → Install → choose the project); it sets both variables and syncs the app from `/api/inngest` on every deploy. Required for imports — without it the "Import" button reports the importer is unavailable. |
 | Upstash Redis (rate limiting) | free tier | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`. Omit to fall back to an in-memory limiter, which works per server instance only — **set Upstash up before real schools go live** so login limits are shared across all instances. |
 | Sentry (error monitoring) | free tier | `SENTRY_DSN` |
+
+## Two-factor sign-in (Phase 6)
+
+- Nothing to set up: it works with `NEXTAUTH_SECRET`. Optionally set `TWO_FACTOR_KEY`
+  (Sensitive) — but only **before** anyone turns 2FA on, and never change it after.
+- On the first deploy of Phase 6 everyone is signed out once. The platform admin,
+  school admins and bursars set up 2FA at their next sign-in (an authenticator app;
+  10 backup codes).
+- **Shared demo school** (testers using one admin login): Platform → the school →
+  *Mark as demo school (no 2FA required)*. Otherwise the first tester binds the login
+  to their phone.
+- **Lost phone**: a school admin resets another person's 2FA in Settings → Security;
+  the platform team resets a school admin's from Platform → the school.
+- **Break-glass**: if 2FA itself ever fails in production, set
+  `TWO_FACTOR_BREAK_GLASS=1` in Vercel (Production) and redeploy — 2FA stops being
+  enforced for everyone. Remove it and redeploy as soon as the fault is fixed.
 
 None of these block a Phase 0 deploy — they're documented in
 `.env.example` for when the corresponding feature is built.

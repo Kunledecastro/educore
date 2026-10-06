@@ -11,6 +11,18 @@ import { allowLoginAttempt } from "./rate-limit";
 import { clientIpFromHeaders } from "./request-meta";
 import { studentUsername } from "./student-logins";
 import { studentMayUseLogin } from "./student-logins-data";
+import { REMEMBER_COOKIE, tokenAfterUpdate, tokenAtSignIn } from "./security/session-state";
+import { securityState } from "./security/two-factor";
+
+/** The "remember this device" cookie, if the request has one (sign-in runs inside a request). */
+async function rememberCookie(): Promise<string | undefined> {
+  try {
+    const { cookies } = await import("next/headers");
+    return cookies().get(REMEMBER_COOKIE)?.value;
+  } catch {
+    return undefined;
+  }
+}
 
 /** Too many attempts. The code reaches the login form so it can show a specific message. */
 class RateLimitedSignin extends CredentialsSignin {
@@ -48,7 +60,7 @@ if (process.env.MICROSOFT_ENTRA_ID_CLIENT_ID && process.env.MICROSOFT_ENTRA_ID_C
   );
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   // PrismaAdapter persists Users/Accounts for OAuth sign-in linking, but the
   // *session itself* is still a signed JWT (spec requirement) — the adapter
   // is not used for session storage. See the ASSUMPTION note in
@@ -121,11 +133,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const existing = await prisma.user.findUnique({ where: { email: user.email } });
       return Boolean(existing?.isActive);
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;
         token.tenantId = user.tenantId;
-      } else if (token.email && token.role === undefined) {
+        // Phase 6: a fresh session id, the account's session version, and whether
+        // the code step is still needed (2FA on and this device not remembered).
+        const state = user.id ? await securityState(user.id) : null;
+        const facts = state ? { userId: state.id, twoFactorEnabled: state.twoFactorEnabled, twoFactorVersion: state.twoFactorVersion, sessionVersion: state.sessionVersion } : null;
+        return { ...token, ...tokenAtSignIn(facts, await rememberCookie()) };
+      }
+      if (trigger === "update") {
+        // Only our server can mint a valid proof (after a correct code); anything else a browser sends is ignored.
+        return tokenAfterUpdate(token, session, async () => (await securityState(token.sub!))?.sessionVersion ?? null);
+      }
+      if (token.email && token.role === undefined) {
         const dbUser = await prisma.user.findUnique({ where: { email: token.email } });
         if (dbUser) {
           token.sub = dbUser.id;
@@ -141,6 +163,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role;
         session.user.tenantId = token.tenantId;
       }
+      session.mfa = token.mfa ?? "ok";
+      session.sv = token.sv ?? -1;
+      session.sid = token.sid ?? "";
       return session;
     },
   },

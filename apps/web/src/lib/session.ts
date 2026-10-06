@@ -6,6 +6,23 @@ import { auth } from "./auth";
 import { resolveImpersonation, type Impersonation } from "./impersonation";
 import { IMPERSONATION_COOKIE } from "./impersonation-token";
 import { studentMayUseLogin } from "./student-logins-data";
+import type { AuthStage } from "./security/rules";
+import { securityState } from "./security/two-factor";
+
+/**
+ * Where the signed-in person stands (Phase 6): "ok", or still owing the 2FA
+ * code ("verify") or 2FA set-up ("setup"). Null = not signed in, or the
+ * session was ended (password reset, 2FA change, account switched off).
+ * Only the 2FA pages use the non-"ok" stages; everything else goes through
+ * getEffectiveSession(), which treats them as signed out.
+ */
+export const getSignInStage = cache(async (): Promise<{ stage: AuthStage; userId: string; role: Role; email: string; name: string; sid: string } | null> => {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const state = await securityState(session.user.id);
+  if (!state || !state.isActive || state.sessionVersion !== session.sv) return null;
+  return { stage: state.stage(session.mfa === "ok"), userId: state.id, role: state.role, email: state.email, name: session.user.name ?? "", sid: session.sid };
+});
 
 export interface EffectiveUser {
   id: string;
@@ -27,6 +44,9 @@ export interface EffectiveUser {
 export const getEffectiveSession = cache(async (): Promise<{ user: EffectiveUser; impersonation: Impersonation | null } | null> => {
   const session = await auth();
   if (!session?.user) return null;
+  // Signed out everywhere, or still owing the 2FA step: not signed in for anything else.
+  const stage = await getSignInStage();
+  if (!stage || stage.stage !== "ok") return null;
   const real: EffectiveUser = {
     id: session.user.id,
     role: session.user.role,

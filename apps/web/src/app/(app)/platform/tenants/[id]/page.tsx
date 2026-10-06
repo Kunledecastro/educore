@@ -1,3 +1,5 @@
+import { PlatformResetTwoFactor, TwoFactorExemptToggle } from "@/components/platform/reset-two-factor";
+import { parseTenantSettings } from "@/lib/tenant-settings";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -33,7 +35,7 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
 
   const [usage, admins, activity, sessions, money] = await Promise.all([
     usageFor([tenant.id]).then((m) => m.get(tenant.id)!),
-    db.user.findMany({ where: { tenantId: tenant.id, role: "SCHOOL_ADMIN" }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true, isActive: true, passwordHash: true } }),
+    db.user.findMany({ where: { tenantId: tenant.id, role: "SCHOOL_ADMIN" }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true, isActive: true, passwordHash: true, twoFactorEnabled: true } }),
     db.auditLog.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: "desc" }, take: 15, include: { actor: { select: { name: true } } } }),
     db.impersonationSession.findMany({ where: { tenantId: tenant.id }, orderBy: { startedAt: "desc" }, take: 10, include: { platformAdmin: { select: { name: true } }, targetUser: { select: { name: true } } } }),
     db.payment.aggregate({ where: { tenantId: tenant.id }, _sum: { amount: true } }),
@@ -97,6 +99,12 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
           <CardHeader>
             <CardTitle>{t("tenant.admins")}</CardTitle>
             <p className="text-sm text-muted-foreground">{t("tenant.adminsHint")}</p>
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-sm">
+              <span className={parseTenantSettings(tenant.settings).platformFlags.twoFactorExempt ? "text-warning" : "text-muted-foreground"}>
+                {parseTenantSettings(tenant.settings).platformFlags.twoFactorExempt ? t("tenant.exemptIsOn") : t("tenant.exemptIsOff")}
+              </span>
+              <TwoFactorExemptToggle tenantId={tenant.id} exempt={parseTenantSettings(tenant.settings).platformFlags.twoFactorExempt} school={tenant.name} />
+            </div>
           </CardHeader>
           <CardContent>
             {admins.length === 0 ? (
@@ -112,7 +120,11 @@ export default async function PlatformTenantPage({ params }: { params: { id: str
                         {!a.isActive ? ` · ${t("tenant.inactive")}` : !a.passwordHash ? ` · ${t("tenant.invited")}` : ""}
                       </span>
                     </span>
-                    {a.isActive && tenant.status === "ACTIVE" ? <ImpersonateButton userId={a.id} name={a.name} school={tenant.name} /> : null}
+                    <span className="flex items-center gap-1">
+                      <span className={`text-xs ${a.twoFactorEnabled ? "text-success" : "text-destructive"}`}>{a.twoFactorEnabled ? t("tenant.twoFactorOn") : t("tenant.twoFactorOff")}</span>
+                      {a.twoFactorEnabled ? <PlatformResetTwoFactor userId={a.id} name={a.name} /> : null}
+                      {a.isActive && tenant.status === "ACTIVE" ? <ImpersonateButton userId={a.id} name={a.name} school={tenant.name} /> : null}
+                    </span>
                   </li>
                 ))}
               </ul>

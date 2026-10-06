@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { GraduationCap, LogOut, Menu, X } from "lucide-react";
+import { GraduationCap, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { cn } from "@educore/ui/utils";
 import type { NavItem } from "@/lib/nav";
 import { NAV_ICONS } from "./nav-icons";
@@ -72,10 +72,19 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
   );
 }
 
-function SignOutButton() {
+function SignOutButton({ role }: { role: Role }) {
   const t = useTranslations("common");
+  // Pupils change their password on its own page; everyone else manages sign-in security here (Phase 6).
+  const href = role === "STUDENT" ? "/change-password" : "/account/security";
   return (
-    <div className="border-t p-3">
+    <div className="space-y-1 border-t p-3">
+      <Link
+        href={href}
+        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+        {role === "STUDENT" ? t("changePassword") : t("signInSecurity")}
+      </Link>
       <button
         onClick={() => signOut({ callbackUrl: "/login" })}
         className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -95,7 +104,7 @@ export function Sidebar({ items, role, tenantName, logoUrl }: SidebarProps) {
         <Brand role={role} tenantName={tenantName} logoUrl={logoUrl} />
       </div>
       <NavLinks items={items} />
-      <SignOutButton />
+      <SignOutButton role={role} />
     </aside>
   );
 }
@@ -137,7 +146,7 @@ export function MobileNav({ items, role, tenantName, logoUrl }: SidebarProps) {
           </div>
           <DialogPrimitive.Description className="sr-only">{t("mainNavigation")}</DialogPrimitive.Description>
           <NavLinks items={items} onNavigate={() => setOpen(false)} />
-          <SignOutButton />
+          <SignOutButton role={role} />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

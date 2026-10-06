@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { Role } from "@educore/db";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { getNavItemsForRole } from "@/lib/nav";
-import { getEffectiveSession } from "@/lib/session";
+import { getEffectiveSession, getSignInStage } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
 import { PlanBanner } from "@/components/plan/plan-banner";
@@ -16,6 +16,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // The effective user: normally the signed-in user; while support impersonates, the school admin.
   const session = await getEffectiveSession();
   if (!session) {
+    // Signed in with a password but owing the 2FA code or set-up (Phase 6)?
+    const stage = await getSignInStage();
+    if (stage?.stage === "verify") redirect("/two-factor");
+    if (stage?.stage === "setup") redirect("/two-factor/setup");
     redirect("/login");
   }
 

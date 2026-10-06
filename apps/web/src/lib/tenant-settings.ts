@@ -78,6 +78,16 @@ export const tenantSettingsSchema = z.object({
   paymentTermDays: z.number().int().min(0).max(120).catch(DEFAULT_TENANT_SETTINGS.paymentTermDays).default(DEFAULT_TENANT_SETTINGS.paymentTermDays),
   /** Student logins (Phase 5.0): off unless the school turns them on for chosen classes. */
   studentLogins: z.unknown().transform(parseStudentLogins),
+  /** Account security (Phase 6): whether teachers must use two-factor sign-in. Admins and bursars always must. */
+  security: z
+    .object({ requireTeacher2fa: z.boolean().catch(false).default(false) })
+    .catch({ requireTeacher2fa: false })
+    .default({ requireTeacher2fa: false }),
+  /** Set by the EduCore platform team only (never by a school): e.g. a shared demo school where 2FA isn't required. */
+  platformFlags: z
+    .object({ twoFactorExempt: z.boolean().catch(false).default(false) })
+    .catch({ twoFactorExempt: false })
+    .default({ twoFactorExempt: false }),
 });
 
 export type TenantSettings = z.infer<typeof tenantSettingsSchema>;
