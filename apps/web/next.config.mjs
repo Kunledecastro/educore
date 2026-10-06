@@ -2,14 +2,19 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-// Assignment files upload straight from the browser to storage (Phase 5.1), so
-// the storage origin — and only it — is allowed as a connect target.
-function storageOrigin() {
+// Assignment files upload straight from the browser to Supabase Storage
+// (Phase 5.1). Allow Supabase hosts as connect targets — statically, so it
+// never depends on SUPABASE_URL being present at build time — plus the exact
+// configured origin if it's somewhere else (e.g. a custom domain).
+function storageOrigins() {
+  const out = ["https://*.supabase.co"];
   try {
-    return process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).origin : "";
+    const o = process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).origin : "";
+    if (o && !o.endsWith(".supabase.co")) out.push(o);
   } catch {
-    return "";
+    /* ignore a malformed URL */
   }
+  return out.join(" ");
 }
 
 /** @type {import('next').NextConfig} */
@@ -51,7 +56,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              `connect-src 'self'${storageOrigin() ? ` ${storageOrigin()}` : ""}`,
+              `connect-src 'self' ${storageOrigins()}`,
               "frame-ancestors 'none'",
             ].join("; "),
           },

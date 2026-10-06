@@ -26,8 +26,11 @@ export const ACCEPT = [...Object.keys(ALLOWED_TYPES), ...Object.values(ALLOWED_T
 export async function putToStorage(uploadUrl: string, file: File, type: AllowedType): Promise<boolean> {
   try {
     const res = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": type, "x-upsert": "false" }, body: file });
+    if (!res.ok) console.error("[upload] storage refused the file", res.status, await res.text().catch(() => ""));
     return res.ok;
-  } catch {
+  } catch (err) {
+    // A network error, or the browser blocked the request (security policy / CORS).
+    console.error("[upload] could not reach storage", err);
     return false;
   }
 }
