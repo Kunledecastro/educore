@@ -60,3 +60,14 @@ export function newMessageEmail(input: { recipient: { email: string; name: strin
     link: input.link,
   };
 }
+
+/** "Work was returned" / "marks are ready" (Phase 5.2). Never includes the score or comment. Exported for tests. */
+export function workFeedbackEmail(input: { recipient: { email: string; name: string }; pupilName: string; title: string; schoolName: string; kind: "returned" | "released"; link: string }): OutgoingNotification {
+  const subject =
+    input.kind === "returned" ? `Work returned for corrections: ${input.title} (${input.pupilName}) — ${input.schoolName}` : `Marks ready: ${input.title} (${input.pupilName}) — ${input.schoolName}`;
+  const body =
+    input.kind === "returned"
+      ? `The teacher has returned "${input.title}" to ${input.pupilName} with a comment on what to correct. It can be handed in again on EduCore.`
+      : `The marks for "${input.title}" are ready for ${input.pupilName}.`;
+  return { to: input.recipient, subject, text: `Hello ${input.recipient.name || "there"},\n\n${body}\n\nSign in to see it:`, link: input.link };
+}

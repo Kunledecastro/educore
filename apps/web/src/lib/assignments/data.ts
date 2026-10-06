@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { Prisma, recordAudit, withRls, type PrismaClient } from "@educore/db";
 import { MAX_FILE_BYTES, MAX_FILES_PER_ASSIGNMENT, objectKey, readGrant, safeFileName, signGrant, sniffType, typeMatches, type AllowedType, type UploadGrant } from "../storage/files";
 import { objectStore, scanUpload, type ObjectStore } from "../storage/object-store";
-import { canDelete, canManage, canSee, type AnyRole, type TeachingPair } from "./rules";
+import { canDelete, canHandIn, canManage, canSee, type AnyRole, type TeachingPair } from "./rules";
 
 /**
  * Assignments, database side (Phase 5.1). Everything runs in the school's
@@ -10,7 +10,7 @@ import { canDelete, canManage, canSee, type AnyRole, type TeachingPair } from ".
  * rules.ts. Files live in private storage; only their metadata is here.
  */
 
-type Tx = PrismaClient;
+export type Tx = PrismaClient;
 
 export class AssignmentError extends Error {
   constructor(
@@ -27,7 +27,14 @@ export class AssignmentError extends Error {
       | "badDue"
       | "modeLocked"
       | "scoreBelowMarks"
-      | "invalidState",
+      | "invalidState"
+      | "quotaFull"
+      | "cannotHandIn"
+      | "alreadyMarked"
+      | "emptyWork"
+      | "badScore"
+      | "notYetDue"
+      | "feedbackNeeded",
   ) {
     super(code);
     this.name = "AssignmentError";
@@ -76,15 +83,15 @@ export async function assignmentViewer(tenantId: string, user: { id: string; rol
   });
 }
 
-const audit = (v: AssignmentViewer, meta: Meta) => ({ tenantId: v.tenantId, actorId: v.userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent, impersonatorId: meta.impersonatorId ?? null });
+export const audit = (v: AssignmentViewer, meta: Meta) => ({ tenantId: v.tenantId, actorId: v.userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent, impersonatorId: meta.impersonatorId ?? null });
 
-async function loadVisible(tx: Tx, v: AssignmentViewer, id: string) {
+export async function loadVisible(tx: Tx, v: AssignmentViewer, id: string) {
   const a = await tx.assignment.findFirst({ where: { id, tenantId: v.tenantId } });
   if (!a || !canSee(v, a)) throw new AssignmentError("notFound");
   return a;
 }
 
-async function loadManageable(tx: Tx, v: AssignmentViewer, id: string) {
+export async function loadManageable(tx: Tx, v: AssignmentViewer, id: string) {
   const a = await loadVisible(tx, v, id);
   if (!canManage(v, a)) throw new AssignmentError("notAllowed");
   return a;
@@ -250,7 +257,7 @@ export async function listForFamily(v: AssignmentViewer, opts: { take?: number }
       take: opts.take ?? 100,
       include: {
         subject: { select: { name: true } },
-        submissions: { where: { studentId: { in: v.students.map((s) => s.id) } }, select: { studentId: true, status: true, isLate: true, score: true, submittedAt: true } },
+        submissions: { where: { studentId: { in: v.students.map((s) => s.id) } }, select: { studentId: true, status: true, isLate: true, isMissing: true, score: true, submittedAt: true } },
       },
     });
     return v.students.map((child) => ({
@@ -268,7 +275,7 @@ export async function listForFamily(v: AssignmentViewer, opts: { take?: number }
             status: a.status,
             mode: a.mode,
             maxScore: a.maxScore ? Number(a.maxScore) : null,
-            submission: sub ? { status: sub.status, isLate: sub.isLate, submittedAt: sub.submittedAt, score: released && sub.score !== null ? Number(sub.score) : null } : null,
+            submission: sub ? { status: sub.status, isLate: sub.isLate, isMissing: sub.isMissing, submittedAt: sub.submittedAt, score: released && sub.status === "MARKED" && sub.score !== null ? Number(sub.score) : null } : null,
           };
         }),
     }));
@@ -296,6 +303,12 @@ export async function getAssignment(v: AssignmentViewer, id: string) {
 // Files: signed upload grants (shared with submissions in 5.2)
 // ---------------------------------------------------------------------------
 
+/** Each school's share of file storage (MB), configurable; 500 MB by default. */
+export function schoolQuotaBytes(env: Record<string, string | undefined> = process.env): number {
+  const mb = Number(env.STORAGE_QUOTA_MB_PER_SCHOOL);
+  return (Number.isFinite(mb) && mb > 0 ? mb : 500) * 1024 * 1024;
+}
+
 function grantSecret(): string {
   const s = process.env.NEXTAUTH_SECRET;
   if (!s) throw new Error("NEXTAUTH_SECRET is not set");
@@ -320,18 +333,26 @@ export async function requestUpload(
 ): Promise<UploadSlot> {
   if (!store.configured()) throw new AssignmentError("storageOff");
   if (input.sizeBytes <= 0 || input.sizeBytes > MAX_FILE_BYTES) throw new AssignmentError("tooLarge");
+  const name = safeFileName(input.fileName, input.contentType);
+  const key = objectKey(v.tenantId, input.assignmentId, input.kind, randomBytes(12).toString("hex"), name);
   await withRls(v.tenantId, async (tx) => {
     const a = await loadVisible(tx, v, input.assignmentId);
     if (input.kind === "worksheet") {
       if (!canManage(v, a)) throw new AssignmentError("notAllowed");
       const n = await tx.assignmentFile.count({ where: { tenantId: v.tenantId, assignmentId: a.id, submissionId: null } });
       if (n >= MAX_FILES_PER_ASSIGNMENT) throw new AssignmentError("tooManyFiles");
-    } else if (v.role !== "STUDENT" && v.role !== "PARENT") {
-      throw new AssignmentError("notAllowed");
+    } else {
+      // Only someone who may hand in for a pupil in this class (checked again on hand-in).
+      if (v.role !== "STUDENT" && v.role !== "PARENT") throw new AssignmentError("notAllowed");
+      if (!canHandIn(a)) throw new AssignmentError("cannotHandIn");
+      if (!v.students.some((s) => s.sectionId === a.sectionId)) throw new AssignmentError("notAllowed");
     }
+    // The school's share of file storage.
+    const used = await tx.assignmentFile.aggregate({ where: { tenantId: v.tenantId }, _sum: { sizeBytes: true } });
+    if ((used._sum.sizeBytes ?? 0) + input.sizeBytes > schoolQuotaBytes()) throw new AssignmentError("quotaFull");
+    // Remembered until attached, so an abandoned upload can be cleaned away.
+    await tx.pendingUpload.create({ data: { tenantId: v.tenantId, storageKey: key, userId: v.userId } });
   });
-  const name = safeFileName(input.fileName, input.contentType);
-  const key = objectKey(v.tenantId, input.assignmentId, input.kind, randomBytes(12).toString("hex"), name);
   const grant = signGrant({ key, userId: v.userId, assignmentId: input.assignmentId, contentType: input.contentType, fileName: name, expiresAt: now + 2 * 3600_000 }, grantSecret());
   return { uploadUrl: await store.createUploadUrl(key), grant };
 }
@@ -364,6 +385,7 @@ export async function attachWorksheet(v: AssignmentViewer, assignmentId: string,
     const a = await loadManageable(tx, v, assignmentId);
     const n = await tx.assignmentFile.count({ where: { tenantId: v.tenantId, assignmentId: a.id, submissionId: null } });
     if (n >= MAX_FILES_PER_ASSIGNMENT) throw new AssignmentError("tooManyFiles");
+    await tx.pendingUpload.deleteMany({ where: { tenantId: v.tenantId, storageKey: g.key } });
     const file = await tx.assignmentFile.upsert({
       where: { storageKey: g.key },
       create: { tenantId: v.tenantId, assignmentId: a.id, storageKey: g.key, fileName: g.fileName, contentType: g.contentType, sizeBytes: g.sizeBytes, uploadedById: v.userId },

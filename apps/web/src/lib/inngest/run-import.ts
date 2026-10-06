@@ -141,4 +141,5 @@ import { billTerm } from "./bill-term";
 import { generateReportCards } from "./generate-report-cards";
 import { notifyMessage } from "./notify-message";
 import { renewSubscriptions } from "./renew-subscriptions";
-export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions, notifyMessage];
+import { cleanUploads, notifyAssignmentFeedback } from "./assignment-jobs";
+export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions, notifyMessage, notifyAssignmentFeedback, cleanUploads];

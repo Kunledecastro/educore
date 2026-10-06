@@ -26,3 +26,15 @@ describe("email channel", () => {
     expect(n.link).toBe("https://app/messages/t1");
   });
 });
+
+describe("workFeedbackEmail", () => {
+  it("names the work and the pupil, never the score or comment", async () => {
+    const { workFeedbackEmail } = await import("./channels");
+    const n = workFeedbackEmail({ recipient: { email: "mum@x.ng", name: "Mrs Okafor" }, pupilName: "Ada Okafor", title: "Fractions", schoolName: "Greenfield", kind: "returned", link: "https://x/assignments/1" });
+    expect(n.subject).toBe("Work returned for corrections: Fractions (Ada Okafor) — Greenfield");
+    expect(n.text).toContain("handed in again");
+    const r = workFeedbackEmail({ recipient: { email: "a@x.ng", name: "" }, pupilName: "Ada", title: "Fractions", schoolName: "G", kind: "released", link: "l" });
+    expect(r.subject).toBe("Marks ready: Fractions (Ada) — G");
+    expect(r.text).toContain("Hello there");
+  });
+});

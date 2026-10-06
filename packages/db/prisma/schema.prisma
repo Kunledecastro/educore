@@ -209,6 +209,7 @@ model Tenant {
   assignments           Assignment[]
   assignmentSubmissions AssignmentSubmission[]
   assignmentFiles       AssignmentFile[]
+  pendingUploads        PendingUpload[]
 
   @@map("tenants")
 }
@@ -390,6 +391,7 @@ model User {
   submissionsMade       AssignmentSubmission[] @relation("SubmissionSubmittedBy")
   submissionsMarked     AssignmentSubmission[] @relation("SubmissionMarkedBy")
   assignmentFiles       AssignmentFile[]       @relation("AssignmentFileUploadedBy")
+  pendingUploads        PendingUpload[]
 
   @@index([tenantId])
   @@map("users")
@@ -1514,6 +1516,7 @@ model AssignmentSubmission {
   text          String           @default("")
   status        SubmissionStatus @default(SUBMITTED)
   submittedAt   DateTime         @default(now())
+  isMissing     Boolean          @default(false)
   isLate        Boolean          @default(false)
   submittedById String?
   submittedBy   User?            @relation("SubmissionSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
@@ -1554,4 +1557,19 @@ model AssignmentFile {
   @@index([assignmentId])
   @@index([submissionId])
   @@map("assignment_files")
+}
+
+/// Uploads started but not yet attached (Phase 5.2); a daily job removes stale ones from storage.
+model PendingUpload {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  storageKey String   @unique
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("pending_uploads")
 }

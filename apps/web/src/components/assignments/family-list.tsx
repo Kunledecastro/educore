@@ -10,7 +10,7 @@ import type { TenantSettings } from "@/lib/tenant-settings";
 
 type Children = Awaited<ReturnType<typeof listForFamily>>;
 
-const STATE_VARIANT = { todo: "secondary", dueSoon: "warning", overdue: "destructive", handedIn: "secondary", returned: "warning", marked: "success", closed: "outline", paper: "outline" } as const;
+const STATE_VARIANT = { todo: "secondary", dueSoon: "warning", overdue: "destructive", handedIn: "secondary", returned: "warning", marked: "success", closed: "outline", paper: "outline", notHandedIn: "destructive" } as const;
 type ShownState = keyof typeof STATE_VARIANT;
 const OPEN: ReadonlySet<ShownState> = new Set(["todo", "dueSoon", "overdue", "returned", "paper"]);
 
@@ -28,6 +28,7 @@ export async function FamilyAssignmentList({ families, settings, showNames, limi
           .map((a) => {
             const state: ShownState = familyState(a, a.submission, now);
             // Paper work is handed in at school; the teacher records it.
+            if (a.submission?.isMissing) return { ...a, state: "notHandedIn" as const };
             return { ...a, state: a.mode === "PAPER" && !a.submission && state !== "closed" ? ("paper" as const) : state };
           })
           .sort((x, y) => {

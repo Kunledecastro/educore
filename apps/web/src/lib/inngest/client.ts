@@ -16,6 +16,8 @@ type Events = {
   "educore/subscriptions.renew": { data: Record<string, never> };
   /** Someone wrote in a conversation; tell the others (if a channel is set up). Sent only by our server. */
   "educore/message.sent": { data: { tenantId: string; threadId: string; messageId: string; recipientIds: string[] } };
+  /** A teacher returned work for corrections or released marks; tell the families (if a channel is set up). Sent only by our server. */
+  "educore/assignment.feedback": { data: { tenantId: string; assignmentId: string; studentIds: string[]; kind: "returned" | "released" } };
 };
 
 export const inngest = new Inngest({ id: "educore", schemas: new EventSchemas().fromRecord<Events>() });

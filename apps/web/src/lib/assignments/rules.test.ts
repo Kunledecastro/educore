@@ -72,3 +72,37 @@ describe("where the work stands", () => {
     expect(validScore(5, null)).toBe(false);
   });
 });
+
+describe("5.2 rules", () => {
+  it("parents may hand in automatically only where pupils have no logins, unless the school says otherwise", async () => {
+    const { parentsMaySubmit, parseAssignmentSettings } = await import("./rules");
+    expect(parseAssignmentSettings(undefined)).toEqual({ parentSubmit: "auto" });
+    expect(parseAssignmentSettings({ parentSubmit: "sometimes" })).toEqual({ parentSubmit: "auto" });
+    expect(parentsMaySubmit({ parentSubmit: "auto" }, false)).toBe(true);
+    expect(parentsMaySubmit({ parentSubmit: "auto" }, true)).toBe(false);
+    expect(parentsMaySubmit({ parentSubmit: "always" }, true)).toBe(true);
+    expect(parentsMaySubmit({ parentSubmit: "never" }, false)).toBe(false);
+  });
+
+  it("families see feedback when work is returned, and the score only once marks are released", async () => {
+    const { familyView } = await import("./rules");
+    const marked = { status: "MARKED" as const, score: 8, feedback: "Good", isMissing: false };
+    expect(familyView(marked, false)).toEqual({ score: null, feedback: null });
+    expect(familyView(marked, true)).toEqual({ score: 8, feedback: "Good" });
+    expect(familyView({ ...marked, status: "RETURNED", score: null, feedback: "Redo Q3" }, false)).toEqual({ score: null, feedback: "Redo Q3" });
+    expect(familyView({ ...marked, status: "SUBMITTED" }, true)).toEqual({ score: null, feedback: null });
+  });
+
+  it("marking states", async () => {
+    const { markingState, canMarkMissing } = await import("./rules");
+    expect(markingState(null)).toBe("missing");
+    expect(markingState({ status: "SUBMITTED", isLate: false, isMissing: false })).toBe("submitted");
+    expect(markingState({ status: "SUBMITTED", isLate: true, isMissing: false })).toBe("late");
+    expect(markingState({ status: "RETURNED", isLate: false, isMissing: false })).toBe("returned");
+    expect(markingState({ status: "MARKED", isLate: true, isMissing: false })).toBe("marked");
+    expect(markingState({ status: "MARKED", isLate: false, isMissing: true })).toBe("notHandedIn");
+    expect(canMarkMissing({ ...a, dueAt: new Date("2026-10-10T15:00:00Z") }, new Date("2026-10-10T14:00:00Z"))).toBe(false);
+    expect(canMarkMissing({ ...a, dueAt: new Date("2026-10-10T15:00:00Z") }, new Date("2026-10-11T00:00:00Z"))).toBe(true);
+    expect(canMarkMissing({ ...a, status: "DRAFT", dueAt: new Date("2026-10-10T15:00:00Z") }, new Date("2026-10-11T00:00:00Z"))).toBe(false);
+  });
+});

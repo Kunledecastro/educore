@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { AssignmentStatusControls, EditAssignmentButton } from "@/components/assignments/assignment-form";
 import { FileList, WorksheetUpload } from "@/components/assignments/file-upload";
 import { STATUS_VARIANT } from "@/components/assignments/status";
+import { HandIn } from "@/components/assignments/hand-in";
+import { MarkingSheet } from "@/components/assignments/marking";
 import { assignmentViewer, getAssignment } from "@/lib/assignments/data";
+import { familySubmissions, markingSheet } from "@/lib/assignments/submissions";
 import type { AnyRole } from "@/lib/assignments/rules";
 import { formatDateTime, formatNumber } from "@/lib/format";
 import { requirePermission } from "@/lib/guard";
@@ -17,7 +20,7 @@ import { getSettingsForUser } from "@/lib/tenant";
 import { idSchema } from "@/lib/validation/common";
 import { utcToZonedLocal } from "@/lib/zoned-time";
 
-/** One assignment: instructions, worksheets, and (for staff) the controls (Phase 5.1). */
+/** One assignment: instructions, worksheets; families hand in, staff mark (Phases 5.1–5.2). */
 export default async function AssignmentPage({ params }: { params: { id: string } }) {
   const { user } = await requirePermission("assignment", "read", { page: true });
   const id = idSchema.safeParse(params.id);
@@ -28,6 +31,8 @@ export default async function AssignmentPage({ params }: { params: { id: string 
   if (!a) notFound();
   const storageReady = objectStore.configured();
   const isStaff = viewer.role === "SCHOOL_ADMIN" || viewer.role === "TEACHER";
+  const [sheet, family] = await Promise.all([isStaff && a.status !== "DRAFT" ? markingSheet(viewer, a.id) : null, isStaff ? null : familySubmissions(viewer, a.id)]);
+  const when = (d: Date) => formatDateTime(d, settings);
 
   return (
     <div className="space-y-6">
@@ -98,8 +103,37 @@ export default async function AssignmentPage({ params }: { params: { id: string 
         </CardContent>
       </Card>
 
-      {!isStaff && a.mode === "ONLINE" && a.status === "PUBLISHED" ? <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">{t("handInSoon")}</p> : null}
+      {sheet ? (
+        <MarkingSheet
+          assignmentId={a.id}
+          title={a.title}
+          maxScore={a.maxScore}
+          canMark={a.canManage}
+          mode={a.mode}
+          pastDue={a.dueAt.getTime() < Date.now()}
+          released={Boolean(a.marksReleasedAt)}
+          rows={sheet.map((r) => ({ ...r, submission: r.submission ? { ...r.submission, submittedAt: when(r.submission.submittedAt) } : null }))}
+        />
+      ) : null}
+
       {!isStaff && a.mode === "PAPER" ? <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">{t("paperNote")}</p> : null}
+      {family?.map((f) =>
+        a.mode === "PAPER" && !f.submission ? null : (
+          <HandIn
+            key={f.student.id}
+            assignmentId={a.id}
+            view={{ ...f, submission: f.submission ? { ...f.submission, submittedAt: f.submission.submittedAt.toISOString() } : null }}
+            maxScore={a.maxScore}
+            showName={viewer.role === "PARENT"}
+            storageReady={storageReady}
+            formatted={{
+              submittedAt: f.submission ? when(f.submission.submittedAt) : null,
+              score: f.submission?.score !== null && f.submission?.score !== undefined ? formatNumber(f.submission.score, settings) : null,
+              maxScore: a.maxScore !== null ? formatNumber(a.maxScore, settings) : null,
+            }}
+          />
+        ),
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@educore/ui/button";
 import { ConfirmAction } from "@/components/form/confirm-action";
 import { attachWorksheetAction, removeWorksheetAction, requestWorksheetUploadAction } from "@/app/(app)/assignments/actions";
+import { shrinkPhoto } from "@/lib/image-shrink";
 import { ALLOWED_TYPES, MAX_FILE_BYTES, type AllowedType } from "@/lib/storage/file-types";
 
 const BY_EXTENSION: Record<string, AllowedType> = Object.fromEntries(Object.entries(ALLOWED_TYPES).map(([type, ext]) => [ext, type as AllowedType]));
@@ -89,7 +90,8 @@ export function WorksheetUpload({ assignmentId, disabled }: { assignmentId: stri
   const input = React.useRef<HTMLInputElement>(null);
   const [busy, setBusy] = React.useState(false);
 
-  async function upload(file: File) {
+  async function upload(original: File) {
+    const file = await shrinkPhoto(original);
     const type = declaredType(file);
     if (!type) return toast.error(t("badType"));
     if (file.size === 0 || file.size > MAX_FILE_BYTES) return toast.error(t("tooLarge"));

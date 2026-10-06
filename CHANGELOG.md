@@ -10,6 +10,57 @@ default and switched on per class; students sign in with school short name +
 admission number; submitted work in Supabase Storage; assignment marks can
 optionally count towards CA.
 
+### Added (milestone 5.2 — handing in and marking, 2026-10-06)
+
+- **Pupils hand work in online** from the assignment page: a typed answer
+  and/or files (PDF, Word, photos — "Take a photo" opens the phone camera).
+  Photos are **shrunk on the phone** (max 1600 px, JPEG) before upload, so a
+  6 MB camera photo becomes a few hundred KB. Up to 10 files, 10 MB each.
+  Late work is accepted and flagged. Work can be changed and handed in again
+  until it's marked (files can be taken out too).
+- **Parents can hand in for their child** — a school setting on the
+  Assignments page: *Automatic* (default: only for classes whose pupils
+  don't have logins), *Always* or *Never*.
+- **Marking view** on each assignment (teachers of that subject, admins):
+  every pupil with *handed in / late / nothing yet / returned / marked / not
+  handed in*, filters ("To mark", "Nothing yet"…), the work and its files,
+  score + comment, **return for corrections** (comment required; the pupil
+  can hand in again), **record paper work** with its mark, and after the due
+  date **"mark the rest as not handed in"** (0 if scored; reversible by
+  letting a pupil hand in late). Form teachers can see but not mark.
+- **Marks are shared when the teacher chooses** ("Share marks with
+  families"): until then families see "Marked" without the score.
+  Comments on returned work show straight away.
+- **Notifications**: families see everything in EduCore now; once email
+  (Resend) is set up, pupils' parents get an email when work is returned or
+  marks are shared — naming the work and the pupil, never the score.
+- **Each school has a storage share** (500 MB by default,
+  `STORAGE_QUOTA_MB_PER_SCHOOL`). Uploads started but never handed in are
+  deleted after a day by a nightly job.
+
+### Security (5.2)
+
+- Migration `0026_submissions`: `isMissing` flag (database-checked to be a
+  marked record) and a `pending_uploads` table (RLS; key must be inside the
+  school's folder). Handed-in work still can't be deleted by the app.
+- A pupil can hand in only their own work; a parent only their own child's,
+  and only when the school setting allows; upload grants are personal, so
+  one pupil's upload can't be attached by another. Two devices handing in at
+  once are serialised (row lock). Scores are checked against the maximum.
+- Submission files are downloadable by the pupil, their parents, the class's
+  teachers and admins — no one else (five-minute links).
+- Every hand-in, mark, return, "not handed in", and marks release is audited.
+
+### Tests (5.2)
+
+- 17 new integration tests (own-work only, parent-only-their-child and the
+  school setting, late, resubmit, file removal, file access across classes
+  and schools, borrowed grants, quota, marking rights, score limits, release
+  rules, return-and-redo, paper work, not-handed-in, DB constraint, audit,
+  abandoned-upload clean-up) plus unit tests for the new rules, photo sizing
+  and the notification email. Totals: unit 338, web integration 113, db 29,
+  auth 35.
+
 ### Added (milestone 5.1 — assignments, 2026-10-05)
 
 - **Assignments** (new sidebar item; Free trial, Standard and Premium plans):

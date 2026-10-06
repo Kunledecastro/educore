@@ -2,7 +2,7 @@ import { withRls } from "@educore/db";
 import { CHANNELS, newMessageEmail } from "@/lib/notify/channels";
 import { inngest } from "./client";
 
-function appUrl(): string {
+export function appUrl(): string {
   const explicit = process.env.NEXTAUTH_URL;
   if (explicit && !explicit.includes("localhost")) return explicit.replace(/\/$/, "");
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;

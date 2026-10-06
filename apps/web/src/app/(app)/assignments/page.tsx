@@ -7,6 +7,8 @@ import { EmptyState } from "@educore/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@educore/ui/table";
 import { NewAssignmentButton } from "@/components/assignments/assignment-form";
 import { FamilyAssignmentList } from "@/components/assignments/family-list";
+import { ParentSubmitSetting } from "@/components/assignments/parent-submit-setting";
+import { getAssignmentSettings } from "@/lib/assignments/submissions";
 import { STATUS_VARIANT } from "@/components/assignments/status";
 import { ListPagination } from "@/components/list/list-pagination";
 import { PageHeader } from "@/components/page-header";
@@ -44,9 +46,10 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
   const raw = searchParams instanceof URLSearchParams ? searchParams.get("status") : searchParams.status;
   const statusParam = Array.isArray(raw) ? raw[0] ?? "" : raw ?? "";
   const status = (STATUSES as readonly string[]).includes(statusParam) ? (statusParam as (typeof STATUSES)[number]) : undefined;
-  const [{ rows, total }, subjects] = await Promise.all([
+  const [{ rows, total }, subjects, assignmentSettings] = await Promise.all([
     listForStaff(viewer, { status, skip: params.skip, take: params.take }),
     can(user.role, "assignment", "create") ? assignmentOptions(viewer) : Promise.resolve([]),
+    viewer.role === "SCHOOL_ADMIN" ? getAssignmentSettings(tenantId) : Promise.resolve(null),
   ]);
   const week = new Date(Date.now() + 7 * 86400_000);
   const defaultDue = `${utcToZonedLocal(week, settings.timezone).slice(0, 10)}T16:00`;
@@ -54,6 +57,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
   return (
     <div className="space-y-6">
       <PageHeader title={t("pageTitle")} description={t("staffDescription")} actions={subjects.length > 0 ? <NewAssignmentButton options={{ subjects, defaultDue }} /> : null} />
+      {assignmentSettings ? <ParentSubmitSetting initial={assignmentSettings.parentSubmit} /> : null}
       <nav aria-label={t("filter")} className="flex flex-wrap gap-2 text-sm">
         {[undefined, ...STATUSES].map((s) => (
           <Link

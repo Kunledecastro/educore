@@ -39,3 +39,29 @@ export const uploadRequestSchema = z.object({
 });
 
 export const grantSchema = z.string().min(10).max(2000);
+
+// ---------------------------------------------------------------------------
+// Phase 5.2: handing in and marking
+// ---------------------------------------------------------------------------
+
+export const handInSchema = z.object({
+  assignmentId: idSchema,
+  studentId: idSchema,
+  text: z.string().max(10000, V.tooLong).default(""),
+  grants: z.array(z.string().min(10).max(2000)).max(10).default([]),
+  removeFileIds: z.array(idSchema).max(10).default([]),
+});
+export type HandInFormInput = z.input<typeof handInSchema>;
+
+const score = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined ? null : typeof v === "string" ? Number(v) : v),
+  z.number({ invalid_type_error: V.outOfRange }).min(0, V.outOfRange).max(1000, V.outOfRange).nullable(),
+);
+const feedback = z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? null : v), z.string().trim().max(2000, V.tooLong).nullable().default(null));
+
+export const markSchema = z.object({ score, feedback });
+export type MarkFormInput = z.input<typeof markSchema>;
+
+export const returnSchema = z.object({ feedback: textSchema(2000) });
+
+export const assignmentSettingsSchema = z.object({ parentSubmit: z.enum(["auto", "always", "never"], { errorMap: () => ({ message: V.invalidChoice }) }) });

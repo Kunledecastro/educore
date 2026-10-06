@@ -84,3 +84,56 @@ export function validScore(score: number, maxScore: number | null): boolean {
   if (maxScore === null) return false;
   return Number.isFinite(score) && score >= 0 && score <= maxScore && Math.round(score * 100) === score * 100;
 }
+
+// ---------------------------------------------------------------------------
+// Phase 5.2 — handing in and marking
+// ---------------------------------------------------------------------------
+
+/** Whether parents may hand work in for their child: always, never, or automatically for classes without student logins. */
+export type ParentSubmitMode = "auto" | "always" | "never";
+
+export interface AssignmentSettings {
+  parentSubmit: ParentSubmitMode;
+}
+
+export const DEFAULT_ASSIGNMENT_SETTINGS: AssignmentSettings = { parentSubmit: "auto" };
+
+export function parseAssignmentSettings(raw: unknown): AssignmentSettings {
+  const v = raw && typeof raw === "object" ? (raw as Record<string, unknown>).parentSubmit : undefined;
+  return { parentSubmit: v === "always" || v === "never" || v === "auto" ? v : DEFAULT_ASSIGNMENT_SETTINGS.parentSubmit };
+}
+
+/** May a parent hand in for a child in this class? `classHasLogins`: does the class have student logins switched on. */
+export function parentsMaySubmit(settings: AssignmentSettings, classHasLogins: boolean): boolean {
+  if (settings.parentSubmit === "always") return true;
+  if (settings.parentSubmit === "never") return false;
+  return !classHasLogins;
+}
+
+export type SubmissionStatus = "SUBMITTED" | "RETURNED" | "MARKED";
+
+/** What families may see of a submission: feedback once returned or released; the score only once released. */
+export function familyView(
+  sub: { status: SubmissionStatus; score: number | null; feedback: string | null; isMissing: boolean },
+  marksReleased: boolean,
+): { score: number | null; feedback: string | null } {
+  if (sub.status === "RETURNED") return { score: null, feedback: sub.feedback };
+  if (sub.status === "MARKED" && marksReleased) return { score: sub.score, feedback: sub.feedback };
+  return { score: null, feedback: null };
+}
+
+/** A pupil's line in the teacher's marking view. */
+export type MarkingState = "missing" | "submitted" | "late" | "returned" | "marked" | "notHandedIn";
+
+export function markingState(sub: { status: SubmissionStatus; isLate: boolean; isMissing: boolean } | null): MarkingState {
+  if (!sub) return "missing";
+  if (sub.isMissing) return "notHandedIn";
+  if (sub.status === "MARKED") return "marked";
+  if (sub.status === "RETURNED") return "returned";
+  return sub.isLate ? "late" : "submitted";
+}
+
+/** Bulk "not handed in" is for after the due date, for pupils with nothing at all. */
+export function canMarkMissing(a: Pick<AssignmentRef, "status" | "dueAt">, now: Date): boolean {
+  return a.status !== "DRAFT" && now.getTime() > a.dueAt.getTime();
+}
