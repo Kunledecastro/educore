@@ -19,7 +19,7 @@ import { canEditRecord, canOpenRecord, canSeeList, canVerify, statusAfterSave, t
  */
 
 export class HealthError extends Error {
-  constructor(public readonly code: "notConfigured" | "notFound" | "notAllowed" | "consentRequired" | "empty" | "badFile" | "tooLarge" | "uploadMissing" | "storageOff" | "tooManyFiles") {
+  constructor(public readonly code: "notConfigured" | "notFound" | "notAllowed" | "consentRequired" | "empty" | "badFile" | "tooLarge" | "uploadMissing" | "storageOff" | "tooManyFiles" | "tooManyAlerts") {
     super(code);
     this.name = "HealthError";
   }
@@ -66,7 +66,7 @@ export async function healthSettings(tenantId: string) {
 }
 
 export async function healthViewer(tenantId: string, user: { id: string; role: string }, opts: { impersonating?: boolean } = {}): Promise<HealthViewer> {
-  const [settings, childIds] = await Promise.all([
+  const [settings, childIds, sectionIds] = await Promise.all([
     healthSettings(tenantId),
     user.role === "PARENT"
       ? withRls(tenantId, async (tx) => {
@@ -74,17 +74,23 @@ export async function healthViewer(tenantId: string, user: { id: string; role: s
           return g?.students.filter((s) => s.student.status === "ACTIVE").map((s) => s.studentId) ?? [];
         })
       : Promise.resolve([] as string[]),
+    user.role === "TEACHER"
+      ? withRls(tenantId, async (tx) => {
+          const t = await tx.teacher.findFirst({ where: { tenantId, userId: user.id }, select: { classSectionSubjects: { select: { sectionId: true } }, formSections: { select: { id: true } } } });
+          return t ? [...new Set([...t.classSectionSubjects.map((c) => c.sectionId), ...t.formSections.map((f) => f.id)])] : [];
+        })
+      : Promise.resolve([] as string[]),
   ]);
-  return { tenantId, userId: user.id, role: user.role, childIds, adminFullAccess: settings.adminFullAccess, impersonating: Boolean(opts.impersonating) };
+  return { tenantId, userId: user.id, role: user.role, childIds, sectionIds, adminFullAccess: settings.adminFullAccess, impersonating: Boolean(opts.impersonating) };
 }
 
-async function pupilInSchool(tenantId: string, studentId: string) {
+export async function pupilInSchool(tenantId: string, studentId: string) {
   return withRls(tenantId, (tx) =>
-    tx.student.findFirst({ where: { id: studentId, tenantId }, select: { id: true, firstName: true, lastName: true, admissionNo: true, status: true, section: { select: { name: true, class: { select: { name: true } } } } } }),
+    tx.student.findFirst({ where: { id: studentId, tenantId }, select: { id: true, firstName: true, lastName: true, admissionNo: true, status: true, sectionId: true, section: { select: { name: true, class: { select: { name: true } } } } } }),
   );
 }
 
-const auditCtx = (v: HealthViewer, meta: Meta) => ({ tenantId: v.tenantId, actorId: v.userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent });
+export const auditCtx = (v: HealthViewer, meta: Meta) => ({ tenantId: v.tenantId, actorId: v.userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent });
 
 // ---------------------------------------------------------------------------
 // Reading (always logged)
@@ -201,7 +207,7 @@ export async function verifyProfile(v: HealthViewer, studentId: string, meta: Me
   });
 }
 
-/** Withdrawing consent deletes the profile and documents (emergency contacts and clinic visits stay). */
+/** Withdrawing consent deletes the profile, documents and alerts (emergency contacts and clinic visits stay). */
 export async function withdrawConsent(v: HealthViewer, studentId: string, meta: Meta, store: ObjectStore = objectStore) {
   if (!canEditRecord(v, studentId)) throw new HealthError("notFound");
   const keys = await platformPrisma().$transaction(async (tx) => {
@@ -209,6 +215,7 @@ export async function withdrawConsent(v: HealthViewer, studentId: string, meta: 
     const docs = await tx.healthDocument.findMany({ where: { tenantId: v.tenantId, studentId }, select: { storageKey: true } });
     if (!p && docs.length === 0) throw new HealthError("notFound");
     await tx.healthDocument.deleteMany({ where: { tenantId: v.tenantId, studentId } });
+    await tx.healthAlert.deleteMany({ where: { tenantId: v.tenantId, studentId } });
     if (p) await tx.healthProfile.delete({ where: { id: p.id } });
     await recordAudit(auditCtx(v, meta), { action: "DELETE", entityType: "HealthProfile", entityId: p?.id ?? studentId, after: { consent: "withdrawn", studentId, by: v.role } }, tx);
     return docs.map((d) => d.storageKey);
@@ -403,4 +410,9 @@ export async function documentLink(v: HealthViewer, documentId: string, meta: Me
   if (!doc || !canOpenRecord(v, doc.studentId)) throw new HealthError("notFound");
   await platformPrisma().healthAccessLog.create({ data: { tenantId: v.tenantId, actorId: v.userId, actorRole: v.role, studentId: doc.studentId, action: "VIEW_DOCUMENT", ipAddress: meta.ipAddress } });
   return store.createDownloadUrl(doc.storageKey, doc.fileName, 300);
+}
+
+/** The nurse's dashboard: profiles waiting for a check (new or changed). Statuses only. */
+export async function countProfilesToCheck(tenantId: string): Promise<number> {
+  return platformPrisma().healthProfile.count({ where: { tenantId, status: { in: ["SUBMITTED", "CHANGED"] }, student: { status: "ACTIVE" } } });
 }

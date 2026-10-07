@@ -67,16 +67,21 @@ export default async function ClinicPage({ searchParams }: { searchParams: Searc
         title={t("clinic.title")}
         description={viewer.role === "SCHOOL_NURSE" ? t("clinic.nurseDescription") : data.canOpen ? t("clinic.adminDescriptionOpen") : t("clinic.adminDescription")}
         actions={
-          viewer.role === "SCHOOL_ADMIN" ? (
-            <div className="flex flex-wrap gap-2">
-              <Link href="/clinic/access-log" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
-                {t("accessLog.link")}
-              </Link>
-              <Link href="/settings/health" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
-                {t("settings.link")}
-              </Link>
-            </div>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            <Link href="/health-alerts" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
+              {t("alerts.pageTitle")}
+            </Link>
+            {viewer.role === "SCHOOL_ADMIN" ? (
+              <>
+                <Link href="/clinic/access-log" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {t("accessLog.link")}
+                </Link>
+                <Link href="/settings/health" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {t("settings.link")}
+                </Link>
+              </>
+            ) : null}
+          </div>
         }
       />
 

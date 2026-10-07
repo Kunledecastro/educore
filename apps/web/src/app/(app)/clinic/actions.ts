@@ -16,6 +16,7 @@ import {
   verifyProfile,
   withdrawConsent,
 } from "@/lib/health/data";
+import { deleteAlert, saveAlert } from "@/lib/health/alerts";
 import { runAction, UserFacingError } from "@/lib/run-action";
 import { idSchema } from "@/lib/validation/common";
 
@@ -145,5 +146,34 @@ export async function saveHealthSettingsAction(input: unknown) {
     }
     revalidatePath("/settings/health");
     refresh();
+  });
+}
+
+/** The nurse adds or edits a pupil's alert (Phase 7.1). */
+export async function saveAlertAction(studentId: unknown, alertId: unknown, input: unknown) {
+  const id = alertId == null ? null : idSchema.parse(alertId);
+  return runAction(["healthAlert", id ? "update" : "create"], async (ctx) => {
+    const sid = idSchema.parse(studentId);
+    const { viewer, meta } = await context(ctx);
+    try {
+      await saveAlert(viewer, sid, id, input, meta);
+    } catch (err) {
+      return friendly(err);
+    }
+    refresh(sid);
+    revalidatePath("/health-alerts");
+  });
+}
+
+export async function deleteAlertAction(alertId: unknown) {
+  return runAction(["healthAlert", "delete"], async (ctx) => {
+    const { viewer, meta } = await context(ctx);
+    try {
+      await deleteAlert(viewer, idSchema.parse(alertId), meta);
+    } catch (err) {
+      return friendly(err);
+    }
+    refresh();
+    revalidatePath("/health-alerts");
   });
 }

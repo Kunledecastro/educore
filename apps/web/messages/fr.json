@@ -48,7 +48,8 @@
     "unread": "non lus",
     "assignments": "Devoirs",
     "clinic": "Infirmerie",
-    "health": "Santé"
+    "health": "Santé",
+    "healthAlerts": "Alertes santé"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -111,7 +112,12 @@
     "collectedOf": "{paid} sur {billed}",
     "notBilledYet": "Pas encore facturé",
     "overdueFees": "En retard",
-    "collectedToday": "Encaissé aujourd'hui"
+    "collectedToday": "Encaissé aujourd'hui",
+    "healthAlerts": "Alertes santé",
+    "healthAlertsCount": "{count, plural, =0 {Aucun élève avec une alerte santé} one {# élève avec une alerte santé} other {# élèves avec une alerte santé}}",
+    "healthAlertsSevere": "{count} grave(s)",
+    "healthToCheck": "{count, plural, =0 {Aucun profil à vérifier} one {# profil à vérifier} other {# profils à vérifier}}",
+    "healthAlertsLink": "Voir les alertes santé"
   },
   "list": {
     "searchPlaceholder": "Rechercher…",
@@ -3109,7 +3115,9 @@
       "what": "Quoi",
       "actions": {
         "VIEW_RECORD": "A ouvert le dossier",
-        "VIEW_DOCUMENT": "A ouvert un document"
+        "VIEW_DOCUMENT": "A ouvert un document",
+        "VIEW_CARD": "A imprimé une fiche d'urgence (alertes et contacts)",
+        "VIEW_CARD_FULL": "A imprimé une fiche d'urgence complète"
       }
     },
     "settings": {
@@ -3141,7 +3149,66 @@
       "tooLarge": "Ce fichier est trop volumineux.",
       "uploadMissing": "Le fichier n'est pas arrivé. Veuillez réessayer.",
       "storageOff": "Le stockage de fichiers n'est pas encore configuré.",
-      "tooManyFiles": "Ce dossier contient déjà le nombre maximal de documents."
+      "tooManyFiles": "Ce dossier contient déjà le nombre maximal de documents.",
+      "tooManyAlerts": "Cet élève a déjà le nombre maximal d'alertes."
+    },
+    "alerts": {
+      "title": "Alertes santé",
+      "add": "Ajouter une alerte",
+      "explain": "Notes courtes de l'infirmier(ère) que les enseignants voient à côté du nom de cet élève.",
+      "explainNurse": "Écrivez ce qu'un enseignant doit faire, en une ligne (ex. « Allergie grave à l'arachide — EpiPen dans la poche avant du sac ; appeler l'infirmerie et le parent »). Les enseignants de la classe de l'élève voient ces alertes, jamais le reste du dossier.",
+      "none": "Aucune alerte.",
+      "categoryLabel": "Type",
+      "severityLabel": "Gravité",
+      "textLabel": "Ce qu'un enseignant doit savoir ou faire",
+      "textPlaceholder": "ex. Allergie grave à l'arachide — EpiPen dans le sac ; appeler l'infirmerie et le parent",
+      "textHint": "{left} caractères restants. Limitez-vous à ce dont l'enseignant a besoin pour agir.",
+      "save": "Enregistrer l'alerte",
+      "cancel": "Annuler",
+      "saved": "Alerte enregistrée",
+      "editNamed": "Modifier l'alerte {category}",
+      "removeNamed": "Retirer l'alerte {category}",
+      "removeTitle": "Retirer cette alerte ?",
+      "removeDescription": "Les enseignants ne la verront plus.",
+      "remove": "Retirer",
+      "removed": "Alerte retirée",
+      "category": {
+        "ALLERGY": "Allergie",
+        "ASTHMA": "Asthme",
+        "SICKLE_CELL": "Drépanocytose",
+        "DIABETES": "Diabète",
+        "EPILEPSY": "Épilepsie",
+        "OTHER": "Autre"
+      },
+      "severity": {
+        "MILD": "Légère",
+        "MODERATE": "Modérée",
+        "SEVERE": "Grave"
+      },
+      "severeShort": "Grave",
+      "badgeLabel": "Alertes santé pour {name} ({count})",
+      "badgeTitle": "Alertes santé — {name}",
+      "badgeFooter": "De l'infirmerie scolaire. En cas d'urgence, appelez d'abord l'infirmerie.",
+      "pageTitle": "Alertes santé",
+      "pageTeacher": "Les élèves de vos classes ayant une alerte santé de l'infirmerie, et les fiches d'urgence pour les sorties.",
+      "pageClinic": "Tous les élèves ayant une alerte santé, par classe, et les fiches d'urgence par classe pour les sorties.",
+      "pageFooter": "Les alertes sont confidentielles. Utilisez-les pour la sécurité des élèves ; ne les partagez pas avec d'autres élèves et ne les affichez pas.",
+      "noClasses": "Aucune classe à afficher pour l'instant.",
+      "noneAnywhere": "Aucun élève de ces classes n'a d'alerte santé.",
+      "noneInClass": "Aucun élève avec une alerte dans cette classe.",
+      "pupilCount": "{count, plural, =0 {aucune alerte} one {# élève} other {# élèves}}"
+    },
+    "card": {
+      "title": "Fiche d'urgence",
+      "download": "Fiche d'urgence (PDF)",
+      "downloadClass": "Fiches d'urgence de la classe (PDF)",
+      "alerts": "Alertes santé",
+      "noAlerts": "Aucune alerte santé.",
+      "confidentialBasic": "Confidentiel — uniquement pour la sécurité de cet élève. Alertes et contacts seulement ; l'infirmerie détient le dossier complet.",
+      "confidentialFull": "Informations de santé confidentielles — à conserver en sécurité et à détruire après usage.",
+      "generated": "Imprimé le {when}",
+      "page": "Page {page} sur {pages}",
+      "empty": "Aucun élève à afficher."
     }
   }
 }

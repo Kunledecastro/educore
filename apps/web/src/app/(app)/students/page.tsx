@@ -24,6 +24,8 @@ import { STUDENT_STATUSES } from "@/lib/validation/people";
 import { classOptionsFor } from "./load-classes";
 import { STATUS_BADGE } from "./status-badge";
 import { NewStudentButton, StudentRowActions } from "./student-ui";
+import { HealthAlertBadge } from "@/components/health/alert-badge";
+import { alertBadges } from "@/lib/health/page";
 
 export default async function StudentsPage({ searchParams }: { searchParams: SearchParamsInput & { year?: string | string[] } }) {
   const ctx = await requirePermission("student", "read", { page: true });
@@ -81,6 +83,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
     }),
   ]);
 
+  const alerts = await alertBadges(ctx, students.map((s) => s.id));
   const title = user.role === Role.PARENT ? t("titleParent") : user.role === Role.TEACHER ? t("titleTeacher") : t("title");
   const description =
     user.role === Role.PARENT ? t("descriptionParent") : user.role === Role.TEACHER ? t("descriptionTeacher") : t("description");
@@ -178,6 +181,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
                           <Link href={`/students/${s.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
                             {s.lastName}, {s.firstName}
                           </Link>
+                          <HealthAlertBadge name={name} alerts={alerts[s.id]} />
                           <div className="font-mono text-xs text-muted-foreground sm:hidden">{s.admissionNo}</div>
                         </TableCell>
                         <TableCell className="hidden font-mono text-xs sm:table-cell">{s.admissionNo}</TableCell>

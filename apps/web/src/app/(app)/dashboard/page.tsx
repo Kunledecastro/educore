@@ -20,6 +20,9 @@ import type { AnyRole } from "@/lib/assignments/rules";
 import { getEntitlements } from "@/lib/entitlements-server";
 import { unreadThreadCount, viewerFor } from "@/lib/messaging/data";
 import type { MessagingRole } from "@/lib/messaging/rules";
+import Link from "next/link";
+import { alertCounts } from "@/lib/health/alerts";
+import { countProfilesToCheck, healthConfigured, healthViewer } from "@/lib/health/data";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -147,6 +150,19 @@ export default async function DashboardPage() {
     }
   }
 
+  // Health alerts (7.1): teachers for their classes, the nurse for the school.
+  let health: { pupils: number; severe: number; toCheck: number | null } | null = null;
+  if ((user.role === Role.TEACHER || user.role === Role.SCHOOL_NURSE) && user.tenantId && healthConfigured() && (await getEntitlements(user.tenantId)).modules.has("health")) {
+    try {
+      const hv = await healthViewer(user.tenantId, { id: user.id, role: user.role });
+      const counts = await alertCounts(hv);
+      const toCheck = user.role === Role.SCHOOL_NURSE ? await countProfilesToCheck(user.tenantId) : null;
+      health = { ...counts, toCheck };
+    } catch (err) {
+      console.error("[dashboard] health summary unavailable", err);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -166,6 +182,23 @@ export default async function DashboardPage() {
           <StatCard key={s.label} label={s.label} value={s.value} />
         ))}
       </div>
+      {health ? (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>{t("healthAlerts")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>
+              {t("healthAlertsCount", { count: health.pupils })}
+              {health.severe ? <span className="font-semibold text-destructive"> · {t("healthAlertsSevere", { count: health.severe })}</span> : null}
+            </p>
+            {health.toCheck !== null ? <p>{t("healthToCheck", { count: health.toCheck })}</p> : null}
+            <Link href="/health-alerts" className="inline-block underline underline-offset-2">
+              {t("healthAlertsLink")}
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
       {homework ? <AssignmentsDueCard viewer={homework} settings={settings} /> : null}
       {viewer ? <AnnouncementsCard viewer={viewer} settings={settings} /> : null}
     </div>

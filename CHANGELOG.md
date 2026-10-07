@@ -10,6 +10,36 @@ role; parents fill in their child's health profile with consent and the
 nurse checks it; school admins see statuses only unless the school allows
 full access; profiles, alerts, emergency card and a clinic visit log.
 
+### Added (7.1 — alerts and emergency cards)
+
+- **Health alerts**: the nurse writes short, action-focused alerts on a
+  pupil's record (type: allergy, asthma, sickle cell, diabetes, epilepsy,
+  other; severity: mild, moderate, severe), e.g. "Severe peanut allergy —
+  EpiPen in bag; call nurse and parent". Up to 10 per pupil.
+- **Teachers** see a small alert marker next to the pupil's name in the
+  register, the gradebook and their class list (tap to read), a new
+  **Health alerts** page for their classes, and a dashboard card. Alerts
+  only — never the medical record.
+- **Emergency cards (PDF)**: per pupil (from the health record) or per class
+  for trips (Health alerts page). Teachers get alerts and emergency
+  contacts; the nurse — and parents for their own child, and admins if the
+  school allows full records — also get blood group, genotype, allergies,
+  regular medicines and the medicines the clinic may give. Every card
+  printed is in the health access log.
+- **Nurse dashboard**: pupils with alerts and profiles waiting for a check.
+- Withdrawing consent now also removes the pupil's alerts.
+
+### Security (7.1)
+
+- New `health_alerts` table (migration `0030_health_alerts`): alert text
+  encrypted with `HEALTH_DATA_KEY`; RLS on with no policies and revoked from
+  the app's database role, like the other health tables. The audit log
+  records type and severity only.
+- Proven by `lib/health/alerts.integration.test.ts` (13 tests): only the
+  nurse writes; teachers only see their own sections; parents only their
+  child; bursars, support sign-ins and other schools see nothing; cards at
+  the right level and logged.
+
 ### Added (7.0 — health profiles)
 
 - **School nurse** role (People → Staff, or `nurse` in the staff import).

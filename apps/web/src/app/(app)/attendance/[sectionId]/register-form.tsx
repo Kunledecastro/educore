@@ -9,9 +9,10 @@ import { Button } from "@educore/ui/button";
 import { Input } from "@educore/ui/input";
 import { cn } from "@educore/ui/utils";
 import { ATTENDANCE_STATUSES, summarizeAttendance, type AttendanceStatusValue } from "@/lib/attendance";
+import { HealthAlertBadge, type BadgeAlert } from "@/components/health/alert-badge";
 import { saveRegister } from "../actions";
 
-type StudentRow = { id: string; name: string; admissionNo: string; status: AttendanceStatusValue | null; remark: string };
+type StudentRow = { id: string; name: string; admissionNo: string; alerts?: BadgeAlert[]; status: AttendanceStatusValue | null; remark: string };
 
 const STATUS_STYLE: Record<AttendanceStatusValue, string> = {
   PRESENT: "peer-checked:bg-success peer-checked:text-success-foreground peer-checked:border-success",
@@ -107,8 +108,9 @@ export function RegisterForm({
           return (
             <li key={s.id} className="flex flex-col gap-2 p-3 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0">
-                <p className="font-medium" id={`${groupId}-label`}>
-                  {s.name}
+                <p className="font-medium">
+                  <span id={`${groupId}-label`}>{s.name}</span>
+                  <HealthAlertBadge name={s.name} alerts={s.alerts} />
                 </p>
                 <p className="text-xs text-muted-foreground">{s.admissionNo}</p>
               </div>

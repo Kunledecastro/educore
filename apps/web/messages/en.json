@@ -48,7 +48,8 @@
     "unread": "unread",
     "assignments": "Assignments",
     "clinic": "Clinic",
-    "health": "Health"
+    "health": "Health",
+    "healthAlerts": "Health alerts"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -111,7 +112,12 @@
     "collectedOf": "{paid} of {billed}",
     "notBilledYet": "Not billed yet",
     "overdueFees": "Overdue",
-    "collectedToday": "Collected today"
+    "collectedToday": "Collected today",
+    "healthAlerts": "Health alerts",
+    "healthAlertsCount": "{count, plural, =0 {No pupils with health alerts} one {# pupil with a health alert} other {# pupils with health alerts}}",
+    "healthAlertsSevere": "{count} severe",
+    "healthToCheck": "{count, plural, =0 {No profiles waiting for your check} one {# profile waiting for your check} other {# profiles waiting for your check}}",
+    "healthAlertsLink": "See health alerts"
   },
   "list": {
     "searchPlaceholder": "Search…",
@@ -3109,7 +3115,9 @@
       "what": "What",
       "actions": {
         "VIEW_RECORD": "Opened the record",
-        "VIEW_DOCUMENT": "Opened a document"
+        "VIEW_DOCUMENT": "Opened a document",
+        "VIEW_CARD": "Printed an emergency card (alerts and contacts)",
+        "VIEW_CARD_FULL": "Printed a full emergency card"
       }
     },
     "settings": {
@@ -3141,7 +3149,66 @@
       "tooLarge": "That file is too large.",
       "uploadMissing": "The upload didn't arrive. Please try again.",
       "storageOff": "File storage isn't set up yet.",
-      "tooManyFiles": "This record already has the maximum number of documents."
+      "tooManyFiles": "This record already has the maximum number of documents.",
+      "tooManyAlerts": "This pupil already has the maximum number of alerts."
+    },
+    "alerts": {
+      "title": "Health alerts",
+      "add": "Add an alert",
+      "explain": "Short notes from the school nurse that teachers see next to this pupil's name.",
+      "explainNurse": "Write what a teacher needs to do, in one line (e.g. \"Severe peanut allergy — EpiPen in front pocket of bag; call nurse and parent\"). Teachers of this pupil's class see these; never the rest of the record.",
+      "none": "No alerts.",
+      "categoryLabel": "Type",
+      "severityLabel": "Severity",
+      "textLabel": "What a teacher should know or do",
+      "textPlaceholder": "e.g. Severe peanut allergy — EpiPen in bag; call nurse and parent",
+      "textHint": "{left} characters left. Keep it to what a teacher needs to act.",
+      "save": "Save alert",
+      "cancel": "Cancel",
+      "saved": "Alert saved",
+      "editNamed": "Edit {category} alert",
+      "removeNamed": "Remove {category} alert",
+      "removeTitle": "Remove this alert?",
+      "removeDescription": "Teachers will no longer see it.",
+      "remove": "Remove",
+      "removed": "Alert removed",
+      "category": {
+        "ALLERGY": "Allergy",
+        "ASTHMA": "Asthma",
+        "SICKLE_CELL": "Sickle cell",
+        "DIABETES": "Diabetes",
+        "EPILEPSY": "Epilepsy",
+        "OTHER": "Other"
+      },
+      "severity": {
+        "MILD": "Mild",
+        "MODERATE": "Moderate",
+        "SEVERE": "Severe"
+      },
+      "severeShort": "Severe",
+      "badgeLabel": "Health alerts for {name} ({count})",
+      "badgeTitle": "Health alerts — {name}",
+      "badgeFooter": "From the school nurse. In an emergency, call the nurse first.",
+      "pageTitle": "Health alerts",
+      "pageTeacher": "Pupils in your classes with a health alert from the school nurse, and emergency cards for trips.",
+      "pageClinic": "Every pupil with a health alert, by class, and class emergency cards for trips.",
+      "pageFooter": "Alerts are confidential. Use them to keep pupils safe; don't share them with other pupils or post them on walls.",
+      "noClasses": "No classes to show yet.",
+      "noneAnywhere": "No pupils in these classes have health alerts.",
+      "noneInClass": "No pupils with alerts in this class.",
+      "pupilCount": "{count, plural, =0 {no alerts} one {# pupil} other {# pupils}}"
+    },
+    "card": {
+      "title": "Emergency card",
+      "download": "Emergency card (PDF)",
+      "downloadClass": "Class emergency cards (PDF)",
+      "alerts": "Health alerts",
+      "noAlerts": "No health alerts.",
+      "confidentialBasic": "Confidential — for the safety of this pupil only. Alerts and contacts only; the school nurse holds the full record.",
+      "confidentialFull": "Confidential health information — keep secure and destroy after use.",
+      "generated": "Printed {when}",
+      "page": "Page {page} of {pages}",
+      "empty": "No pupils to show."
     }
   }
 }

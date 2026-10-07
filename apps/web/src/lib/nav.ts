@@ -15,6 +15,7 @@ const MODULE_OF_HREF: Record<string, Module> = {
   "/assignments": "assignments",
   "/clinic": "health",
   "/health": "health",
+  "/health-alerts": "health",
 };
 
 export interface NavItem {
@@ -86,6 +87,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "reportCards", href: "/report-cards", icon: "FileText" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
+      { labelKey: "healthAlerts", href: "/health-alerts", icon: "HeartPulse" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },
     );
@@ -104,6 +106,7 @@ function navItemsForRole(role: Role): NavItem[] {
   if (role === Role.SCHOOL_NURSE) {
     items.push(
       { labelKey: "clinic", href: "/clinic", icon: "HeartPulse" },
+      { labelKey: "healthAlerts", href: "/health-alerts", icon: "HeartPulse" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
     );
   }

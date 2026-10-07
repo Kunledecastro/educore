@@ -12,6 +12,7 @@ import { formatDateTime } from "@/lib/format";
 import { loadGradebook } from "@/lib/gradebook";
 import { requireModule } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
+import { alertBadges } from "@/lib/health/page";
 import { getSettingsForUser } from "@/lib/tenant";
 import { GradebookGrid } from "./gradebook-grid";
 
@@ -30,7 +31,7 @@ export default async function GradebookPage({
     if (err instanceof NotFoundError) notFound();
     throw err;
   });
-  const t = await getTranslations("gradebook");
+  const [t, alerts] = await Promise.all([getTranslations("gradebook"), alertBadges(ctx, book.rows.map((r) => r.student.id))]);
   const label = `${book.section.class.name} ${book.section.name} · ${book.subject.name}`;
   const term = book.range.term;
 
@@ -98,6 +99,7 @@ export default async function GradebookPage({
             id: r.student.id,
             name: `${r.student.lastName}, ${r.student.firstName}`,
             admissionNo: r.student.admissionNo,
+            alerts: alerts[r.student.id],
             scores: r.scores,
           }))}
         />

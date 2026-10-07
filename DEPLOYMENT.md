@@ -133,7 +133,7 @@ data.
   health profiles are encrypted with it and can't be read without it.
 - Until it's set, the Clinic and the parents' Health pages show "Health records
   aren't switched on yet" and nothing health-related is stored.
-- Database: migration `0029_health` (new tables `health_profiles`,
+- Database: migrations `0029_health` and `0030_health_alerts` (new tables `health_alerts` and `health_profiles`,
   `health_documents`, `health_access_log` — platform-only, locked away from the
   app's database role — and `emergency_contacts`, tenant-isolated by RLS).
 - Add a **School nurse** in People → Staff (or import with role `nurse`). The nurse

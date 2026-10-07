@@ -10,10 +10,11 @@ import { Input } from "@educore/ui/input";
 import { cn } from "@educore/ui/utils";
 import type { GradeBandInput } from "@/lib/grading";
 import { gradeForTotal, isValidScore, stats, subjectTotal } from "@/lib/results";
+import { HealthAlertBadge, type BadgeAlert } from "@/components/health/alert-badge";
 import { readScoresFile, saveScores } from "../../actions";
 
 type Component = { id: string; name: string; weight: number; maxScore: number };
-type Row = { id: string; name: string; admissionNo: string; scores: Record<string, number | null> };
+type Row = { id: string; name: string; admissionNo: string; alerts?: BadgeAlert[]; scores: Record<string, number | null> };
 /** Cell text as typed; "" = no score. */
 type Draft = Record<string, Record<string, string>>;
 
@@ -207,6 +208,7 @@ export function GradebookGrid({
                 <tr key={r.id}>
                   <th scope="row" className="sticky left-0 z-10 bg-background px-3 py-1.5 text-left font-normal">
                     <span className="font-medium">{r.name}</span>
+                    <HealthAlertBadge name={r.name} alerts={r.alerts} />
                     <span className="block text-xs text-muted-foreground">{r.admissionNo}</span>
                   </th>
                   {components.map((c, ci) => {

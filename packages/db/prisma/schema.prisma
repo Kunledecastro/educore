@@ -216,6 +216,7 @@ model Tenant {
   healthDocuments       HealthDocument[]
   healthAccessLogs      HealthAccessLog[]
   emergencyContacts     EmergencyContact[]
+  healthAlerts          HealthAlert[]
 
   @@map("tenants")
 }
@@ -408,6 +409,7 @@ model User {
   healthVerified        HealthProfile[]        @relation("HealthVerifiedBy")
   healthDocuments       HealthDocument[]       @relation("HealthDocumentUploadedBy")
   healthAccess          HealthAccessLog[]      @relation("HealthAccessActor")
+  healthAlertsWritten   HealthAlert[]          @relation("HealthAlertUpdatedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -606,6 +608,7 @@ model Student {
   healthProfile         HealthProfile?
   healthDocuments       HealthDocument[]
   emergencyContacts     EmergencyContact[]
+  healthAlerts          HealthAlert[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -1718,4 +1721,26 @@ model EmergencyContact {
 
   @@index([tenantId, studentId])
   @@map("emergency_contacts")
+}
+
+/// Phase 7.1: short, action-focused alerts written by the nurse (what a
+/// teacher needs to act on). The text is encrypted like the profile.
+model HealthAlert {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// ALLERGY | ASTHMA | SICKLE_CELL | DIABETES | EPILEPSY | OTHER
+  category    String
+  /// MILD | MODERATE | SEVERE
+  severity    String
+  textEnc     String
+  updatedById String?
+  updatedBy   User?    @relation("HealthAlertUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([tenantId, studentId])
+  @@map("health_alerts")
 }

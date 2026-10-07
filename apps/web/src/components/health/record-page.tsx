@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, FileDown, Lock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { AlertsSection } from "@/components/health/alerts-section";
 import { HealthNotConfigured } from "@/components/health/not-configured";
 import { RecordPanel } from "@/components/health/record-panel";
 import { formatDateTime } from "@/lib/format";
+import { pupilAlerts } from "@/lib/health/alerts";
 import { HealthError, openRecord } from "@/lib/health/data";
+import { canManageAlerts } from "@/lib/health/rules";
 import { healthPage } from "@/lib/health/page";
 import { objectStore } from "@/lib/storage/object-store";
 import { getSettingsForUser } from "@/lib/tenant";
@@ -42,7 +45,7 @@ export async function HealthRecordPage({ studentId, backHref }: { studentId: str
     if (err instanceof HealthError) notFound();
     throw err;
   }
-  const settings = await getSettingsForUser(viewer.tenantId);
+  const [settings, alerts] = await Promise.all([getSettingsForUser(viewer.tenantId), pupilAlerts(viewer, record.student.id)]);
   const when = (d: Date) => formatDateTime(d, settings);
   const p = record.profile;
   const mode = viewer.role === "PARENT" ? "parent" : viewer.role === "SCHOOL_NURSE" ? "nurse" : "admin";
@@ -51,7 +54,13 @@ export async function HealthRecordPage({ studentId, backHref }: { studentId: str
     <div className="space-y-6">
       {back}
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">{record.student.name}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-2xl font-semibold">{record.student.name}</h1>
+          <a href={`/api/health/card?student=${record.student.id}`} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
+            <FileDown className="h-4 w-4" aria-hidden="true" />
+            {t("card.download")}
+          </a>
+        </div>
         <p className="text-sm text-muted-foreground">
           {record.student.admissionNo}
           {record.student.className ? ` · ${record.student.className}` : ""}
@@ -61,6 +70,7 @@ export async function HealthRecordPage({ studentId, backHref }: { studentId: str
           {mode === "parent" ? t("privacyParent") : t("privacyStaff")}
         </p>
       </header>
+      <AlertsSection studentId={record.student.id} alerts={alerts.map((a) => ({ id: a.id, category: a.category, severity: a.severity, text: a.text }))} canManage={canManageAlerts(viewer)} />
       <RecordPanel
         studentId={record.student.id}
         mode={mode}

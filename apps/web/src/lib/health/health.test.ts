@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_PROFILE, emergencyContactsSchema, healthProfileSchema, isEmptyProfile } from "./profile";
-import { canEditRecord, canOpenRecord, canSeeList, canVerify, statusAfterSave, type HealthActor } from "./rules";
+import { canEditRecord, canManageAlerts, canOpenRecord, canSeeAlerts, canSeeList, canVerify, cardLevel, sortAlerts, statusAfterSave, type AlertCategory, type AlertSeverity, type HealthActor } from "./rules";
 
 const actor = (role: string, over: Partial<HealthActor> = {}): HealthActor => ({ role, childIds: [], adminFullAccess: false, impersonating: false, ...over });
 
@@ -61,5 +61,49 @@ describe("profile format", () => {
     expect(emergencyContactsSchema.safeParse([{ name: "Mrs Okafor", phone: "+234 803 000 0000" }]).success).toBe(true);
     expect(emergencyContactsSchema.safeParse([{ name: "Mrs Okafor", phone: "call me" }]).success).toBe(false);
     expect(emergencyContactsSchema.safeParse(Array.from({ length: 6 }, () => ({ name: "x", phone: "08030000000" }))).success).toBe(false);
+  });
+});
+
+describe("alerts and emergency cards (7.1)", () => {
+  const ada = { id: "ada", sectionId: "jss1a" };
+  const bo = { id: "bo", sectionId: "jss1b" };
+  const nosection = { id: "cy", sectionId: null };
+
+  it("teachers see alerts only for sections they teach; never the full record", () => {
+    const teacher = actor("TEACHER", { sectionIds: ["jss1a"] });
+    expect(canSeeAlerts(teacher, ada)).toBe(true);
+    expect(canSeeAlerts(teacher, bo)).toBe(false);
+    expect(canSeeAlerts(teacher, nosection)).toBe(false);
+    expect(cardLevel(teacher, ada)).toBe("basic");
+    expect(cardLevel(teacher, bo)).toBeNull();
+  });
+
+  it("the nurse and admins see every pupil's alerts; parents their own child; the card level follows record access", () => {
+    expect(canSeeAlerts(actor("SCHOOL_NURSE"), bo)).toBe(true);
+    expect(cardLevel(actor("SCHOOL_NURSE"), bo)).toBe("full");
+    expect(cardLevel(actor("SCHOOL_ADMIN"), bo)).toBe("basic");
+    expect(cardLevel(actor("SCHOOL_ADMIN", { adminFullAccess: true }), bo)).toBe("full");
+    const parent = actor("PARENT", { childIds: ["ada"] });
+    expect(cardLevel(parent, ada)).toBe("full");
+    expect(cardLevel(parent, bo)).toBeNull();
+  });
+
+  it("bursars, pupils, the platform team and support sign-ins see no alerts; only the nurse writes them", () => {
+    for (const r of ["ACCOUNTANT", "STUDENT", "PLATFORM_ADMIN"]) expect(canSeeAlerts(actor(r, { sectionIds: ["jss1a"], childIds: ["ada"] }), ada)).toBe(false);
+    expect(canSeeAlerts(actor("SCHOOL_ADMIN", { impersonating: true }), ada)).toBe(false);
+    expect(canManageAlerts(actor("SCHOOL_NURSE"))).toBe(true);
+    for (const r of ["SCHOOL_ADMIN", "TEACHER", "PARENT"]) expect(canManageAlerts(actor(r))).toBe(false);
+    expect(canManageAlerts(actor("SCHOOL_NURSE", { impersonating: true }))).toBe(false);
+  });
+
+  it("most serious alerts come first", () => {
+    const input: { category: AlertCategory; severity: AlertSeverity }[] = [
+      { category: "OTHER", severity: "MILD" },
+      { category: "ASTHMA", severity: "SEVERE" },
+      { category: "ALLERGY", severity: "SEVERE" },
+      { category: "DIABETES", severity: "MODERATE" },
+    ];
+    const sorted = sortAlerts(input);
+    expect(sorted.map((a) => `${a.severity}:${a.category}`)).toEqual(["SEVERE:ALLERGY", "SEVERE:ASTHMA", "MODERATE:DIABETES", "MILD:OTHER"]);
   });
 });

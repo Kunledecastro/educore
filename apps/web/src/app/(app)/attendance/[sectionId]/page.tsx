@@ -12,6 +12,7 @@ import { attendanceEditDays, loadRegisterSection, sectionStudents } from "@/lib/
 import { formatDateOnly, formatDateTime, todayInTimeZone } from "@/lib/format";
 import { requireModule } from "@/lib/guard";
 import { NotFoundError } from "@/lib/run-action";
+import { alertBadges } from "@/lib/health/page";
 import { getSettingsForUser } from "@/lib/tenant";
 import { toDateInput } from "@/lib/validation/common";
 import { DatePicker } from "../date-picker";
@@ -42,6 +43,7 @@ export default async function RegisterPage({
     : ({ allowed: false, reason: "outsideYear" } as const);
 
   const students = await sectionStudents(db, section.id);
+  const alerts = await alertBadges(ctx, students.map((s) => s.id));
   const records = await db.attendance.findMany({
     where: { date, studentId: { in: students.map((s) => s.id) } },
     select: { studentId: true, status: true, remarks: true, updatedAt: true, markedBy: { select: { name: true } } },
@@ -89,6 +91,7 @@ export default async function RegisterPage({
               id: s.id,
               name: `${s.lastName}, ${s.firstName}`,
               admissionNo: s.admissionNo,
+              alerts: alerts[s.id],
               status: r?.status ?? null,
               remark: r?.remarks ?? "",
             };
