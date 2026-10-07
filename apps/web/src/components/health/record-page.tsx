@@ -8,7 +8,10 @@ import { RecordPanel } from "@/components/health/record-panel";
 import { formatDateTime } from "@/lib/format";
 import { pupilAlerts } from "@/lib/health/alerts";
 import { HealthError, openRecord } from "@/lib/health/data";
-import { canManageAlerts } from "@/lib/health/rules";
+import { canManageAlerts, canRecordVisit } from "@/lib/health/rules";
+import { visitFmt } from "@/lib/health/visit-format";
+import { listVisits } from "@/lib/health/visits";
+import { VisitList } from "@/components/health/visit-list";
 import { healthPage } from "@/lib/health/page";
 import { objectStore } from "@/lib/storage/object-store";
 import { getSettingsForUser } from "@/lib/tenant";
@@ -45,7 +48,7 @@ export async function HealthRecordPage({ studentId, backHref }: { studentId: str
     if (err instanceof HealthError) notFound();
     throw err;
   }
-  const [settings, alerts] = await Promise.all([getSettingsForUser(viewer.tenantId), pupilAlerts(viewer, record.student.id)]);
+  const [settings, alerts, visits] = await Promise.all([getSettingsForUser(viewer.tenantId), pupilAlerts(viewer, record.student.id), listVisits(viewer, { studentId: record.student.id, take: 30 })]);
   const when = (d: Date) => formatDateTime(d, settings);
   const p = record.profile;
   const mode = viewer.role === "PARENT" ? "parent" : viewer.role === "SCHOOL_NURSE" ? "nurse" : "admin";
@@ -93,6 +96,19 @@ export async function HealthRecordPage({ studentId, backHref }: { studentId: str
             : null
         }
       />
+      <section className="space-y-3 rounded-lg border bg-card p-5" aria-labelledby="clinic-visits">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="clinic-visits" className="font-semibold">
+            {t("visits.recordTitle")}
+          </h2>
+          {canRecordVisit(viewer) ? (
+            <Link href={`/clinic/visits/new?student=${record.student.id}`} className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm hover:bg-muted">
+              {t("visits.record")}
+            </Link>
+          ) : null}
+        </div>
+        <VisitList visits={visits} fmt={visitFmt(settings)} editable={canRecordVisit(viewer)} />
+      </section>
     </div>
   );
 }

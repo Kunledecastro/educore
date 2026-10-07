@@ -104,3 +104,58 @@ export function sortAlerts<T extends { severity: AlertSeverity; category: AlertC
   const rank = (s: AlertSeverity) => ALERT_SEVERITIES.length - 1 - ALERT_SEVERITIES.indexOf(s);
   return [...alerts].sort((x, y) => rank(x.severity) - rank(y.severity) || ALERT_CATEGORIES.indexOf(x.category) - ALERT_CATEGORIES.indexOf(y.category));
 }
+
+// ---------------------------------------------------------------------------
+// Clinic visits (7.2)
+// ---------------------------------------------------------------------------
+
+export const COMPLAINTS = ["HEADACHE", "FEVER", "STOMACH_ACHE", "VOMITING", "DIARRHOEA", "COLD_FLU", "INJURY", "ASTHMA", "SICKLE_CELL_CRISIS", "ALLERGIC_REACTION", "MENSTRUAL", "TOOTHACHE", "EYE", "SKIN", "DIZZINESS", "OTHER"] as const;
+export const OUTCOMES = ["BACK_TO_CLASS", "RESTED", "SENT_HOME", "REFERRED"] as const;
+export type Complaint = (typeof COMPLAINTS)[number];
+export type Outcome = (typeof OUTCOMES)[number];
+
+/** Only the nurse records visits. */
+export function canRecordVisit(a: HealthActor): boolean {
+  return !a.impersonating && a.role === "SCHOOL_NURSE";
+}
+
+/**
+ * What of a visit someone sees. "full": the complaint, care and medicines
+ * (the nurse; parents for their own child; admins if the school allows full
+ * records). "summary": only when the pupil was in the clinic and the outcome
+ * (teachers of the pupil's class; other admins) — never why.
+ */
+export type VisitView = "full" | "summary" | null;
+export function visitView(a: HealthActor, pupil: { id: string; sectionId: string | null }): VisitView {
+  if (canOpenRecord(a, pupil.id)) return "full";
+  if (a.impersonating) return null;
+  if (a.role === "SCHOOL_ADMIN") return "summary";
+  if (a.role === "TEACHER") return canSeeAlerts(a, pupil) ? "summary" : null;
+  return null;
+}
+
+/** "Sent home" and "referred to hospital" are urgent for parents. */
+export function isUrgent(outcome: string | null | undefined): boolean {
+  return outcome === "SENT_HOME" || outcome === "REFERRED";
+}
+
+/**
+ * Medicine may only be given if the parent permitted it in advance (or it's
+ * the pupil's own medicine that the profile says is taken at school).
+ * Returns what isn't allowed (empty = fine).
+ */
+export function disallowedMedicines(given: { code: string; name?: string }[], allowed: { permitted: readonly string[]; ownAtSchool: readonly string[] }): string[] {
+  const own = allowed.ownAtSchool.map((n) => n.trim().toLowerCase());
+  return given
+    .filter((g) => (g.code === "own" ? !own.includes((g.name ?? "").trim().toLowerCase()) : !allowed.permitted.includes(g.code)))
+    .map((g) => (g.code === "own" ? g.name ?? "own" : g.code));
+}
+
+/** Health data of a pupil who has left is deleted this long after they left (never sooner than 30 days, in case they return). */
+export const MIN_RETENTION_DAYS = 30;
+export function retentionDue(leftAt: Date, years: number, now: Date): boolean {
+  const due = new Date(leftAt);
+  due.setUTCFullYear(due.getUTCFullYear() + Math.max(0, Math.floor(years)));
+  const floor = new Date(leftAt.getTime() + MIN_RETENTION_DAYS * 86_400_000);
+  return now >= (due > floor ? due : floor);
+}

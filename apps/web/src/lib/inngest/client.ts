@@ -18,6 +18,10 @@ type Events = {
   "educore/message.sent": { data: { tenantId: string; threadId: string; messageId: string; recipientIds: string[] } };
   /** A teacher returned work for corrections or released marks; tell the families (if a channel is set up). Sent only by our server. */
   "educore/assignment.feedback": { data: { tenantId: string; assignmentId: string; studentIds: string[]; kind: "returned" | "released" } };
+  /** The nurse recorded a clinic visit (or set an urgent outcome); tell the parents by email if a channel is set up. Sent only by our server. */
+  "educore/clinic.visit": { data: { tenantId: string; visitId: string } };
+  /** Run the health retention clean-up now (it also runs nightly). */
+  "educore/health.retention": { data: Record<string, never> };
 };
 
 export const inngest = new Inngest({ id: "educore", schemas: new EventSchemas().fromRecord<Events>() });

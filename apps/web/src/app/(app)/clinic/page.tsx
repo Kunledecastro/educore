@@ -68,6 +68,9 @@ export default async function ClinicPage({ searchParams }: { searchParams: Searc
         description={viewer.role === "SCHOOL_NURSE" ? t("clinic.nurseDescription") : data.canOpen ? t("clinic.adminDescriptionOpen") : t("clinic.adminDescription")}
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link href="/clinic/visits" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
+              {t("visits.title")}
+            </Link>
             <Link href="/health-alerts" className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-muted">
               {t("alerts.pageTitle")}
             </Link>

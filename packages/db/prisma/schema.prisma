@@ -217,6 +217,7 @@ model Tenant {
   healthAccessLogs      HealthAccessLog[]
   emergencyContacts     EmergencyContact[]
   healthAlerts          HealthAlert[]
+  clinicVisits          ClinicVisit[]
 
   @@map("tenants")
 }
@@ -410,6 +411,7 @@ model User {
   healthDocuments       HealthDocument[]       @relation("HealthDocumentUploadedBy")
   healthAccess          HealthAccessLog[]      @relation("HealthAccessActor")
   healthAlertsWritten   HealthAlert[]          @relation("HealthAlertUpdatedBy")
+  clinicVisitsRecorded  ClinicVisit[]          @relation("ClinicVisitRecordedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -590,6 +592,8 @@ model Student {
   academicYear      AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
   admissionDate     DateTime      @default(now())
   status            StudentStatus @default(ACTIVE)
+  /// Phase 7.2: when the pupil stopped being active (set by a database trigger; health retention counts from here).
+  leftAt            DateTime?
   photoUrl          String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -609,6 +613,7 @@ model Student {
   healthDocuments       HealthDocument[]
   emergencyContacts     EmergencyContact[]
   healthAlerts          HealthAlert[]
+  clinicVisits          ClinicVisit[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -1743,4 +1748,30 @@ model HealthAlert {
 
   @@index([tenantId, studentId])
   @@map("health_alerts")
+}
+
+/// Phase 7.2: one clinic visit. Report fields are plain; clinical details
+/// are encrypted. Anonymised (studentId and details cleared) after the
+/// school's retention period.
+model ClinicVisit {
+  id           String    @id @default(cuid())
+  tenantId     String
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId    String?
+  student      Student?  @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  classLabel   String    @default("")
+  arrivedAt    DateTime
+  leftAt       DateTime?
+  complaint    String
+  outcome      String?
+  medicines    String[]  @default([])
+  detailEnc    String?
+  recordedById String?
+  recordedBy   User?     @relation("ClinicVisitRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+
+  @@index([tenantId, arrivedAt])
+  @@index([tenantId, studentId])
+  @@map("clinic_visits")
 }

@@ -3,12 +3,48 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## Phase 7 — Student health and clinic (in progress)
+## Phase 7 — Student health and clinic (2026-10-07)
 
 Spec: `claude/phase-7-spec.md` (confirmed 2026-10-06): a new School Nurse
 role; parents fill in their child's health profile with consent and the
 nurse checks it; school admins see statuses only unless the school allows
 full access; profiles, alerts, emergency card and a clinic visit log.
+
+### Added (7.2 — clinic visit log)
+
+- **Clinic visits** (Clinic → Clinic visits, also a menu item for the
+  nurse): find a pupil, record the visit — arrival and leaving time,
+  reason (common list + details), temperature, observations, care given,
+  medicine given, outcome (back to class / rested / sent home / referred to
+  hospital) and a note for the parent. The pupil's alerts and emergency
+  contacts are shown while recording. Visits can be corrected later (e.g.
+  add the time they left).
+- **Medicine only with permission**: only medicines the parent ticked in the
+  health profile, or the pupil's own medicine taken at school, can be
+  given; anything else is refused with "call the parent".
+- **Parents** see their child's visits in full on Health (last 30 days) and
+  on their dashboard (last 7 days, urgent first), the moment they're saved.
+  "Sent home" and "referred" are marked urgent. Email goes out once Resend
+  is set up — it names the child and says there was a visit, never why.
+- **Teachers** see only "in the clinic 10:05–10:40, back to class" for
+  pupils in their classes (dashboard). Admins see the same summary unless
+  the school allows full records.
+- **Reports** (nurse and admins): visits per day and class, reasons,
+  outcomes and medicines used — counts only, no names — with Excel/CSV
+  download.
+- **Retention**: a nightly job deletes the health profile, documents,
+  alerts and emergency contacts of pupils who left longer ago than the
+  school's setting (never sooner than 30 days), and anonymises their
+  clinic visits so report counts are kept. Pupils now have a "left on"
+  date, kept by the database whenever their status changes.
+
+### Security (7.2)
+
+- New `clinic_visits` table (migration `0031_clinic_visits`): clinical
+  details encrypted; RLS on with no policies and revoked from the app's
+  database role. The audit log records that a visit was recorded or
+  changed, never the reason.
+- Proven by `lib/health/visits.integration.test.ts` (11 tests).
 
 ### Added (7.1 — alerts and emergency cards)
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_PROFILE, emergencyContactsSchema, healthProfileSchema, isEmptyProfile } from "./profile";
-import { canEditRecord, canManageAlerts, canOpenRecord, canSeeAlerts, canSeeList, canVerify, cardLevel, sortAlerts, statusAfterSave, type AlertCategory, type AlertSeverity, type HealthActor } from "./rules";
+import { canEditRecord, canManageAlerts, canRecordVisit, disallowedMedicines, isUrgent, retentionDue, visitView, canOpenRecord, canSeeAlerts, canSeeList, canVerify, cardLevel, sortAlerts, statusAfterSave, type AlertCategory, type AlertSeverity, type HealthActor } from "./rules";
 
 const actor = (role: string, over: Partial<HealthActor> = {}): HealthActor => ({ role, childIds: [], adminFullAccess: false, impersonating: false, ...over });
 
@@ -105,5 +105,44 @@ describe("alerts and emergency cards (7.1)", () => {
     ];
     const sorted = sortAlerts(input);
     expect(sorted.map((a) => `${a.severity}:${a.category}`)).toEqual(["SEVERE:ALLERGY", "SEVERE:ASTHMA", "MODERATE:DIABETES", "MILD:OTHER"]);
+  });
+});
+
+describe("clinic visits (7.2)", () => {
+  const ada = { id: "ada", sectionId: "jss1a" };
+  it("only the nurse records; parents and the nurse see full visits; teachers and admins a summary", () => {
+    expect(canRecordVisit(actor("SCHOOL_NURSE"))).toBe(true);
+    for (const r of ["SCHOOL_ADMIN", "TEACHER", "PARENT", "ACCOUNTANT"]) expect(canRecordVisit(actor(r))).toBe(false);
+    expect(visitView(actor("SCHOOL_NURSE"), ada)).toBe("full");
+    expect(visitView(actor("PARENT", { childIds: ["ada"] }), ada)).toBe("full");
+    expect(visitView(actor("PARENT", { childIds: ["bo"] }), ada)).toBeNull();
+    expect(visitView(actor("TEACHER", { sectionIds: ["jss1a"] }), ada)).toBe("summary");
+    expect(visitView(actor("TEACHER", { sectionIds: ["jss1b"] }), ada)).toBeNull();
+    expect(visitView(actor("SCHOOL_ADMIN"), ada)).toBe("summary");
+    expect(visitView(actor("SCHOOL_ADMIN", { adminFullAccess: true }), ada)).toBe("full");
+    expect(visitView(actor("SCHOOL_ADMIN", { impersonating: true }), ada)).toBeNull();
+    expect(visitView(actor("ACCOUNTANT"), ada)).toBeNull();
+  });
+
+  it("medicine must be permitted by the parent, or the pupil's own at-school medicine", () => {
+    const allowed = { permitted: ["paracetamol"], ownAtSchool: ["Salbutamol inhaler"] };
+    expect(disallowedMedicines([{ code: "paracetamol" }, { code: "own", name: " salbutamol INHALER " }], allowed)).toEqual([]);
+    expect(disallowedMedicines([{ code: "ibuprofen" }, { code: "own", name: "Ventolin" }], allowed)).toEqual(["ibuprofen", "Ventolin"]);
+    expect(disallowedMedicines([{ code: "paracetamol" }], { permitted: [], ownAtSchool: [] })).toEqual(["paracetamol"]);
+  });
+
+  it("sent home and referred are urgent", () => {
+    expect(isUrgent("SENT_HOME")).toBe(true);
+    expect(isUrgent("REFERRED")).toBe(true);
+    expect(isUrgent("BACK_TO_CLASS")).toBe(false);
+    expect(isUrgent(null)).toBe(false);
+  });
+
+  it("retention: the school's years after leaving, never sooner than 30 days", () => {
+    const left = new Date("2026-01-10T00:00:00Z");
+    expect(retentionDue(left, 1, new Date("2027-01-09T00:00:00Z"))).toBe(false);
+    expect(retentionDue(left, 1, new Date("2027-01-10T00:00:00Z"))).toBe(true);
+    expect(retentionDue(left, 0, new Date("2026-02-08T00:00:00Z"))).toBe(false);
+    expect(retentionDue(left, 0, new Date("2026-02-09T00:00:00Z"))).toBe(true);
   });
 });

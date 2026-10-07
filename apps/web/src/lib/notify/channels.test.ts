@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { newMessageEmail, ResendEmailChannel } from "./channels";
+import { clinicVisitEmail, newMessageEmail, ResendEmailChannel } from "./channels";
 
 describe("email channel", () => {
   it("is off until both RESEND_API_KEY and EMAIL_FROM are set, and then sends nothing", async () => {
@@ -36,5 +36,15 @@ describe("workFeedbackEmail", () => {
     const r = workFeedbackEmail({ recipient: { email: "a@x.ng", name: "" }, pupilName: "Ada", title: "Fractions", schoolName: "G", kind: "released", link: "l" });
     expect(r.subject).toBe("Marks ready: Fractions (Ada) — G");
     expect(r.text).toContain("Hello there");
+  });
+});
+
+describe("clinic visit email (7.2)", () => {
+  it("names the child and the visit — never the complaint or care", () => {
+    const n = clinicVisitEmail({ recipient: { email: "m@x.ng", name: "Mrs Okafor" }, pupilName: "Ada Okafor", schoolName: "Greenfield", urgent: false, link: "https://x/health/1" });
+    expect(n.subject).toBe("Ada Okafor visited the school clinic — Greenfield");
+    const u = clinicVisitEmail({ recipient: { email: "m@x.ng", name: "" }, pupilName: "Ada Okafor", schoolName: "Greenfield", urgent: true, link: "https://x/health/1" });
+    expect(u.subject).toMatch(/^Please read: Ada Okafor visited the school clinic/);
+    expect(`${n.subject} ${n.text} ${u.subject} ${u.text}`).not.toMatch(/fever|headache|sent home|hospital|medicine|paracetamol/i);
   });
 });

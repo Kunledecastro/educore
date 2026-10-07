@@ -17,6 +17,8 @@ import {
   withdrawConsent,
 } from "@/lib/health/data";
 import { deleteAlert, saveAlert } from "@/lib/health/alerts";
+import { saveVisit, visitOptions, VisitError } from "@/lib/health/visits";
+import { inngest } from "@/lib/inngest/client";
 import { runAction, UserFacingError } from "@/lib/run-action";
 import { idSchema } from "@/lib/validation/common";
 
@@ -175,5 +177,39 @@ export async function deleteAlertAction(alertId: unknown) {
     }
     refresh();
     revalidatePath("/health-alerts");
+  });
+}
+
+/** The visit form: the pupil's permitted medicines, own medicines and contacts (nurse only, Phase 7.2). */
+export async function visitOptionsAction(studentId: unknown) {
+  return runAction(["clinicVisit", "create"], async (ctx) => {
+    const { viewer } = await context(ctx);
+    try {
+      return await visitOptions(viewer, idSchema.parse(studentId));
+    } catch (err) {
+      return friendly(err);
+    }
+  });
+}
+
+/** The nurse records or corrects a clinic visit; parents are told (Phase 7.2). */
+export async function saveVisitAction(studentId: unknown, visitId: unknown, input: unknown) {
+  const vid = visitId == null || visitId === "" ? null : idSchema.parse(visitId);
+  return runAction(["clinicVisit", vid ? "update" : "create"], async (ctx) => {
+    const sid = idSchema.parse(studentId);
+    const { viewer, meta } = await context(ctx);
+    let result: { id: string; notify: boolean };
+    try {
+      result = await saveVisit(viewer, { studentId: sid, visitId: vid }, input, meta);
+    } catch (err) {
+      if (err instanceof VisitError) throw new UserFacingError((await getTranslations("health.visits.errors"))("medicineNotPermitted", { items: err.items.join(", ") }));
+      return friendly(err);
+    }
+    if (result.notify) {
+      await inngest.send({ name: "educore/clinic.visit", data: { tenantId: viewer.tenantId, visitId: result.id } }).catch((err) => console.error("[clinic] could not queue the parent notification", err));
+    }
+    refresh(sid);
+    revalidatePath("/clinic/visits");
+    return { id: result.id };
   });
 }

@@ -23,6 +23,10 @@ import type { MessagingRole } from "@/lib/messaging/rules";
 import Link from "next/link";
 import { alertCounts } from "@/lib/health/alerts";
 import { countProfilesToCheck, healthConfigured, healthViewer } from "@/lib/health/data";
+import { listVisits, type VisitRow } from "@/lib/health/visits";
+import { nowLocal, visitFmt } from "@/lib/health/visit-format";
+import { zonedLocalToUtc } from "@/lib/zoned-time";
+import { VisitList } from "@/components/health/visit-list";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -151,13 +155,28 @@ export default async function DashboardPage() {
   }
 
   // Health alerts (7.1): teachers for their classes, the nurse for the school.
+  // Clinic visits (7.2): parents see their children's last 7 days (urgent first);
+  // teachers see who from their classes was in the clinic today (when and the
+  // outcome only); the nurse sees today's count.
   let health: { pupils: number; severe: number; toCheck: number | null } | null = null;
-  if ((user.role === Role.TEACHER || user.role === Role.SCHOOL_NURSE) && user.tenantId && healthConfigured() && (await getEntitlements(user.tenantId)).modules.has("health")) {
+  let visits: { title: string; rows: VisitRow[]; showPupil: boolean } | null = null;
+  const healthOn = Boolean(user.tenantId) && healthConfigured() && user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("health") : false;
+  if (healthOn && user.tenantId && (user.role === Role.TEACHER || user.role === Role.SCHOOL_NURSE || user.role === Role.PARENT)) {
     try {
       const hv = await healthViewer(user.tenantId, { id: user.id, role: user.role });
-      const counts = await alertCounts(hv);
-      const toCheck = user.role === Role.SCHOOL_NURSE ? await countProfilesToCheck(user.tenantId) : null;
-      health = { ...counts, toCheck };
+      if (user.role !== Role.PARENT) {
+        const counts = await alertCounts(hv);
+        const toCheck = user.role === Role.SCHOOL_NURSE ? await countProfilesToCheck(user.tenantId) : null;
+        health = { ...counts, toCheck };
+      }
+      const startOfToday = zonedLocalToUtc(`${nowLocal(settings.timezone).slice(0, 10)}T00:00`, settings.timezone) ?? new Date(Date.now() - 86_400_000);
+      if (user.role === Role.PARENT) {
+        const rows = await listVisits(hv, { from: new Date(Date.now() - 7 * 86_400_000), take: 10 });
+        if (rows.length) visits = { title: t("clinicVisitsRecent"), rows: [...rows].sort((a, b) => Number(b.urgent) - Number(a.urgent)), showPupil: true };
+      } else {
+        const rows = await listVisits(hv, { from: startOfToday, take: 50 });
+        if (rows.length || user.role === Role.SCHOOL_NURSE) visits = { title: t("clinicVisitsToday", { count: rows.length }), rows: user.role === Role.SCHOOL_NURSE ? rows.slice(0, 5) : rows, showPupil: true };
+      }
     } catch (err) {
       console.error("[dashboard] health summary unavailable", err);
     }
@@ -195,6 +214,19 @@ export default async function DashboardPage() {
             {health.toCheck !== null ? <p>{t("healthToCheck", { count: health.toCheck })}</p> : null}
             <Link href="/health-alerts" className="inline-block underline underline-offset-2">
               {t("healthAlertsLink")}
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
+      {visits ? (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>{visits.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <VisitList visits={visits.rows} fmt={visitFmt(settings)} showPupil={visits.showPupil} empty={t("clinicVisitsNone")} />
+            <Link href={user.role === Role.PARENT ? "/health" : user.role === Role.SCHOOL_NURSE ? "/clinic/visits" : "/health-alerts"} className="inline-block text-sm underline underline-offset-2">
+              {user.role === Role.PARENT ? t("clinicVisitsParentLink") : user.role === Role.SCHOOL_NURSE ? t("clinicVisitsNurseLink") : t("healthAlertsLink")}
             </Link>
           </CardContent>
         </Card>

@@ -7,6 +7,10 @@ import { EmptyState } from "@educore/ui/empty-state";
 import { HealthNotConfigured } from "@/components/health/not-configured";
 import { PageHeader } from "@/components/page-header";
 import { familyHealthList } from "@/lib/health/data";
+import { VisitList } from "@/components/health/visit-list";
+import { visitFmt } from "@/lib/health/visit-format";
+import { listVisits } from "@/lib/health/visits";
+import { getSettingsForUser } from "@/lib/tenant";
 import { healthPage } from "@/lib/health/page";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +23,8 @@ export default async function FamilyHealthPage() {
   if (viewer.role !== "PARENT") redirect("/clinic");
   const t = await getTranslations("health");
   const children = configured ? await familyHealthList(viewer) : [];
+  const since = new Date(Date.now() - 30 * 86_400_000);
+  const [visits, settings] = await Promise.all([configured ? listVisits(viewer, { from: since, take: 50 }) : Promise.resolve([]), getSettingsForUser(viewer.tenantId)]);
   return (
     <div className="space-y-6">
       <PageHeader title={t("family.title")} description={t("family.description")} />
@@ -41,6 +47,14 @@ export default async function FamilyHealthPage() {
           ))}
         </ul>
       )}
+      {configured && children.length ? (
+        <section className="space-y-3" aria-labelledby="family-visits">
+          <h2 id="family-visits" className="font-semibold">
+            {t("visits.familyTitle")}
+          </h2>
+          <VisitList visits={visits} fmt={visitFmt(settings)} showPupil empty={t("visits.familyNone")} />
+        </section>
+      ) : null}
       <p className="text-xs text-muted-foreground">{t("family.whoSees")}</p>
     </div>
   );

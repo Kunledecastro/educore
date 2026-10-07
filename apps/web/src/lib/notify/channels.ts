@@ -81,3 +81,16 @@ export function passwordResetEmail(input: { recipient: { email: string; name: st
     link: input.link,
   };
 }
+
+/**
+ * "Your child visited the school clinic" (Phase 7.2). Never says why or what
+ * was done — only that there was a visit, and whether it needs attention.
+ * Exported for tests.
+ */
+export function clinicVisitEmail(input: { recipient: { email: string; name: string }; pupilName: string; schoolName: string; urgent: boolean; link: string }): OutgoingNotification {
+  const subject = input.urgent ? `Please read: ${input.pupilName} visited the school clinic — ${input.schoolName}` : `${input.pupilName} visited the school clinic — ${input.schoolName}`;
+  const body = input.urgent
+    ? `${input.pupilName} visited the school clinic today and the school would like you to read the clinic's note as soon as you can. If the school needs you to come in, they will also call you.`
+    : `${input.pupilName} visited the school clinic today. You can see what happened on EduCore.`;
+  return { to: input.recipient, subject, text: `Hello ${input.recipient.name || "there"},\n\n${body}\n\nSign in to see it:`, link: input.link };
+}
