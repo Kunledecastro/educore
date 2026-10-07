@@ -29,6 +29,8 @@ enum Role {
   STUDENT
   PARENT
   ACCOUNTANT
+  /// Phase 7: the school clinic.
+  SCHOOL_NURSE
 }
 
 enum Plan {
@@ -210,6 +212,10 @@ model Tenant {
   assignmentSubmissions AssignmentSubmission[]
   assignmentFiles       AssignmentFile[]
   pendingUploads        PendingUpload[]
+  healthProfiles        HealthProfile[]
+  healthDocuments       HealthDocument[]
+  healthAccessLogs      HealthAccessLog[]
+  emergencyContacts     EmergencyContact[]
 
   @@map("tenants")
 }
@@ -397,6 +403,11 @@ model User {
   pendingUploads        PendingUpload[]
   security              UserSecurity?
   passwordResets        PasswordResetToken[]
+  healthConsents        HealthProfile[]        @relation("HealthConsentBy")
+  healthSubmitted       HealthProfile[]        @relation("HealthSubmittedBy")
+  healthVerified        HealthProfile[]        @relation("HealthVerifiedBy")
+  healthDocuments       HealthDocument[]       @relation("HealthDocumentUploadedBy")
+  healthAccess          HealthAccessLog[]      @relation("HealthAccessActor")
 
   @@index([tenantId])
   @@map("users")
@@ -592,6 +603,9 @@ model Student {
   payments              Payment[]
   onlinePayments        OnlinePayment[]
   assignmentSubmissions AssignmentSubmission[]
+  healthProfile         HealthProfile?
+  healthDocuments       HealthDocument[]
+  emergencyContacts     EmergencyContact[]
 
   @@unique([tenantId, admissionNo])
   @@index([tenantId])
@@ -1619,4 +1633,89 @@ model PasswordResetToken {
 
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+/// Phase 7.0: a pupil's health profile. Medical details encrypted (dataEnc); app role has no access.
+model HealthProfile {
+  id             String    @id @default(cuid())
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId      String    @unique
+  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  dataEnc        String
+  /// SUBMITTED (by a parent, awaiting the nurse) | VERIFIED | CHANGED (by a parent since the check)
+  status         String
+  consentVersion String
+  consentAt      DateTime
+  consentById    String?
+  consentBy      User?     @relation("HealthConsentBy", fields: [consentById], references: [id], onDelete: SetNull)
+  /// ONLINE (parent ticked it) | PAPER (nurse recorded a signed form)
+  consentSource  String
+  submittedById  String?
+  submittedBy    User?     @relation("HealthSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
+  submittedAt    DateTime?
+  verifiedById   String?
+  verifiedBy     User?     @relation("HealthVerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
+  verifiedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  @@index([tenantId])
+  @@map("health_profiles")
+}
+
+/// Phase 7.0: doctor's letters, immunisation cards (private storage, health folder).
+model HealthDocument {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  storageKey   String   @unique
+  fileName     String
+  contentType  String
+  sizeBytes    Int
+  uploadedById String?
+  uploadedBy   User?    @relation("HealthDocumentUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@index([tenantId, studentId])
+  @@map("health_documents")
+}
+
+/// Phase 7.0: who opened whose health record (append-only).
+model HealthAccessLog {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation("HealthAccessActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole String
+  studentId String
+  action    String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, studentId])
+  @@map("health_access_log")
+}
+
+/// Phase 7.0: who to call (not health data; kept without consent).
+model EmergencyContact {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name         String
+  relationship String   @default("")
+  phone        String
+  altPhone     String?
+  priority     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@index([tenantId, studentId])
+  @@map("emergency_contacts")
 }

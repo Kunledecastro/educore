@@ -7,7 +7,8 @@
 
 export type AnyRole = "PLATFORM_ADMIN" | "SCHOOL_ADMIN" | "ACCOUNTANT" | "TEACHER" | "PARENT" | "STUDENT";
 
-const ALWAYS: ReadonlySet<string> = new Set(["PLATFORM_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT"]);
+// Phase 7: the school nurse holds pupils' health records, so 2FA is required too.
+const ALWAYS: ReadonlySet<string> = new Set(["PLATFORM_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT", "SCHOOL_NURSE"]);
 
 export interface SchoolRule {
   requireTeacher2fa: boolean;

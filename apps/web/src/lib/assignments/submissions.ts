@@ -349,7 +349,12 @@ export async function cleanAbandonedUploads(store: ObjectStore = objectStore, no
   const stale = await db.pendingUpload.findMany({ where: { createdAt: { lt: new Date(now.getTime() - 24 * 3600_000) } }, orderBy: { createdAt: "asc" }, take: batch, select: { id: true, storageKey: true } });
   if (stale.length === 0) return 0;
   // Never delete an object that did get attached (belt and braces).
-  const attached = new Set((await db.assignmentFile.findMany({ where: { storageKey: { in: stale.map((s) => s.storageKey) } }, select: { storageKey: true } })).map((f) => f.storageKey));
+  const keys = stale.map((s) => s.storageKey);
+  const [files, docs] = await Promise.all([
+    db.assignmentFile.findMany({ where: { storageKey: { in: keys } }, select: { storageKey: true } }),
+    db.healthDocument.findMany({ where: { storageKey: { in: keys } }, select: { storageKey: true } }), // Phase 7
+  ]);
+  const attached = new Set([...files, ...docs].map((f) => f.storageKey));
   const orphans = stale.filter((s) => !attached.has(s.storageKey)).map((s) => s.storageKey);
   if (orphans.length) await store.remove(orphans);
   await db.pendingUpload.deleteMany({ where: { id: { in: stale.map((s) => s.id) } } });

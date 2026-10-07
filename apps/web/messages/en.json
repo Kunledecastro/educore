@@ -46,7 +46,9 @@
     "plan": "Plan & billing",
     "platformPlans": "Plans",
     "unread": "unread",
-    "assignments": "Assignments"
+    "assignments": "Assignments",
+    "clinic": "Clinic",
+    "health": "Health"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -352,7 +354,8 @@
     "TEACHER": "Teacher",
     "STUDENT": "Student",
     "PARENT": "Parent",
-    "ACCOUNTANT": "Accountant"
+    "ACCOUNTANT": "Accountant",
+    "SCHOOL_NURSE": "School nurse"
   },
   "people": {
     "errors": {
@@ -762,7 +765,8 @@
       "scores": "Score components",
       "options": "Options",
       "branding": "Branding",
-      "security": "Security"
+      "security": "Security",
+      "health": "Health"
     },
     "terms": {
       "noYearTitle": "Create an academic year first",
@@ -1999,7 +2003,8 @@
       "fees": "Fees and payments",
       "onlinePayments": "Online payment by parents",
       "messaging": "Announcements and messages",
-      "assignments": "Assignments and homework"
+      "assignments": "Assignments and homework",
+      "health": "Student health and clinic"
     },
     "banner": {
       "trial": "Free trial: {days, plural, =0 {ends today} one {# day left} other {# days left}}.",
@@ -2930,5 +2935,213 @@
     "doneBody": "Your password has been changed and you've been signed out everywhere. Sign in with your new password.",
     "signIn": "Sign in",
     "signedOutNote": "Changing your password signs you out on every device. If you use two-factor sign-in, you'll still need your code."
+  },
+  "health": {
+    "back": "Back",
+    "edit": "Edit",
+    "verify": "Mark as checked",
+    "verifyTitle": "Mark this profile as checked?",
+    "verifyDescription": "Confirm you have reviewed this profile with the family or the paper form. Parents' later changes will flag it for you again.",
+    "verified": "Profile marked as checked",
+    "verifiedBy": "Checked by {name} on {date}",
+    "saved": "Health profile saved",
+    "savedVerified": "Health profile saved and marked as checked",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "markVerified": "Mark as checked when I save",
+    "noProfile": "No health profile yet. Fill it in below.",
+    "noProfileAdmin": "The family hasn't filled in a health profile yet.",
+    "privacyParent": "Only you, the school nurse and (if your school allows it) the school admins can see this. Each opening is logged.",
+    "privacyStaff": "Confidential. Your opening of this record has been logged.",
+    "status": {
+      "none": "Not started",
+      "SUBMITTED": "Waiting for check",
+      "VERIFIED": "Checked",
+      "CHANGED": "Changed since check"
+    },
+    "consent": {
+      "parent": "I am this child's parent or guardian. I agree to the school keeping this health information so the clinic can care for my child, as described in the school's privacy notice. I can withdraw this at any time.",
+      "paper": "I have received a signed consent form from the parent or guardian for this information.",
+      "recordedOnline": "Consent given online by {name} on {date}",
+      "recordedPaper": "Paper consent form recorded by {name} on {date}"
+    },
+    "profile": {
+      "title": "Health profile",
+      "guidance": "Only include what the clinic needs to keep your child safe at school. Leave anything you're not sure of blank.",
+      "bloodGroup": "Blood group",
+      "genotype": "Genotype",
+      "unknown": "Not known",
+      "allergies": "Allergies",
+      "addAllergy": "Add an allergy",
+      "allergyName": "Allergy {n}",
+      "allergyPlaceholder": "e.g. Peanuts",
+      "reaction": "Reaction",
+      "severityLabel": "Severity",
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      },
+      "conditions": "Medical conditions",
+      "addCondition": "Add a condition",
+      "conditionName": "Condition {n}",
+      "conditionPlaceholder": "e.g. Asthma",
+      "conditionNotes": "What the clinic should know or do",
+      "medications": "Regular medication",
+      "addMedication": "Add a medicine",
+      "medicationName": "Medicine {n}",
+      "medicationPlaceholder": "e.g. Salbutamol inhaler",
+      "dose": "Dose",
+      "schedule": "When taken",
+      "atSchool": "Taken at school",
+      "atSchoolQuestion": "Needed during school hours",
+      "immunisations": "Immunisations",
+      "addImmunisation": "Add an immunisation",
+      "immunisationName": "Immunisation {n}",
+      "immunisationPlaceholder": "e.g. Yellow fever",
+      "date": "Date",
+      "doctor": "Family doctor",
+      "doctorName": "Doctor's name",
+      "hospital": "Hospital or clinic",
+      "phone": "Phone",
+      "hmo": "Health insurance (HMO)",
+      "hmoProvider": "Provider",
+      "hmoNumber": "Member number",
+      "permitted": "Medicines the clinic may give",
+      "permittedHint": "Tick any the school nurse may give your child if needed. The nurse will still record each dose.",
+      "permittedNone": "None — call the parent first",
+      "medicines": {
+        "paracetamol": "Paracetamol",
+        "ibuprofen": "Ibuprofen",
+        "antacid": "Antacid",
+        "ors": "Oral rehydration salts (ORS)",
+        "antihistamine": "Antihistamine",
+        "antiseptic": "Antiseptic cream"
+      },
+      "notes": "Anything else",
+      "none": "None recorded",
+      "remove": "Remove"
+    },
+    "contacts": {
+      "title": "Emergency contacts",
+      "edit": "Edit",
+      "explain": "Who the school calls first if your child is unwell or hurt, in order.",
+      "saved": "Emergency contacts saved",
+      "listLabel": "Contacts (in the order to call)",
+      "add": "Add a contact",
+      "name": "Contact {n} name",
+      "namePlaceholder": "Full name",
+      "relationship": "Relationship",
+      "phone": "Phone",
+      "altPhone": "Other phone",
+      "save": "Save contacts",
+      "cancel": "Cancel",
+      "none": "No emergency contacts yet."
+    },
+    "documents": {
+      "title": "Documents",
+      "explain": "Doctor's letters, care plans or immunisation cards. PDF, JPG or PNG.",
+      "none": "No documents.",
+      "add": "Add a document",
+      "uploading": "Uploading…",
+      "badType": "Please choose a PDF, JPG or PNG file.",
+      "uploadFailed": "The upload didn't finish. Please try again.",
+      "added": "Document added",
+      "removeNamed": "Remove {name}",
+      "removeTitle": "Remove this document?",
+      "removeDescription": "{name} will be deleted permanently.",
+      "remove": "Remove",
+      "removed": "Document removed",
+      "storageOff": "File storage isn't set up yet, so documents can't be added."
+    },
+    "withdraw": {
+      "title": "Withdraw consent",
+      "explainParent": "This deletes your child's health profile and documents from the school's system. Emergency contacts are kept.",
+      "explainNurse": "Use this when the family withdraws consent. The profile and documents are deleted; emergency contacts are kept.",
+      "button": "Withdraw consent and delete",
+      "confirmTitle": "Delete this health profile?",
+      "confirmDescription": "The profile and all documents will be deleted permanently. This can't be undone.",
+      "done": "Health profile deleted"
+    },
+    "clinic": {
+      "title": "Clinic",
+      "nurseDescription": "Every pupil's health profile status. Open a pupil to see or update their record.",
+      "adminDescription": "Health profile status for each pupil. Full records are only open to the school nurse unless you change this in Settings → Health.",
+      "adminDescriptionOpen": "Health profile status for each pupil. Your school lets admins open full records; each opening is logged.",
+      "summary": {
+        "pupils": "Pupils",
+        "none": "Not started",
+        "SUBMITTED": "Waiting for check",
+        "CHANGED": "Changed",
+        "VERIFIED": "Checked"
+      },
+      "search": "Search by name or admission no.",
+      "class": "Class",
+      "allClasses": "All classes",
+      "filter": "Filter by status",
+      "all": "All",
+      "empty": "No pupils match.",
+      "pupil": "Pupil",
+      "status": "Profile",
+      "contacts": "Emergency contacts",
+      "updated": "Last updated",
+      "yes": "Yes",
+      "no": "None"
+    },
+    "family": {
+      "title": "Health",
+      "description": "Keep the school clinic informed about your children's health.",
+      "emptyTitle": "No children linked",
+      "emptyDescription": "Ask the school to link your children to your account.",
+      "notStarted": "Not filled in",
+      "whoSees": "Only the school nurse (and school admins, if the school allows it) can open these records. Teachers only see alerts they need for safety."
+    },
+    "accessLog": {
+      "link": "Access log",
+      "back": "Back to the clinic",
+      "title": "Health record access log",
+      "description": "Every time someone opened a pupil's health record or document. The content is never shown here.",
+      "empty": "No records have been opened yet.",
+      "when": "When",
+      "who": "Who",
+      "pupil": "Pupil",
+      "what": "What",
+      "actions": {
+        "VIEW_RECORD": "Opened the record",
+        "VIEW_DOCUMENT": "Opened a document"
+      }
+    },
+    "settings": {
+      "link": "Health settings",
+      "title": "Health records",
+      "explain": "Health records are confidential. By default only the school nurse and each pupil's own parents can open them.",
+      "adminFullAccess": "School admins can open full health records",
+      "adminFullAccessHint": "Off: admins see each pupil's profile status only. On: admins can open full records too. Every opening is logged either way.",
+      "retention": "Keep records after a pupil leaves",
+      "retentionNow": "Delete when they leave",
+      "retentionYears": "{count, plural, one {# year} other {# years}}",
+      "retentionHint": "Records of pupils who have left are deleted automatically after this time.",
+      "impersonating": "Support can't change health settings.",
+      "save": "Save",
+      "saved": "Health settings saved",
+      "accessLogLink": "See who has opened health records"
+    },
+    "notConfigured": {
+      "title": "Health records aren't switched on yet",
+      "body": "The platform's health encryption key hasn't been set. Ask your EduCore administrator to finish setting up health records."
+    },
+    "errors": {
+      "notConfigured": "Health records aren't set up yet.",
+      "notFound": "That record wasn't found.",
+      "notAllowed": "You can't do that.",
+      "consentRequired": "Please tick the consent statement before saving.",
+      "empty": "Fill in at least one detail before saving.",
+      "badFile": "Please choose a PDF, JPG or PNG file.",
+      "tooLarge": "That file is too large.",
+      "uploadMissing": "The upload didn't arrive. Please try again.",
+      "storageOff": "File storage isn't set up yet.",
+      "tooManyFiles": "This record already has the maximum number of documents."
+    }
   }
 }

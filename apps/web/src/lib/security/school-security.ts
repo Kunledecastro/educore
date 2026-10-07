@@ -53,7 +53,7 @@ export interface AccountRow {
 /** Staff and parents of the school with their 2FA status (pupils aren't offered it). Required-but-off first. */
 export async function schoolAccounts(tenantId: string, opts: { q?: string; filter?: "all" | "missing" | "on"; skip?: number; take?: number } = {}) {
   const school = await getSchoolSecurity(tenantId);
-  const requiredRoles: Role[] = school.exempt ? [] : ["SCHOOL_ADMIN", "ACCOUNTANT", ...(school.requireTeacher2fa ? (["TEACHER"] as Role[]) : [])];
+  const requiredRoles: Role[] = school.exempt ? [] : ["SCHOOL_ADMIN", "ACCOUNTANT", "SCHOOL_NURSE", ...(school.requireTeacher2fa ? (["TEACHER"] as Role[]) : [])];
   const where: Prisma.UserWhereInput = {
     tenantId,
     role: { not: "STUDENT" },

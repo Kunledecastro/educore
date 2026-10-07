@@ -32,10 +32,12 @@ const ROLES = {
   "school admin": Role.SCHOOL_ADMIN,
   accountant: Role.ACCOUNTANT,
   bursar: Role.ACCOUNTANT,
+  nurse: Role.SCHOOL_NURSE,
+  "school nurse": Role.SCHOOL_NURSE,
 } as const;
 
 export interface StaffRow {
-  role: typeof Role.TEACHER | typeof Role.SCHOOL_ADMIN | typeof Role.ACCOUNTANT;
+  role: typeof Role.TEACHER | typeof Role.SCHOOL_ADMIN | typeof Role.ACCOUNTANT | typeof Role.SCHOOL_NURSE;
   name: string;
   email: string;
   employeeId: string;

@@ -83,6 +83,14 @@ export const tenantSettingsSchema = z.object({
     .object({ requireTeacher2fa: z.boolean().catch(false).default(false) })
     .catch({ requireTeacher2fa: false })
     .default({ requireTeacher2fa: false }),
+  /** Student health (Phase 7): whether school admins can open full records, and how long records are kept after a pupil leaves. */
+  health: z
+    .object({
+      adminFullAccess: z.boolean().catch(false).default(false),
+      retentionYears: z.number().int().min(0).max(10).catch(1).default(1),
+    })
+    .catch({ adminFullAccess: false, retentionYears: 1 })
+    .default({ adminFullAccess: false, retentionYears: 1 }),
   /** Set by the EduCore platform team only (never by a school): e.g. a shared demo school where 2FA isn't required. */
   platformFlags: z
     .object({ twoFactorExempt: z.boolean().catch(false).default(false) })

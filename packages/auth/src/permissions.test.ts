@@ -3,8 +3,13 @@ import { Role } from "./roles";
 import { can, assertPermission, ForbiddenError, PERMISSION_MATRIX, RESOURCES, studentScopeWhere } from "./permissions";
 
 describe("RBAC permission matrix", () => {
-  it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log", () => {
+  it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log, and nothing on pupils' health data", () => {
+    const HEALTH = new Set(["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings"]);
     for (const resource of RESOURCES) {
+      if (HEALTH.has(resource)) {
+        expect(can(Role.PLATFORM_ADMIN, resource, "read")).toBe(false);
+        continue;
+      }
       expect(can(Role.PLATFORM_ADMIN, resource, "read")).toBe(true);
       if (resource === "auditLog") continue;
       expect(can(Role.PLATFORM_ADMIN, resource, "delete")).toBe(true);
@@ -279,3 +284,38 @@ describe("studentScopeWhere (row-level: which students a user may see)", () => {
   });
 });
 
+
+describe("health (Phase 7): minimum necessary access", () => {
+  it("the nurse works with every health record; nothing academic or financial", () => {
+    for (const a of ["create", "read", "update", "delete"] as const) expect(can(Role.SCHOOL_NURSE, "healthRecord", a)).toBe(true);
+    expect(can(Role.SCHOOL_NURSE, "clinicVisit", "create")).toBe(true);
+    expect(can(Role.SCHOOL_NURSE, "healthAlert", "create")).toBe(true);
+    for (const r of ["mark", "invoice", "payment", "attendance", "message", "user", "auditLog", "healthAccessLog", "healthSettings"] as const) {
+      expect(can(Role.SCHOOL_NURSE, r, "read")).toBe(false);
+    }
+  });
+
+  it("admins: read (full records only with the school's setting, checked in code), the access log and the settings; never edit records", () => {
+    expect(can(Role.SCHOOL_ADMIN, "healthRecord", "read")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "healthRecord", "update")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "clinicVisit", "create")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "healthAccessLog", "read")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "healthSettings", "update")).toBe(true);
+  });
+
+  it("teachers see alerts only; pupils and bursars see nothing; parents their own child's", () => {
+    expect(can(Role.TEACHER, "healthAlert", "read")).toBe(true);
+    for (const r of ["healthRecord", "clinicVisit", "healthAccessLog"] as const) expect(can(Role.TEACHER, r, "read")).toBe(false);
+    for (const role of [Role.STUDENT, Role.ACCOUNTANT]) {
+      for (const r of ["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings"] as const) expect(can(role, r, "read")).toBe(false);
+    }
+    expect(can(Role.PARENT, "healthRecord", "update")).toBe(true);
+    expect(can(Role.PARENT, "healthAlert", "create")).toBe(false);
+    expect(can(Role.PARENT, "clinicVisit", "create")).toBe(false);
+  });
+
+  it("nobody may change or delete the access log; the platform team can't open pupils' health data", () => {
+    for (const role of Object.values(Role)) for (const a of ["update", "delete"] as const) expect(can(role, "healthAccessLog", a)).toBe(false);
+    for (const r of ["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog"] as const) expect(can(Role.PLATFORM_ADMIN, r, "read")).toBe(false);
+  });
+});

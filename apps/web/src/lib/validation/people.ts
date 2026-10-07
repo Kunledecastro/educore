@@ -15,7 +15,7 @@ export const STUDENT_STATUSES = ["ACTIVE", "INACTIVE", "GRADUATED", "WITHDRAWN"]
 export const GENDERS = ["FEMALE", "MALE", "OTHER"] as const;
 export const RELATIONSHIPS = ["MOTHER", "FATHER", "GUARDIAN", "OTHER"] as const;
 /** Staff who log in to the school portal but don't teach. */
-export const STAFF_ROLES = ["SCHOOL_ADMIN", "ACCOUNTANT"] as const;
+export const STAFF_ROLES = ["SCHOOL_ADMIN", "ACCOUNTANT", "SCHOOL_NURSE"] as const;
 
 const emptyToUndefined = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
 

@@ -12,6 +12,7 @@ const TABS = [
   { href: "/settings/options", key: "options" },
   { href: "/settings/branding", key: "branding" },
   { href: "/settings/security", key: "security" },
+  { href: "/settings/health", key: "health" },
 ] as const;
 
 export function SettingsTabs() {

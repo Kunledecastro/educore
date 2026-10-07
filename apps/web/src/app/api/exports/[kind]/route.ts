@@ -139,7 +139,7 @@ const EXPORTS: Record<string, { permission: Resource; build: (ctx: RequestContex
     permission: "staff",
     async build(ctx) {
       const users = await ctx.db.user.findMany({
-        where: { role: { in: [Role.TEACHER, Role.SCHOOL_ADMIN, Role.ACCOUNTANT] } },
+        where: { role: { in: [Role.TEACHER, Role.SCHOOL_ADMIN, Role.ACCOUNTANT, Role.SCHOOL_NURSE] } },
         orderBy: [{ role: "asc" }, { name: "asc" }],
         take: MAX_EXPORT_ROWS,
         include: { teacherProfile: true, staffProfile: true },

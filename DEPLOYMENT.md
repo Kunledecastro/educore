@@ -124,5 +124,22 @@ data.
   `TWO_FACTOR_BREAK_GLASS=1` in Vercel (Production) and redeploy — 2FA stops being
   enforced for everyone. Remove it and redeploy as soon as the fault is fixed.
 
+## Student health records (Phase 7)
+
+- **One required secret**: `HEALTH_DATA_KEY` — generate it yourself with
+  `openssl rand -base64 32` and add it in Vercel → Settings → Environment Variables
+  (mark it **Sensitive**, Production + Preview), then redeploy. Keep a copy in your
+  password manager. **Never change or delete it after the first record is saved**:
+  health profiles are encrypted with it and can't be read without it.
+- Until it's set, the Clinic and the parents' Health pages show "Health records
+  aren't switched on yet" and nothing health-related is stored.
+- Database: migration `0029_health` (new tables `health_profiles`,
+  `health_documents`, `health_access_log` — platform-only, locked away from the
+  app's database role — and `emergency_contacts`, tenant-isolated by RLS).
+- Add a **School nurse** in People → Staff (or import with role `nurse`). The nurse
+  must use two-factor sign-in.
+- Before going live with real families, have the school's consent wording and a
+  data-protection impact assessment (DPIA) reviewed under the NDPA 2023.
+
 None of these block a Phase 0 deploy — they're documented in
 `.env.example` for when the corresponding feature is built.

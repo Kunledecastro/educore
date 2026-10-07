@@ -3,6 +3,51 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 7 — Student health and clinic (in progress)
+
+Spec: `claude/phase-7-spec.md` (confirmed 2026-10-06): a new School Nurse
+role; parents fill in their child's health profile with consent and the
+nurse checks it; school admins see statuses only unless the school allows
+full access; profiles, alerts, emergency card and a clinic visit log.
+
+### Added (7.0 — health profiles)
+
+- **School nurse** role (People → Staff, or `nurse` in the staff import).
+  Sees every pupil's health status in the new **Clinic** page and opens,
+  edits and checks records. Two-factor sign-in is required for nurses.
+- **Health profile** per pupil: blood group, genotype, allergies (with
+  severity), conditions, regular medication (and whether it's needed at
+  school), immunisations, family doctor, HMO, medicines the clinic may give,
+  notes. Plus up to 5 **emergency contacts** in calling order, and
+  **documents** (doctor's letters, care plans; PDF/JPG/PNG, up to 10).
+- **Parents**: new **Health** menu item → each child → fill in or update,
+  ticking the consent statement each time. A parent's change to a checked
+  profile flags it for the nurse again. Parents can withdraw consent, which
+  deletes the profile and documents (emergency contacts are kept).
+- **Nurse**: can record a profile from a signed paper form (recorded as
+  paper consent), and mark profiles as checked.
+- **School admins**: the Clinic list shows statuses only. **Settings →
+  Health** has "School admins can open full health records" (off by
+  default) and how long to keep records after a pupil leaves (the clean-up
+  job arrives in 7.2). **Clinic → Access log** shows who opened which
+  pupil's record or document, and when — never the content.
+- Plans: the new "Student health and clinic" module is in Free trial,
+  Standard and Premium.
+
+### Security
+
+- Health profiles are **encrypted at rest** with a new key,
+  `HEALTH_DATA_KEY` (see DEPLOYMENT.md). Without it, health records stay
+  switched off.
+- Health tables are platform-only (RLS on, no policies, revoked from the
+  app's database role); every read of a record or document is written to
+  the health access log in the same transaction. The general audit log
+  records that a profile changed, never its content.
+- Teachers, bursars, other parents, other schools, the platform admin and
+  support sign-ins ("working as a school admin") can't open health records.
+  Proven by `lib/health/health.integration.test.ts` (13 tests) and the
+  permission-matrix tests.
+
 ## Phase 6 — Account security (2026-10-06)
 
 Spec: `claude/phase-6-spec.md` (confirmed 2026-10-06): authenticator-app

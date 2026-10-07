@@ -146,7 +146,7 @@ export async function updateStaff(userId: unknown, input: unknown) {
       run: async (tx) => {
         const before = await must(
           tx.user.findFirst({
-            where: { id, tenantId: audit.tenantId, role: { in: [Role.SCHOOL_ADMIN, Role.ACCOUNTANT] } },
+            where: { id, tenantId: audit.tenantId, role: { in: [Role.SCHOOL_ADMIN, Role.ACCOUNTANT, Role.SCHOOL_NURSE] } },
             include: { staffProfile: true },
           }),
         );

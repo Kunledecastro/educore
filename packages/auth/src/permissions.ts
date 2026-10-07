@@ -25,6 +25,11 @@ export const RESOURCES = [
   "studentLogin",
   "assignment",
   "submission",
+  "healthRecord",
+  "healthAlert",
+  "clinicVisit",
+  "healthAccessLog",
+  "healthSettings",
   "user",
   "academicYear",
   "classGrade",
@@ -72,6 +77,14 @@ export const PERMISSION_MATRIX: Matrix = {
   [Role.PLATFORM_ADMIN]: {
     ...(Object.fromEntries(RESOURCES.map((r) => [r, ALL])) as Matrix[typeof Role.PLATFORM_ADMIN]),
     auditLog: RE,
+    // Pupils' health data is the school's, not the platform's (Phase 7): no access,
+    // and the access log is append-only for everyone. Support working as a school
+    // admin gets only what that school's admins get.
+    healthRecord: [],
+    healthAlert: [],
+    clinicVisit: [],
+    healthAccessLog: [],
+    healthSettings: [],
   },
 
   [Role.SCHOOL_ADMIN]: {
@@ -105,6 +118,12 @@ export const PERMISSION_MATRIX: Matrix = {
     results: ["read", "update"], // class results; update = publish / unpublish a term's results
     assignment: CRUDE, // Phase 5.1
     submission: ["read", "update", "export"], // view and mark any class's work
+    // Phase 7 (health): the list, status and alerts; opening a full record only if the school's setting allows (checked in code).
+    healthRecord: R,
+    healthAlert: R,
+    clinicVisit: R, // anonymous reports; individual visits only with the setting
+    healthAccessLog: R, // who opened whose record — never the content
+    healthSettings: ["read", "update"],
   },
 
   [Role.ACCOUNTANT]: {
@@ -135,7 +154,19 @@ export const PERMISSION_MATRIX: Matrix = {
     announcement: RW,
     message: RW,
     assignment: [...CRUDE], // own sections/subjects only (checked in code); delete only before any work is handed in
+    healthAlert: R, // alerts only, for pupils in their classes (Phase 7.1) — never the health record
     submission: ["create", "read", "update", "export"], // mark; create = record paper work
+  },
+
+  // Phase 7: the school clinic. Every pupil's health record, alerts and clinic visits; nothing academic or financial.
+  [Role.SCHOOL_NURSE]: {
+    student: R, // the whole school — any pupil can come to the clinic
+    classGrade: R,
+    section: R,
+    announcement: R,
+    healthRecord: ["create", "read", "update", "delete", "export"],
+    healthAlert: CRUDE,
+    clinicVisit: ["create", "read", "update", "export"],
   },
 
   [Role.PARENT]: {
@@ -151,6 +182,9 @@ export const PERMISSION_MATRIX: Matrix = {
     message: RW,
     assignment: R, // their children's
     submission: ["create", "read", "update"], // hand in for their child when the school allows
+    healthRecord: ["create", "read", "update"], // their own children's (Phase 7)
+    healthAlert: R,
+    clinicVisit: R,
   },
 
   [Role.STUDENT]: {
@@ -213,6 +247,7 @@ export function studentScopeWhere(
     case "PLATFORM_ADMIN":
     case "SCHOOL_ADMIN":
     case "ACCOUNTANT":
+    case "SCHOOL_NURSE":
       return {}; // tenant-wide, already scoped by forTenant()
     case "TEACHER":
       return { sectionId: { in: ctx.teacherSectionIds ?? [] } };

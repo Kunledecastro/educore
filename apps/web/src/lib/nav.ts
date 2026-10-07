@@ -13,6 +13,8 @@ const MODULE_OF_HREF: Record<string, Module> = {
   "/announcements": "messaging",
   "/messages": "messaging",
   "/assignments": "assignments",
+  "/clinic": "health",
+  "/health": "health",
 };
 
 export interface NavItem {
@@ -70,6 +72,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
+      { labelKey: "clinic", href: "/clinic", icon: "HeartPulse" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
       { labelKey: "plan", href: "/plan", icon: "BadgeCheck" },
     );
@@ -98,9 +101,17 @@ function navItemsForRole(role: Role): NavItem[] {
     );
   }
 
+  if (role === Role.SCHOOL_NURSE) {
+    items.push(
+      { labelKey: "clinic", href: "/clinic", icon: "HeartPulse" },
+      { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
+    );
+  }
+
   if (role === Role.PARENT) {
     items.push(
       { labelKey: "myChildren", href: "/students", icon: "Users" },
+      { labelKey: "health", href: "/health", icon: "HeartPulse" },
       { labelKey: "assignments", href: "/assignments", icon: "NotebookPen" },
       { labelKey: "timetable", href: "/timetable", icon: "CalendarClock" },
       { labelKey: "fees", href: "/fees", icon: "Wallet" },

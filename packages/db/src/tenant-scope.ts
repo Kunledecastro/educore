@@ -51,6 +51,7 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "AssignmentSubmission",
   "AssignmentFile",
   "PendingUpload",
+  "EmergencyContact",
 ]);
 
 const READ_ACTIONS = new Set([

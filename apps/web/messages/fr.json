@@ -46,7 +46,9 @@
     "plan": "Formule et facturation",
     "platformPlans": "Formules",
     "unread": "non lus",
-    "assignments": "Devoirs"
+    "assignments": "Devoirs",
+    "clinic": "Infirmerie",
+    "health": "Santé"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -352,7 +354,8 @@
     "TEACHER": "Enseignant",
     "STUDENT": "Élève",
     "PARENT": "Parent",
-    "ACCOUNTANT": "Comptable"
+    "ACCOUNTANT": "Comptable",
+    "SCHOOL_NURSE": "Infirmier(ère) scolaire"
   },
   "people": {
     "errors": {
@@ -762,7 +765,8 @@
       "scores": "Composantes de la note",
       "options": "Options",
       "branding": "Identité visuelle",
-      "security": "Sécurité"
+      "security": "Sécurité",
+      "health": "Santé"
     },
     "terms": {
       "noYearTitle": "Créez d'abord une année scolaire",
@@ -1999,7 +2003,8 @@
       "fees": "Frais et paiements",
       "onlinePayments": "Paiement en ligne par les parents",
       "messaging": "Annonces et messages",
-      "assignments": "Devoirs"
+      "assignments": "Devoirs",
+      "health": "Santé des élèves et infirmerie"
     },
     "banner": {
       "trial": "Essai gratuit : {days, plural, =0 {se termine aujourd'hui} one {# jour restant} other {# jours restants}}.",
@@ -2930,5 +2935,213 @@
     "doneBody": "Votre mot de passe a été modifié et vous avez été déconnecté partout. Connectez-vous avec le nouveau mot de passe.",
     "signIn": "Se connecter",
     "signedOutNote": "Changer de mot de passe vous déconnecte sur tous les appareils. Si vous utilisez la double authentification, votre code restera nécessaire."
+  },
+  "health": {
+    "back": "Retour",
+    "edit": "Modifier",
+    "verify": "Marquer comme vérifié",
+    "verifyTitle": "Marquer ce profil comme vérifié ?",
+    "verifyDescription": "Confirmez avoir relu ce profil avec la famille ou le formulaire papier. Les modifications ultérieures des parents vous le signaleront à nouveau.",
+    "verified": "Profil marqué comme vérifié",
+    "verifiedBy": "Vérifié par {name} le {date}",
+    "saved": "Profil de santé enregistré",
+    "savedVerified": "Profil de santé enregistré et marqué comme vérifié",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "cancel": "Annuler",
+    "markVerified": "Marquer comme vérifié à l'enregistrement",
+    "noProfile": "Aucun profil de santé pour l'instant. Remplissez-le ci-dessous.",
+    "noProfileAdmin": "La famille n'a pas encore rempli de profil de santé.",
+    "privacyParent": "Seuls vous, l'infirmier(ère) scolaire et (si l'école l'autorise) les administrateurs peuvent voir ceci. Chaque consultation est enregistrée.",
+    "privacyStaff": "Confidentiel. Votre consultation de ce dossier a été enregistrée.",
+    "status": {
+      "none": "Non commencé",
+      "SUBMITTED": "En attente de vérification",
+      "VERIFIED": "Vérifié",
+      "CHANGED": "Modifié depuis la vérification"
+    },
+    "consent": {
+      "parent": "Je suis le parent ou tuteur de cet enfant. J'accepte que l'école conserve ces informations de santé afin que l'infirmerie puisse prendre soin de mon enfant, comme décrit dans l'avis de confidentialité de l'école. Je peux retirer ce consentement à tout moment.",
+      "paper": "J'ai reçu un formulaire de consentement signé par le parent ou tuteur pour ces informations.",
+      "recordedOnline": "Consentement donné en ligne par {name} le {date}",
+      "recordedPaper": "Formulaire de consentement papier enregistré par {name} le {date}"
+    },
+    "profile": {
+      "title": "Profil de santé",
+      "guidance": "N'indiquez que ce dont l'infirmerie a besoin pour la sécurité de votre enfant à l'école. Laissez vide ce dont vous n'êtes pas sûr.",
+      "bloodGroup": "Groupe sanguin",
+      "genotype": "Génotype",
+      "unknown": "Inconnu",
+      "allergies": "Allergies",
+      "addAllergy": "Ajouter une allergie",
+      "allergyName": "Allergie {n}",
+      "allergyPlaceholder": "ex. Arachides",
+      "reaction": "Réaction",
+      "severityLabel": "Gravité",
+      "severity": {
+        "mild": "Légère",
+        "moderate": "Modérée",
+        "severe": "Grave"
+      },
+      "conditions": "Maladies",
+      "addCondition": "Ajouter une maladie",
+      "conditionName": "Maladie {n}",
+      "conditionPlaceholder": "ex. Asthme",
+      "conditionNotes": "Ce que l'infirmerie doit savoir ou faire",
+      "medications": "Traitement régulier",
+      "addMedication": "Ajouter un médicament",
+      "medicationName": "Médicament {n}",
+      "medicationPlaceholder": "ex. Inhalateur de salbutamol",
+      "dose": "Dose",
+      "schedule": "Quand",
+      "atSchool": "Pris à l'école",
+      "atSchoolQuestion": "Nécessaire pendant les heures de cours",
+      "immunisations": "Vaccinations",
+      "addImmunisation": "Ajouter une vaccination",
+      "immunisationName": "Vaccination {n}",
+      "immunisationPlaceholder": "ex. Fièvre jaune",
+      "date": "Date",
+      "doctor": "Médecin de famille",
+      "doctorName": "Nom du médecin",
+      "hospital": "Hôpital ou clinique",
+      "phone": "Téléphone",
+      "hmo": "Assurance santé (HMO)",
+      "hmoProvider": "Organisme",
+      "hmoNumber": "Numéro d'adhérent",
+      "permitted": "Médicaments que l'infirmerie peut donner",
+      "permittedHint": "Cochez ceux que l'infirmier(ère) peut donner à votre enfant si besoin. Chaque prise sera enregistrée.",
+      "permittedNone": "Aucun — appeler le parent d'abord",
+      "medicines": {
+        "paracetamol": "Paracétamol",
+        "ibuprofen": "Ibuprofène",
+        "antacid": "Antiacide",
+        "ors": "Sels de réhydratation orale (SRO)",
+        "antihistamine": "Antihistaminique",
+        "antiseptic": "Crème antiseptique"
+      },
+      "notes": "Autres informations",
+      "none": "Rien d'indiqué",
+      "remove": "Retirer"
+    },
+    "contacts": {
+      "title": "Contacts d'urgence",
+      "edit": "Modifier",
+      "explain": "Les personnes que l'école appelle en premier si votre enfant est malade ou blessé, dans l'ordre.",
+      "saved": "Contacts d'urgence enregistrés",
+      "listLabel": "Contacts (dans l'ordre d'appel)",
+      "add": "Ajouter un contact",
+      "name": "Nom du contact {n}",
+      "namePlaceholder": "Nom complet",
+      "relationship": "Lien",
+      "phone": "Téléphone",
+      "altPhone": "Autre téléphone",
+      "save": "Enregistrer les contacts",
+      "cancel": "Annuler",
+      "none": "Aucun contact d'urgence pour l'instant."
+    },
+    "documents": {
+      "title": "Documents",
+      "explain": "Lettres du médecin, plans de soins ou carnets de vaccination. PDF, JPG ou PNG.",
+      "none": "Aucun document.",
+      "add": "Ajouter un document",
+      "uploading": "Envoi…",
+      "badType": "Veuillez choisir un fichier PDF, JPG ou PNG.",
+      "uploadFailed": "L'envoi n'a pas abouti. Veuillez réessayer.",
+      "added": "Document ajouté",
+      "removeNamed": "Retirer {name}",
+      "removeTitle": "Retirer ce document ?",
+      "removeDescription": "{name} sera supprimé définitivement.",
+      "remove": "Retirer",
+      "removed": "Document retiré",
+      "storageOff": "Le stockage de fichiers n'est pas encore configuré : impossible d'ajouter des documents."
+    },
+    "withdraw": {
+      "title": "Retirer le consentement",
+      "explainParent": "Cela supprime le profil de santé et les documents de votre enfant du système de l'école. Les contacts d'urgence sont conservés.",
+      "explainNurse": "À utiliser quand la famille retire son consentement. Le profil et les documents sont supprimés ; les contacts d'urgence sont conservés.",
+      "button": "Retirer le consentement et supprimer",
+      "confirmTitle": "Supprimer ce profil de santé ?",
+      "confirmDescription": "Le profil et tous les documents seront supprimés définitivement. Cette action est irréversible.",
+      "done": "Profil de santé supprimé"
+    },
+    "clinic": {
+      "title": "Infirmerie",
+      "nurseDescription": "L'état du profil de santé de chaque élève. Ouvrez un élève pour consulter ou mettre à jour son dossier.",
+      "adminDescription": "L'état du profil de santé de chaque élève. Les dossiers complets ne sont ouverts qu'à l'infirmier(ère), sauf si vous le modifiez dans Paramètres → Santé.",
+      "adminDescriptionOpen": "L'état du profil de santé de chaque élève. Votre école permet aux administrateurs d'ouvrir les dossiers complets ; chaque consultation est enregistrée.",
+      "summary": {
+        "pupils": "Élèves",
+        "none": "Non commencés",
+        "SUBMITTED": "En attente",
+        "CHANGED": "Modifiés",
+        "VERIFIED": "Vérifiés"
+      },
+      "search": "Rechercher par nom ou n° d'inscription",
+      "class": "Classe",
+      "allClasses": "Toutes les classes",
+      "filter": "Filtrer par état",
+      "all": "Tous",
+      "empty": "Aucun élève ne correspond.",
+      "pupil": "Élève",
+      "status": "Profil",
+      "contacts": "Contacts d'urgence",
+      "updated": "Dernière mise à jour",
+      "yes": "Oui",
+      "no": "Aucun"
+    },
+    "family": {
+      "title": "Santé",
+      "description": "Tenez l'infirmerie de l'école informée de la santé de vos enfants.",
+      "emptyTitle": "Aucun enfant lié",
+      "emptyDescription": "Demandez à l'école de lier vos enfants à votre compte.",
+      "notStarted": "Non rempli",
+      "whoSees": "Seul(e) l'infirmier(ère) scolaire (et les administrateurs, si l'école l'autorise) peut ouvrir ces dossiers. Les enseignants ne voient que les alertes utiles à la sécurité."
+    },
+    "accessLog": {
+      "link": "Journal des accès",
+      "back": "Retour à l'infirmerie",
+      "title": "Journal des accès aux dossiers de santé",
+      "description": "Chaque ouverture d'un dossier ou document de santé d'élève. Le contenu n'est jamais affiché ici.",
+      "empty": "Aucun dossier n'a encore été ouvert.",
+      "when": "Quand",
+      "who": "Qui",
+      "pupil": "Élève",
+      "what": "Quoi",
+      "actions": {
+        "VIEW_RECORD": "A ouvert le dossier",
+        "VIEW_DOCUMENT": "A ouvert un document"
+      }
+    },
+    "settings": {
+      "link": "Paramètres santé",
+      "title": "Dossiers de santé",
+      "explain": "Les dossiers de santé sont confidentiels. Par défaut, seuls l'infirmier(ère) et les parents de chaque élève peuvent les ouvrir.",
+      "adminFullAccess": "Les administrateurs peuvent ouvrir les dossiers de santé complets",
+      "adminFullAccessHint": "Désactivé : les administrateurs ne voient que l'état du profil. Activé : ils peuvent aussi ouvrir les dossiers complets. Chaque consultation est enregistrée dans les deux cas.",
+      "retention": "Conserver les dossiers après le départ d'un élève",
+      "retentionNow": "Supprimer au départ",
+      "retentionYears": "{count, plural, one {# an} other {# ans}}",
+      "retentionHint": "Les dossiers des élèves partis sont supprimés automatiquement après ce délai.",
+      "impersonating": "Le support ne peut pas modifier les paramètres santé.",
+      "save": "Enregistrer",
+      "saved": "Paramètres santé enregistrés",
+      "accessLogLink": "Voir qui a ouvert des dossiers de santé"
+    },
+    "notConfigured": {
+      "title": "Les dossiers de santé ne sont pas encore activés",
+      "body": "La clé de chiffrement santé de la plateforme n'est pas définie. Demandez à votre administrateur EduCore de terminer la configuration."
+    },
+    "errors": {
+      "notConfigured": "Les dossiers de santé ne sont pas encore configurés.",
+      "notFound": "Dossier introuvable.",
+      "notAllowed": "Vous ne pouvez pas faire cela.",
+      "consentRequired": "Veuillez cocher la déclaration de consentement avant d'enregistrer.",
+      "empty": "Remplissez au moins une information avant d'enregistrer.",
+      "badFile": "Veuillez choisir un fichier PDF, JPG ou PNG.",
+      "tooLarge": "Ce fichier est trop volumineux.",
+      "uploadMissing": "Le fichier n'est pas arrivé. Veuillez réessayer.",
+      "storageOff": "Le stockage de fichiers n'est pas encore configuré.",
+      "tooManyFiles": "Ce dossier contient déjà le nombre maximal de documents."
+    }
   }
 }
