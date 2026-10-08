@@ -20,6 +20,8 @@ import { getEntitlements } from "@/lib/entitlements-server";
 import { PAYSTACK_CURRENCIES, paystack } from "@/lib/payments/paystack";
 import { Role } from "@educore/db";
 import { AdjustmentButton, CancelInvoiceButton, RecordPaymentButton, ReversePaymentButton } from "./invoice-ui";
+import { PendingApprovals } from "@/components/approvals/pending-banner";
+import { pendingFor } from "@/lib/approvals/engine";
 
 /** One invoice (3.1/3.2): lines, totals, payments and receipts, and what can be done next. */
 export default async function InvoicePage({ params, searchParams }: { params: { id: string }; searchParams: { online?: string | string[] } }) {
@@ -56,6 +58,15 @@ export default async function InvoicePage({ params, searchParams }: { params: { 
   const signed = (minor: number) => (minor < 0 ? `−${money(-minor)}` : money(minor));
   const name = `${invoice.student.firstName} ${invoice.student.lastName}`;
   const isStaff = can(user.role, "feeStructure", "read");
+  // Phase 8: a cancellation or reversal waiting for approval.
+  const [pendingCancel, pendingReversals] = isStaff && user.tenantId
+    ? await Promise.all([pendingFor(user.tenantId, "INVOICE_CANCEL", [invoice.id]), pendingFor(user.tenantId, "PAYMENT_REVERSAL", invoice.payments.map((p) => p.id))])
+    : [new Map<string, string>(), new Map<string, string>()];
+  const ta = await getTranslations("approvals.pending");
+  const pendingItems = [
+    ...[...pendingCancel.values()].map((rid) => ({ id: rid, label: ta("invoiceCancel") })),
+    ...invoice.payments.filter((p) => pendingReversals.has(p.id)).map((p) => ({ id: pendingReversals.get(p.id)!, label: ta("paymentReversal", { receipt: p.receiptNo ?? "" }) })),
+  ];
 
   return (
     <div className="space-y-6">
@@ -65,6 +76,7 @@ export default async function InvoicePage({ params, searchParams }: { params: { 
           {t("back")}
         </Link>
       </div>
+      <PendingApprovals items={pendingItems} />
       <PageHeader
         title={t("title", { number: invoice.invoiceNo })}
         description={`${name} · ${invoice.student.admissionNo}${invoice.student.class ? ` · ${invoice.student.class.name}${invoice.student.section ? ` ${invoice.student.section.name}` : ""}` : ""}`}

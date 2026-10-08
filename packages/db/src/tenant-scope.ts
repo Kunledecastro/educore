@@ -9,6 +9,8 @@ import { prisma } from "./client";
  */
 export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "User",
+  "ApprovalRequest",
+  "ApprovalDecision",
   "AcademicYear",
   "ClassGrade",
   "Section",

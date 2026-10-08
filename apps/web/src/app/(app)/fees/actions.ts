@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { approvalGate, approvalUserError } from "@/lib/approvals/gate";
+import { assignStudentDiscount, saveDiscountRule } from "@/lib/discount-writer";
 import { getTranslations } from "next-intl/server";
-import { auditedMutation, type Prisma, type PrismaClient } from "@educore/db";
+import { auditedMutation, withRls, type Prisma, type PrismaClient } from "@educore/db";
 import { fromMinor, parseScheduleCells, toMinor } from "@/lib/fees";
 import { auditContextFor } from "@/lib/guard";
 import { InUseError, NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
@@ -240,28 +242,17 @@ export async function copySchedule(input: unknown) {
 // Discounts
 // ---------------------------------------------------------------------------
 
-async function checkItem(tx: PrismaClient, tenantId: string, feeTypeId: string | undefined) {
-  if (feeTypeId) await must(tx.feeType.findFirst({ where: { id: feeTypeId, tenantId }, select: { id: true } }));
-}
-
-function discountData(data: ReturnType<typeof discountSchema.parse>) {
-  const minor = toMinor(data.value)!;
-  // PERCENT stores the percentage itself (12.5); FIXED stores the amount.
-  return { name: data.name, kind: data.kind, value: fromMinor(minor), feeTypeId: data.feeTypeId ?? null, isActive: data.isActive };
-}
-
 export async function createDiscount(input: unknown) {
   return runAction(["feeStructure", "create"], async (ctx) => {
     const data = discountSchema.parse(input);
+    const gate = await approvalGate(ctx, "DISCOUNT_RULE", { id: null, data }, "");
+    if (gate) {
+      revalidatePath("/approvals");
+      return gate;
+    }
     const audit = auditContextFor(ctx);
-    await auditedMutation(audit, {
-      action: "CREATE",
-      entityType: "Discount",
-      run: async (tx) => {
-        await checkItem(tx, audit.tenantId, data.feeTypeId);
-        const after = await tx.discount.create({ data: { tenantId: audit.tenantId, ...discountData(data) } });
-        return { after };
-      },
+    await withRls(audit.tenantId, (tx) => saveDiscountRule(tx, audit, { id: null, data })).catch(async (err) => {
+      throw await approvalUserError(err);
     });
     revalidatePath(PATH, "layout");
   });
@@ -271,17 +262,15 @@ export async function updateDiscount(id: unknown, input: unknown) {
   return runAction(["feeStructure", "update"], async (ctx) => {
     const discountId = idSchema.parse(id);
     const data = discountSchema.parse(input);
+    const gate = await approvalGate(ctx, "DISCOUNT_RULE", { id: discountId, data }, "");
+    if (gate) {
+      revalidatePath("/approvals");
+      return gate;
+    }
     const audit = auditContextFor(ctx);
-    await auditedMutation(audit, {
-      action: "UPDATE",
-      entityType: "Discount",
-      run: async (tx) => {
-        const before = await must(tx.discount.findFirst({ where: { id: discountId, tenantId: audit.tenantId } }));
-        await checkItem(tx, audit.tenantId, data.feeTypeId);
-        // Invoices already issued keep the discount amount they were given; this only affects future bills.
-        const after = await tx.discount.update({ where: { id: before.id }, data: discountData(data) });
-        return { before, after };
-      },
+    // Invoices already issued keep the discount amount they were given; this only affects future bills.
+    await withRls(audit.tenantId, (tx) => saveDiscountRule(tx, audit, { id: discountId, data })).catch(async (err) => {
+      throw await approvalUserError(err);
     });
     revalidatePath(PATH, "layout");
   });
@@ -310,32 +299,15 @@ export async function deleteDiscount(id: unknown) {
 export async function assignDiscount(input: unknown) {
   return runAction(["feeStructure", "update"], async (ctx) => {
     const data = studentDiscountSchema.parse(input);
-    const t = await getTranslations("fees.errors");
+    const gate = await approvalGate(ctx, "DISCOUNT_ASSIGN", data, data.note ?? "");
+    if (gate) {
+      revalidatePath(PATH, "layout");
+      revalidatePath("/approvals");
+      return gate;
+    }
     const audit = auditContextFor(ctx);
-    await auditedMutation(audit, {
-      action: "CREATE",
-      entityType: "StudentDiscount",
-      run: async (tx) => {
-        await must(tx.student.findFirst({ where: { id: data.studentId, tenantId: audit.tenantId }, select: { id: true } }));
-        await must(tx.discount.findFirst({ where: { id: data.discountId, tenantId: audit.tenantId }, select: { id: true } }));
-        await must(tx.academicYear.findFirst({ where: { id: data.academicYearId, tenantId: audit.tenantId }, select: { id: true } }));
-        if (data.termId) await must(tx.term.findFirst({ where: { id: data.termId, tenantId: audit.tenantId, academicYearId: data.academicYearId }, select: { id: true } }));
-        const clash = await tx.studentDiscount.findFirst({
-          where: { tenantId: audit.tenantId, studentId: data.studentId, discountId: data.discountId, academicYearId: data.academicYearId, termId: data.termId ?? null },
-        });
-        if (clash) throw new UserFacingError(t("alreadyAssigned"), { studentId: t("alreadyAssigned") });
-        const after = await tx.studentDiscount.create({
-          data: {
-            tenantId: audit.tenantId,
-            studentId: data.studentId,
-            discountId: data.discountId,
-            academicYearId: data.academicYearId,
-            termId: data.termId ?? null,
-            note: data.note ?? null,
-          },
-        });
-        return { after };
-      },
+    await withRls(audit.tenantId, (tx) => assignStudentDiscount(tx, audit, data)).catch(async (err) => {
+      throw await approvalUserError(err);
     });
     revalidatePath(PATH, "layout");
   });

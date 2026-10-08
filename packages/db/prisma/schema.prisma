@@ -218,6 +218,8 @@ model Tenant {
   emergencyContacts     EmergencyContact[]
   healthAlerts          HealthAlert[]
   clinicVisits          ClinicVisit[]
+  approvalRequests      ApprovalRequest[]
+  approvalDecisions     ApprovalDecision[]
 
   @@map("tenants")
 }
@@ -412,6 +414,8 @@ model User {
   healthAccess          HealthAccessLog[]      @relation("HealthAccessActor")
   healthAlertsWritten   HealthAlert[]          @relation("HealthAlertUpdatedBy")
   clinicVisitsRecorded  ClinicVisit[]          @relation("ClinicVisitRecordedBy")
+  approvalRequests      ApprovalRequest[]      @relation("ApprovalRequestedBy")
+  approvalDecisions     ApprovalDecision[]     @relation("ApprovalDecidedBy")
 
   @@index([tenantId])
   @@map("users")
@@ -1774,4 +1778,58 @@ model ClinicVisit {
   @@index([tenantId, arrivedAt])
   @@index([tenantId, studentId])
   @@map("clinic_visits")
+}
+
+/// Phase 8.0: a sensitive action waiting for approval (maker-checker).
+model ApprovalRequest {
+  id            String             @id @default(cuid())
+  tenantId      String
+  tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  /// DISCOUNT_ASSIGN | DISCOUNT_RULE | INVOICE_CANCEL | PAYMENT_REVERSAL
+  process       String
+  /// What it acts on; one pending request per (process, targetKey).
+  targetKey     String
+  payload       Json
+  /// A display snapshot taken when requested (names, numbers), so the inbox reads well.
+  summary       Json
+  amountMinor   BigInt?
+  stepsRequired Int                @default(1)
+  currentStep   Int                @default(1)
+  /// PENDING | APPROVED | REJECTED | WITHDRAWN | EXPIRED | FAILED
+  status        String             @default("PENDING")
+  note          String             @default("")
+  requestedById String?
+  requestedBy   User?              @relation("ApprovalRequestedBy", fields: [requestedById], references: [id], onDelete: SetNull)
+  expiresAt     DateTime
+  remindedAt    DateTime?
+  decidedAt     DateTime?
+  appliedAt     DateTime?
+  failureCode   String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @default(now()) @updatedAt
+  decisions     ApprovalDecision[]
+
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, requestedById])
+  @@map("approval_requests")
+}
+
+/// Phase 8.0: one approver's decision on one step (append-only).
+model ApprovalDecision {
+  id         String          @id @default(cuid())
+  tenantId   String
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  requestId  String
+  request    ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  step       Int
+  approverId String?
+  approver   User?           @relation("ApprovalDecidedBy", fields: [approverId], references: [id], onDelete: SetNull)
+  /// APPROVE | REJECT
+  decision   String
+  comment    String          @default("")
+  createdAt  DateTime        @default(now())
+
+  @@unique([requestId, step])
+  @@index([tenantId, requestId])
+  @@map("approval_decisions")
 }

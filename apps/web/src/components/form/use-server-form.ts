@@ -43,7 +43,9 @@ export function useServerForm<TValues extends FieldValues>({
       startTransition(async () => {
         const result = await submit(values);
         if (result.ok) {
-          toast.success(successMessage);
+          // Phase 8: a school that requires approval turns the action into a request.
+          const pendingApproval = result.data && typeof result.data === "object" && "pendingApproval" in result.data;
+          toast.success(pendingApproval ? tRoot("approvals.sentForApproval") : successMessage);
           onSuccess?.();
         } else {
           for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {

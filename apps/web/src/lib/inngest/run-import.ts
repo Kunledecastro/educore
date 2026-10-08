@@ -143,4 +143,5 @@ import { notifyMessage } from "./notify-message";
 import { renewSubscriptions } from "./renew-subscriptions";
 import { cleanUploads, notifyAssignmentFeedback } from "./assignment-jobs";
 import { healthRetention, notifyClinicVisit } from "./health-jobs";
-export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions, notifyMessage, notifyAssignmentFeedback, cleanUploads, notifyClinicVisit, healthRetention];
+import { approvalSweep, notifyApproval } from "./approval-jobs";
+export const FUNCTIONS = [runImport, generateReportCards, billTerm, renewSubscriptions, notifyMessage, notifyAssignmentFeedback, cleanUploads, notifyClinicVisit, healthRetention, notifyApproval, approvalSweep];

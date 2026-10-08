@@ -27,6 +27,7 @@ import { listVisits, type VisitRow } from "@/lib/health/visits";
 import { nowLocal, visitFmt } from "@/lib/health/visit-format";
 import { zonedLocalToUtc } from "@/lib/zoned-time";
 import { VisitList } from "@/components/health/visit-list";
+import { waitingCount } from "@/lib/approvals/engine";
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -182,6 +183,12 @@ export default async function DashboardPage() {
     }
   }
 
+  // Approvals (8.0): requests waiting for this person's decision.
+  let approvalsWaiting: number | null = null;
+  if (user.tenantId && (user.role === Role.SCHOOL_ADMIN || user.role === Role.ACCOUNTANT) && (await getEntitlements(user.tenantId)).modules.has("approvals")) {
+    approvalsWaiting = await waitingCount({ tenantId: user.tenantId, userId: user.id, role: user.role, impersonating: false }).catch(() => null);
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -214,6 +221,19 @@ export default async function DashboardPage() {
             {health.toCheck !== null ? <p>{t("healthToCheck", { count: health.toCheck })}</p> : null}
             <Link href="/health-alerts" className="inline-block underline underline-offset-2">
               {t("healthAlertsLink")}
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
+      {approvalsWaiting ? (
+        <Card className="border-warning">
+          <CardHeader className="pb-2">
+            <CardTitle>{t("approvalsTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>{t("approvalsWaiting", { count: approvalsWaiting })}</p>
+            <Link href="/approvals" className="inline-block underline underline-offset-2">
+              {t("approvalsLink")}
             </Link>
           </CardContent>
         </Card>

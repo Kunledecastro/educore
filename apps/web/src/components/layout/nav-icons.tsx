@@ -19,6 +19,7 @@ import {
   Receipt,
   Settings,
   ShieldCheck,
+  Stamp,
   Users,
   Wallet,
   type LucideIcon,
@@ -46,6 +47,7 @@ export const NAV_ICONS = {
   Receipt,
   Settings,
   ShieldCheck,
+  Stamp,
   Users,
   Wallet,
 } satisfies Record<string, LucideIcon>;

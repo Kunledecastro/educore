@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { clinicVisitEmail, newMessageEmail, ResendEmailChannel } from "./channels";
+import { approvalNeededEmail, approvalOutcomeEmail, clinicVisitEmail, newMessageEmail, ResendEmailChannel } from "./channels";
 
 describe("email channel", () => {
   it("is off until both RESEND_API_KEY and EMAIL_FROM are set, and then sends nothing", async () => {
@@ -46,5 +46,18 @@ describe("clinic visit email (7.2)", () => {
     const u = clinicVisitEmail({ recipient: { email: "m@x.ng", name: "" }, pupilName: "Ada Okafor", schoolName: "Greenfield", urgent: true, link: "https://x/health/1" });
     expect(u.subject).toMatch(/^Please read: Ada Okafor visited the school clinic/);
     expect(`${n.subject} ${n.text} ${u.subject} ${u.text}`).not.toMatch(/fever|headache|sent home|hospital|medicine|paracetamol/i);
+  });
+});
+
+describe("approval emails (8.0)", () => {
+  it("name the kind of request and who asked — never amounts, pupils or numbers", () => {
+    const a = approvalNeededEmail({ recipient: { email: "p@x.ng", name: "Mrs Adeyemi" }, process: "INVOICE_CANCEL", requester: "Mr Bello", schoolName: "Greenfield", reminder: false, link: "https://x/approvals/1" });
+    expect(a.subject).toBe("Approval needed: an invoice cancellation — Greenfield");
+    expect(a.text).toContain("Mr Bello asked for an invoice cancellation");
+    const r = approvalNeededEmail({ recipient: { email: "p@x.ng", name: "" }, process: "PAYMENT_REVERSAL", requester: "Mr Bello", schoolName: "Greenfield", reminder: true, link: "https://x" });
+    expect(r.subject).toMatch(/^Reminder: a payment reversal is waiting/);
+    const o = approvalOutcomeEmail({ recipient: { email: "b@x.ng", name: "Mr Bello" }, process: "DISCOUNT_ASSIGN", status: "FAILED", schoolName: "Greenfield", link: "https://x" });
+    expect(o.subject).toBe("Your request for a discount for a pupil was approved but could not be applied — Greenfield");
+    expect(`${a.subject}${a.text}${r.text}${o.text}`).not.toMatch(/₦|NGN|INV-|\d{3,}/);
   });
 });

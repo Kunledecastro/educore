@@ -144,5 +144,13 @@ data.
 - Before going live with real families, have the school's consent wording and a
   data-protection impact assessment (DPIA) reviewed under the NDPA 2023.
 
+## Approval workflows (Phase 8)
+
+- **Nothing to set up:** no new secrets. Migration `0032_approvals` adds the approval tables.
+- **Off by default.** Each school switches processes on in **Settings → Approvals**.
+- **Background jobs** (Inngest, synced on deploy):
+  - "Tell approvers / requesters about approvals" (email, once Resend is set up)
+  - "Expire and remind approvals" (daily, 07:00 Lagos)
+
 None of these block a Phase 0 deploy — they're documented in
 `.env.example` for when the corresponding feature is built.

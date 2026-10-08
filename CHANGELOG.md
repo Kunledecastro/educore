@@ -3,6 +3,56 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 8 — Approval workflows (in progress)
+
+Spec: `claude/phase-8-spec.md` (decisions confirmed 2026-10-08):
+- approvers can be roles, named people, or both
+- one step, plus an optional second step above an amount
+- off until the school switches each process on
+- 8.0 money, 8.1 academic, 8.2 people and communication
+
+### Added (8.0 — the approval engine and money approvals)
+
+- **Maker–checker for sensitive money actions.** When a school switches a process on, the action becomes a request that waits for approval, and nothing changes until it is approved. The processes are:
+  - giving a pupil a discount
+  - cancelling an invoice
+  - reversing a payment
+  - (optional) creating or changing a discount rule
+- **Settings → Approvals.** For each process, a school admin chooses:
+  - on or off
+  - who approves: any school admin, any bursar, named people, or a mix
+  - an optional second step from an amount (e.g. ₦100,000 and above also needs the proprietor)
+  - how many days before a request expires
+
+  Settings warns when only one person, or nobody, could approve.
+- **Approvals inbox** (new menu item with a count): Waiting for me, My requests, and All (admins). It shows the amount and who asked. Each request page shows:
+  - exactly what will happen
+  - each step and decision
+  - Approve (with an optional comment) or Reject (with a required reason)
+  - Withdraw, for the person who asked
+- **Waiting for approval** notes on the invoice page (cancellations and reversals) and the discounts page. A dashboard card shows the count for approvers.
+- **Emails** once Resend is set up:
+  - to approvers when something needs them
+  - a reminder after 2 days
+  - to the requester when it's decided or expires
+
+  Emails never include amounts or pupils' names. A daily job (07:00 Lagos) expires requests nobody decided.
+- **Plans:** the new "Approval workflows" module is in Free trial, Standard and Premium.
+
+### Security (8.0)
+
+- **Nobody can:**
+  - approve their own request
+  - approve both steps of one request
+  - approve if EduCore support is signed in as a school admin
+- **Re-checked at approval:** the final approval applies the change in the same transaction, through the same code the fee screens use, with the request locked. Two approvers at once can't apply it twice. If the change is no longer possible (e.g. the invoice was paid meanwhile), the request is marked "couldn't be applied" and nothing changes.
+- **Every step is audited.** The change itself is recorded as made by the person who asked; the approval records who approved it.
+- **New tables** `approval_requests` and `approval_decisions` (migration `0032_approvals`):
+  - tenant isolation by RLS
+  - the app's database role can't delete either table
+  - decisions can't be edited, enforced by a database trigger
+- **Tests:** `lib/approvals/approvals.integration.test.ts` (16 tests) and `policy.test.ts` (6 tests).
+
 ## Phase 7 — Student health and clinic (2026-10-07)
 
 Spec: `claude/phase-7-spec.md` (confirmed 2026-10-06): a new School Nurse

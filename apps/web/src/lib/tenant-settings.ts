@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseStudentLogins } from "./student-logins";
+import { approvalsSettingsSchema } from "./approvals/policy";
 
 /**
  * Per-school configuration (architecture rule #8: config-first). Stored in
@@ -91,6 +92,8 @@ export const tenantSettingsSchema = z.object({
     })
     .catch({ adminFullAccess: false, retentionYears: 1 })
     .default({ adminFullAccess: false, retentionYears: 1 }),
+  /** Approval workflows (Phase 8): one policy per process; all off until the school switches them on. */
+  approvals: approvalsSettingsSchema,
   /** Set by the EduCore platform team only (never by a school): e.g. a shared demo school where 2FA isn't required. */
   platformFlags: z
     .object({ twoFactorExempt: z.boolean().catch(false).default(false) })

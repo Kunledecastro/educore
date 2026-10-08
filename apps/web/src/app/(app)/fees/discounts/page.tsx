@@ -8,6 +8,9 @@ import { formatMoney, formatNumber } from "@/lib/format";
 import { requirePermission } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
 import { AssignDiscountButton, DiscountRowActions, NewDiscountButton, RemoveAssignmentButton } from "./discount-actions";
+import { PendingApprovals } from "@/components/approvals/pending-banner";
+import { pendingOfKinds } from "@/lib/approvals/engine";
+import { headline } from "@/lib/approvals/describe";
 
 /**
  * Discounts (milestone 3.0): the school's named discounts, and which
@@ -58,9 +61,12 @@ export default async function DiscountsPage() {
     : [[], []];
 
   const discountOptions = discounts.filter((d) => d.isActive).map((d) => ({ id: d.id, label: `${d.name} (${describe(d)})` }));
+  // Phase 8: discounts waiting for approval.
+  const [pending, ta] = await Promise.all([user.tenantId ? pendingOfKinds(user.tenantId, ["DISCOUNT_ASSIGN", "DISCOUNT_RULE"]) : Promise.resolve([]), getTranslations("approvals")]);
 
   return (
     <div className="space-y-8">
+      <PendingApprovals items={pending.map((r) => ({ id: r.id, label: headline(ta as never, r.process, r.summary) }))} />
       <section className="space-y-3" aria-labelledby="discount-types">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>

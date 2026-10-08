@@ -13,6 +13,7 @@ const TABS = [
   { href: "/settings/branding", key: "branding" },
   { href: "/settings/security", key: "security" },
   { href: "/settings/health", key: "health" },
+  { href: "/settings/approvals", key: "approvals" },
 ] as const;
 
 export function SettingsTabs() {

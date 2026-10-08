@@ -3,10 +3,10 @@ import { Role } from "./roles";
 import { can, assertPermission, ForbiddenError, PERMISSION_MATRIX, RESOURCES, studentScopeWhere } from "./permissions";
 
 describe("RBAC permission matrix", () => {
-  it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log, and nothing on pupils' health data", () => {
-    const HEALTH = new Set(["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings"]);
+  it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log, and nothing on pupils' health data or school approvals", () => {
+    const SCHOOL_ONLY = new Set(["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings", "approval", "approvalSettings"]);
     for (const resource of RESOURCES) {
-      if (HEALTH.has(resource)) {
+      if (SCHOOL_ONLY.has(resource)) {
         expect(can(Role.PLATFORM_ADMIN, resource, "read")).toBe(false);
         continue;
       }
@@ -317,5 +317,18 @@ describe("health (Phase 7): minimum necessary access", () => {
   it("nobody may change or delete the access log; the platform team can't open pupils' health data", () => {
     for (const role of Object.values(Role)) for (const a of ["update", "delete"] as const) expect(can(role, "healthAccessLog", a)).toBe(false);
     for (const r of ["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog"] as const) expect(can(Role.PLATFORM_ADMIN, r, "read")).toBe(false);
+  });
+});
+
+describe("approvals (Phase 8)", () => {
+  it("school admins and bursars take part in approvals; only admins configure them; nobody else, and never the platform team", () => {
+    expect(can(Role.SCHOOL_ADMIN, "approval", "update")).toBe(true);
+    expect(can(Role.SCHOOL_ADMIN, "approvalSettings", "update")).toBe(true);
+    expect(can(Role.ACCOUNTANT, "approval", "update")).toBe(true);
+    expect(can(Role.ACCOUNTANT, "approvalSettings", "update")).toBe(false);
+    for (const role of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.SCHOOL_NURSE, Role.PLATFORM_ADMIN]) {
+      expect(can(role, "approval", "read")).toBe(false);
+      expect(can(role, "approvalSettings", "read")).toBe(false);
+    }
   });
 });

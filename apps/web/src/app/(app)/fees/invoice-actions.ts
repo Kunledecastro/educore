@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { approvalGate } from "@/lib/approvals/gate";
 import { getTranslations } from "next-intl/server";
 import { can } from "@educore/auth";
 import { auditedMutation, withRls } from "@educore/db";
@@ -75,6 +76,12 @@ export async function startBillingRun(input: unknown) {
 export async function cancelInvoiceAction(input: unknown) {
   return runAction(["invoice", "update"], async (ctx) => {
     const data = cancelInvoiceSchema.parse(input);
+    const gate = await approvalGate(ctx, "INVOICE_CANCEL", data, data.reason).catch(feeError);
+    if (gate) {
+      revalidatePath("/fees", "layout");
+      revalidatePath("/approvals");
+      return gate;
+    }
     const audit = auditContextFor(ctx);
     await withRls(audit.tenantId, async (tx) => {
       if (!(await tx.invoice.findFirst({ where: { id: data.invoiceId, tenantId: audit.tenantId }, select: { id: true } }))) throw new NotFoundError();
@@ -136,6 +143,12 @@ export async function recordPaymentAction(input: unknown) {
 export async function reversePaymentAction(input: unknown) {
   return runAction(["payment", "update"], async (ctx) => {
     const data = reversalSchema.parse(input);
+    const gate = await approvalGate(ctx, "PAYMENT_REVERSAL", data, data.reason).catch(feeError);
+    if (gate) {
+      revalidatePath("/fees", "layout");
+      revalidatePath("/approvals");
+      return gate;
+    }
     const audit = auditContextFor(ctx);
     await withRls(audit.tenantId, async (tx) => {
       if (!(await tx.payment.findFirst({ where: { id: data.paymentId, tenantId: audit.tenantId }, select: { id: true } }))) throw new NotFoundError();

@@ -94,3 +94,34 @@ export function clinicVisitEmail(input: { recipient: { email: string; name: stri
     : `${input.pupilName} visited the school clinic today. You can see what happened on EduCore.`;
   return { to: input.recipient, subject, text: `Hello ${input.recipient.name || "there"},\n\n${body}\n\nSign in to see it:`, link: input.link };
 }
+
+const PROCESS_WORDS: Record<string, string> = {
+  DISCOUNT_ASSIGN: "a discount for a pupil",
+  INVOICE_CANCEL: "an invoice cancellation",
+  PAYMENT_REVERSAL: "a payment reversal",
+  DISCOUNT_RULE: "a discount rule change",
+};
+
+/**
+ * Approval emails (Phase 8). They name the kind of request and who asked —
+ * never amounts, pupils or invoice numbers; the details are behind sign-in.
+ * Exported for tests.
+ */
+export function approvalNeededEmail(input: { recipient: { email: string; name: string }; process: string; requester: string; schoolName: string; reminder: boolean; link: string }): OutgoingNotification {
+  const what = PROCESS_WORDS[input.process] ?? "a request";
+  const subject = input.reminder ? `Reminder: ${what} is waiting for your approval — ${input.schoolName}` : `Approval needed: ${what} — ${input.schoolName}`;
+  const body = input.reminder ? `${input.requester} asked for ${what} and it is still waiting for your decision.` : `${input.requester} asked for ${what}. It needs your approval before anything changes.`;
+  return { to: input.recipient, subject, text: `Hello ${input.recipient.name || "there"},\n\n${body}\n\nSign in to approve or reject it:`, link: input.link };
+}
+
+export function approvalOutcomeEmail(input: { recipient: { email: string; name: string }; process: string; status: string; schoolName: string; link: string }): OutgoingNotification {
+  const what = PROCESS_WORDS[input.process] ?? "your request";
+  const outcome: Record<string, string> = {
+    APPROVED: "was approved and has been applied",
+    REJECTED: "was rejected",
+    FAILED: "was approved but could not be applied (nothing was changed)",
+    EXPIRED: "expired without a decision",
+  };
+  const said = outcome[input.status] ?? "was decided";
+  return { to: input.recipient, subject: `Your request for ${what} ${said.split(" (")[0]} — ${input.schoolName}`, text: `Hello ${input.recipient.name || "there"},\n\nYour request for ${what} ${said}.\n\nSign in to see the details:`, link: input.link };
+}

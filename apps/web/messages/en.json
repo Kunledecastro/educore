@@ -50,7 +50,8 @@
     "clinic": "Clinic",
     "health": "Health",
     "healthAlerts": "Health alerts",
-    "clinicVisits": "Clinic visits"
+    "clinicVisits": "Clinic visits",
+    "approvals": "Approvals"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -123,7 +124,10 @@
     "clinicVisitsToday": "{count, plural, =0 {Clinic visits today} one {# clinic visit today} other {# clinic visits today}}",
     "clinicVisitsNone": "No clinic visits today.",
     "clinicVisitsParentLink": "See your children's health",
-    "clinicVisitsNurseLink": "Open the visit log"
+    "clinicVisitsNurseLink": "Open the visit log",
+    "approvalsTitle": "Approvals",
+    "approvalsWaiting": "{count, plural, one {# request is waiting for your decision} other {# requests are waiting for your decision}}",
+    "approvalsLink": "Open approvals"
   },
   "list": {
     "searchPlaceholder": "Search…",
@@ -780,7 +784,8 @@
       "options": "Options",
       "branding": "Branding",
       "security": "Security",
-      "health": "Health"
+      "health": "Health",
+      "approvals": "Approvals"
     },
     "terms": {
       "noYearTitle": "Create an academic year first",
@@ -2018,7 +2023,8 @@
       "onlinePayments": "Online payment by parents",
       "messaging": "Announcements and messages",
       "assignments": "Assignments and homework",
-      "health": "Student health and clinic"
+      "health": "Student health and clinic",
+      "approvals": "Approval workflows"
     },
     "banner": {
       "trial": "Free trial: {days, plural, =0 {ends today} one {# day left} other {# days left}}.",
@@ -3332,6 +3338,175 @@
       "colGroup": "Group",
       "colItem": "Item",
       "colCount": "Count"
+    }
+  },
+  "approvals": {
+    "sentForApproval": "Sent for approval — nothing changes until it's approved",
+    "title": "Approvals",
+    "description": "Sensitive actions that need a second person before they take effect.",
+    "settingsLink": "Approval settings",
+    "tabsLabel": "Approval lists",
+    "statusFilter": "Filter by status",
+    "allStatuses": "All",
+    "tabs": {
+      "waiting": "Waiting for me",
+      "mine": "My requests",
+      "all": "All requests"
+    },
+    "status": {
+      "PENDING": "Waiting",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "FAILED": "Couldn't be applied",
+      "WITHDRAWN": "Withdrawn",
+      "EXPIRED": "Expired"
+    },
+    "empty": {
+      "waiting": "Nothing is waiting for you",
+      "mine": "You haven't asked for any approvals",
+      "all": "No approval requests yet"
+    },
+    "emptyWaitingHint": "When someone asks for something you approve, it appears here.",
+    "col": {
+      "request": "Request",
+      "amount": "Amount",
+      "requestedBy": "Asked by",
+      "status": "Status"
+    },
+    "process": {
+      "DISCOUNT_ASSIGN": "Discount for a pupil",
+      "INVOICE_CANCEL": "Invoice cancellation",
+      "PAYMENT_REVERSAL": "Payment reversal",
+      "DISCOUNT_RULE": "Discount rule"
+    },
+    "stepOf": "step {step} of {steps}",
+    "headline": {
+      "DISCOUNT_ASSIGN": "{discount} for {pupil}",
+      "INVOICE_CANCEL": "Cancel invoice {invoice} · {pupil}",
+      "PAYMENT_REVERSAL": "Reverse receipt {receipt} · {pupil}",
+      "DISCOUNT_RULE_create": "New discount: {discount}",
+      "DISCOUNT_RULE_update": "Change discount: {discount}"
+    },
+    "back": "Back to approvals",
+    "requestedByOn": "asked by {name} on {date}",
+    "detail": {
+      "pupil": "Pupil",
+      "invoice": "Invoice",
+      "receipt": "Receipt",
+      "discount": "Discount",
+      "scope": "For",
+      "estimatedValue": "Estimated value",
+      "amount": "Amount",
+      "reason": "Reason",
+      "note": "Note",
+      "whatChanges": "What will happen",
+      "effect": {
+        "DISCOUNT_ASSIGN": "The pupil gets this discount on the bills it covers.",
+        "INVOICE_CANCEL": "The invoice is cancelled and the family no longer owes it.",
+        "PAYMENT_REVERSAL": "The payment is reversed: the invoice's balance goes back up by this amount.",
+        "DISCOUNT_RULE": "The discount rule is created or changed for future bills. Issued invoices keep their amounts."
+      },
+      "expires": "Expires {date} if nobody decides.",
+      "failed": "Approved, but it couldn't be applied: {reason} Nothing was changed.",
+      "steps": "Approval steps",
+      "stepN": "Step {n}",
+      "approvedBy": "Approved by {name} on {date}",
+      "rejectedBy": "Rejected by {name} on {date}",
+      "waiting": "Waiting for a decision",
+      "notReached": "Not reached",
+      "yourDecision": "Your decision",
+      "finalHint": "Approving makes the change now.",
+      "stepHint": "Approving passes it to the next approver; nothing changes yet.",
+      "comment": "Comment",
+      "commentPlaceholder": "Optional when approving; required when rejecting",
+      "approveApply": "Approve and apply",
+      "approveStep": "Approve this step",
+      "reject": "Reject",
+      "reasonNeeded": "Please give a reason for rejecting.",
+      "failedNow": "Approved, but it can no longer be applied — nothing was changed. See the reason on the request.",
+      "done": {
+        "approved": "Approved — the change has been made",
+        "nextStep": "Approved — passed to the next approver",
+        "rejected": "Rejected",
+        "expired": "This request had expired"
+      },
+      "withdraw": "Withdraw request",
+      "withdrawTitle": "Withdraw this request?",
+      "withdrawDescription": "It won't be approved or applied. You can ask again later.",
+      "withdrawn": "Request withdrawn"
+    },
+    "failure": {
+      "discount_alreadyAssigned": "the pupil already has this discount for that period.",
+      "discount_inactive": "the discount has been switched off.",
+      "discount_notFound": "the pupil, discount or term no longer exists.",
+      "notFound": "it no longer exists."
+    },
+    "errors": {
+      "notFound": "That request wasn't found.",
+      "notAllowed": "You can't decide this request.",
+      "noApprover": "Nobody else can approve this. Ask a school admin to add an approver in Settings → Approvals.",
+      "alreadyPending": "This is already waiting for approval.",
+      "notPending": "This request has already been decided.",
+      "expired": "This request has expired. Ask again if it's still needed.",
+      "ownRequest": "You can't approve your own request.",
+      "commentRequired": "Please give a reason for rejecting.",
+      "supportCannotDecide": "EduCore support can't approve or reject a school's requests.",
+      "changed": "Someone else decided this step a moment ago. The page has been refreshed.",
+      "discountInactive": "That discount has been switched off."
+    },
+    "pending": {
+      "title": "{count, plural, one {Waiting for approval} other {# requests waiting for approval}}",
+      "view": "view",
+      "invoiceCancel": "Cancelling this invoice",
+      "paymentReversal": "Reversing receipt {receipt}"
+    },
+    "settings": {
+      "explain": "Choose which actions need a second person. When an action is switched on, it becomes a request that waits for approval, and nothing changes until it's approved. Nobody can approve their own request.",
+      "notInPlan": "Approvals aren't included in your school's plan.",
+      "impersonating": "EduCore support can view these settings but can't change them.",
+      "on": "On",
+      "off": "Off",
+      "enabled": "Require approval",
+      "approversLegend": "Who approves",
+      "step1Legend": "Step 1 — who approves",
+      "anyOf": "Anyone who matches can approve (except the person who asked).",
+      "everyRole": "Any {role}",
+      "orNamed": "Or these people",
+      "addSecondStep": "Add a second approval step for larger amounts",
+      "secondStepFrom": "Second step from",
+      "alwaysPlaceholder": "always",
+      "step2Legend": "Step 2 — who approves",
+      "expiry": "Requests expire after",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "save": "Save",
+      "saved": "Approval settings saved",
+      "needApprover": "Choose at least one approver.",
+      "needApprover2": "Choose at least one approver for the second step.",
+      "process": {
+        "DISCOUNT_ASSIGN": {
+          "title": "Giving a pupil a discount",
+          "explain": "When a discount is given to a pupil. The amount is estimated from the pupil's fees for the term or year."
+        },
+        "INVOICE_CANCEL": {
+          "title": "Cancelling an invoice",
+          "explain": "When an invoice is cancelled. The amount is the invoice total."
+        },
+        "PAYMENT_REVERSAL": {
+          "title": "Reversing a payment",
+          "explain": "When a recorded payment is reversed (e.g. a bounced transfer). The amount is the payment."
+        },
+        "DISCOUNT_RULE": {
+          "title": "Creating or changing a discount rule",
+          "explain": "When a discount rule (e.g. \"Sibling 10%\") is created or changed."
+        }
+      },
+      "warning": {
+        "step1None": "Nobody can approve this right now: choose at least one active admin or bursar.",
+        "step1One": "Only one person can approve this. If they ask for it themselves, nobody else can approve it.",
+        "step2None": "Nobody can take the second step: choose at least one active admin or bursar.",
+        "step2SamePeople": "The second step needs a different person from the first, but the same single person is named for both.",
+        "step2NoThreshold": ""
+      }
     }
   }
 }

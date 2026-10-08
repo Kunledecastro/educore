@@ -20,6 +20,8 @@ type Events = {
   "educore/assignment.feedback": { data: { tenantId: string; assignmentId: string; studentIds: string[]; kind: "returned" | "released" } };
   /** The nurse recorded a clinic visit (or set an urgent outcome); tell the parents by email if a channel is set up. Sent only by our server. */
   "educore/clinic.visit": { data: { tenantId: string; visitId: string } };
+  /** An approval request was made, moved to its next step, or decided (Phase 8): tell the right people by email. Sent only by our server. */
+  "educore/approval.changed": { data: { tenantId: string; requestId: string; event: "requested" | "nextStep" | "decided" } };
   /** Run the health retention clean-up now (it also runs nightly). */
   "educore/health.retention": { data: Record<string, never> };
 };

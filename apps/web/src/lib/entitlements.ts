@@ -6,7 +6,7 @@
  */
 import type { Action, Resource } from "@educore/auth";
 
-export const MODULES = ["attendance", "assessments", "reportCards", "timetable", "fees", "onlinePayments", "messaging", "assignments", "health"] as const;
+export const MODULES = ["attendance", "assessments", "reportCards", "timetable", "fees", "onlinePayments", "messaging", "assignments", "health", "approvals"] as const;
 export type Module = (typeof MODULES)[number];
 
 export type PlanCode = "FREE_TRIAL" | "STARTER" | "STANDARD" | "PREMIUM";
@@ -24,7 +24,7 @@ export interface PlanSpec {
 export const DEFAULT_PLANS: Record<PlanCode, PlanSpec> = {
   FREE_TRIAL: { code: "FREE_TRIAL", priceMinor: 0, maxStudents: 500, modules: [...MODULES] },
   STARTER: { code: "STARTER", priceMinor: 30_000, maxStudents: 300, modules: ["attendance", "assessments", "timetable", "messaging"] },
-  STANDARD: { code: "STANDARD", priceMinor: 50_000, maxStudents: 1500, modules: ["attendance", "assessments", "reportCards", "timetable", "fees", "messaging", "assignments", "health"] },
+  STANDARD: { code: "STANDARD", priceMinor: 50_000, maxStudents: 1500, modules: ["attendance", "assessments", "reportCards", "timetable", "fees", "messaging", "assignments", "health", "approvals"] },
   PREMIUM: { code: "PREMIUM", priceMinor: 80_000, maxStudents: null, modules: [...MODULES] },
 };
 
@@ -51,6 +51,8 @@ export const RESOURCE_MODULE: Partial<Record<Resource, Module>> = {
   clinicVisit: "health",
   healthAccessLog: "health",
   healthSettings: "health",
+  approval: "approvals",
+  approvalSettings: "approvals",
 };
 
 export type SubscriptionState =

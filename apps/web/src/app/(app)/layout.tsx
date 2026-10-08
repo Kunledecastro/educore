@@ -11,6 +11,7 @@ import { parseBranding, logoUrl } from "@/lib/branding";
 import { getEntitlements } from "@/lib/entitlements-server";
 import { can } from "@educore/auth";
 import { unreadThreadCount } from "@/lib/messaging/data";
+import { waitingCount } from "@/lib/approvals/engine";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // The effective user: normally the signed-in user; while support impersonates, the school admin.
@@ -39,7 +40,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     session.user.tenantId && entitlements?.modules.has("messaging") && can(session.user.role, "message", "read")
       ? await unreadThreadCount(session.user.tenantId, session.user.id)
       : 0;
-  const items = getNavItemsForRole(session.user.role, entitlements?.modules ?? null).map((i) => (i.href === "/messages" && unread ? { ...i, badge: unread } : i));
+  // Phase 8: requests waiting for this person's decision.
+  const waiting =
+    session.user.tenantId && entitlements?.modules.has("approvals") && can(session.user.role, "approval", "read") && !session.impersonation
+      ? await waitingCount({ tenantId: session.user.tenantId, userId: session.user.id, role: session.user.role, impersonating: false }).catch(() => 0)
+      : 0;
+  const items = getNavItemsForRole(session.user.role, entitlements?.modules ?? null).map((i) =>
+    i.href === "/messages" && unread ? { ...i, badge: unread } : i.href === "/approvals" && waiting ? { ...i, badge: waiting } : i,
+  );
   const settings = session.user.tenantId ? await getSettingsForUser(session.user.tenantId) : null;
 
   // The school's own look (logo, brand colour) for everyone signed in to it.

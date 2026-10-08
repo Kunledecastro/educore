@@ -30,6 +30,8 @@ export const RESOURCES = [
   "clinicVisit",
   "healthAccessLog",
   "healthSettings",
+  "approval",
+  "approvalSettings",
   "user",
   "academicYear",
   "classGrade",
@@ -85,6 +87,9 @@ export const PERMISSION_MATRIX: Matrix = {
     clinicVisit: [],
     healthAccessLog: [],
     healthSettings: [],
+    // Approvals (Phase 8) are a school's own control: the platform team never decides them.
+    approval: [],
+    approvalSettings: [],
   },
 
   [Role.SCHOOL_ADMIN]: {
@@ -124,6 +129,9 @@ export const PERMISSION_MATRIX: Matrix = {
     clinicVisit: R, // anonymous reports; individual visits only with the setting
     healthAccessLog: R, // who opened whose record — never the content
     healthSettings: ["read", "update"],
+    // Phase 8: request and decide approvals (only where a policy names them, never their own — checked in code).
+    approval: ["read", "update", "export"],
+    approvalSettings: ["read", "update"],
   },
 
   [Role.ACCOUNTANT]: {
@@ -134,6 +142,7 @@ export const PERMISSION_MATRIX: Matrix = {
     payment: [...RW, "export", "import"], // records payments and reversals; imports bank statements
     announcement: R,
     auditLog: R,
+    approval: ["read", "update"], // Phase 8: request and decide approvals where a policy names the bursar
   },
 
   [Role.TEACHER]: {

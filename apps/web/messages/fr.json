@@ -50,7 +50,8 @@
     "clinic": "Infirmerie",
     "health": "Santé",
     "healthAlerts": "Alertes santé",
-    "clinicVisits": "Passages à l'infirmerie"
+    "clinicVisits": "Passages à l'infirmerie",
+    "approvals": "Approbations"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -123,7 +124,10 @@
     "clinicVisitsToday": "{count, plural, =0 {Passages à l'infirmerie aujourd'hui} one {# passage à l'infirmerie aujourd'hui} other {# passages à l'infirmerie aujourd'hui}}",
     "clinicVisitsNone": "Aucun passage aujourd'hui.",
     "clinicVisitsParentLink": "Voir la santé de vos enfants",
-    "clinicVisitsNurseLink": "Ouvrir le registre des passages"
+    "clinicVisitsNurseLink": "Ouvrir le registre des passages",
+    "approvalsTitle": "Approbations",
+    "approvalsWaiting": "{count, plural, one {# demande attend votre décision} other {# demandes attendent votre décision}}",
+    "approvalsLink": "Ouvrir les approbations"
   },
   "list": {
     "searchPlaceholder": "Rechercher…",
@@ -780,7 +784,8 @@
       "options": "Options",
       "branding": "Identité visuelle",
       "security": "Sécurité",
-      "health": "Santé"
+      "health": "Santé",
+      "approvals": "Approbations"
     },
     "terms": {
       "noYearTitle": "Créez d'abord une année scolaire",
@@ -2018,7 +2023,8 @@
       "onlinePayments": "Paiement en ligne par les parents",
       "messaging": "Annonces et messages",
       "assignments": "Devoirs",
-      "health": "Santé des élèves et infirmerie"
+      "health": "Santé des élèves et infirmerie",
+      "approvals": "Circuits d'approbation"
     },
     "banner": {
       "trial": "Essai gratuit : {days, plural, =0 {se termine aujourd'hui} one {# jour restant} other {# jours restants}}.",
@@ -3332,6 +3338,175 @@
       "colGroup": "Groupe",
       "colItem": "Élément",
       "colCount": "Nombre"
+    }
+  },
+  "approvals": {
+    "sentForApproval": "Envoyé pour approbation — rien ne change avant l'approbation",
+    "title": "Approbations",
+    "description": "Les actions sensibles qui demandent l'accord d'une deuxième personne avant de prendre effet.",
+    "settingsLink": "Paramètres d'approbation",
+    "tabsLabel": "Listes d'approbations",
+    "statusFilter": "Filtrer par état",
+    "allStatuses": "Toutes",
+    "tabs": {
+      "waiting": "En attente de moi",
+      "mine": "Mes demandes",
+      "all": "Toutes les demandes"
+    },
+    "status": {
+      "PENDING": "En attente",
+      "APPROVED": "Approuvée",
+      "REJECTED": "Refusée",
+      "FAILED": "Non appliquée",
+      "WITHDRAWN": "Retirée",
+      "EXPIRED": "Expirée"
+    },
+    "empty": {
+      "waiting": "Rien ne vous attend",
+      "mine": "Vous n'avez demandé aucune approbation",
+      "all": "Aucune demande d'approbation pour l'instant"
+    },
+    "emptyWaitingHint": "Quand quelqu'un demande une action que vous approuvez, elle apparaît ici.",
+    "col": {
+      "request": "Demande",
+      "amount": "Montant",
+      "requestedBy": "Demandée par",
+      "status": "État"
+    },
+    "process": {
+      "DISCOUNT_ASSIGN": "Remise pour un élève",
+      "INVOICE_CANCEL": "Annulation de facture",
+      "PAYMENT_REVERSAL": "Annulation de paiement",
+      "DISCOUNT_RULE": "Règle de remise"
+    },
+    "stepOf": "étape {step} sur {steps}",
+    "headline": {
+      "DISCOUNT_ASSIGN": "{discount} pour {pupil}",
+      "INVOICE_CANCEL": "Annuler la facture {invoice} · {pupil}",
+      "PAYMENT_REVERSAL": "Annuler le reçu {receipt} · {pupil}",
+      "DISCOUNT_RULE_create": "Nouvelle remise : {discount}",
+      "DISCOUNT_RULE_update": "Modifier la remise : {discount}"
+    },
+    "back": "Retour aux approbations",
+    "requestedByOn": "demandée par {name} le {date}",
+    "detail": {
+      "pupil": "Élève",
+      "invoice": "Facture",
+      "receipt": "Reçu",
+      "discount": "Remise",
+      "scope": "Pour",
+      "estimatedValue": "Valeur estimée",
+      "amount": "Montant",
+      "reason": "Motif",
+      "note": "Note",
+      "whatChanges": "Ce qui va se passer",
+      "effect": {
+        "DISCOUNT_ASSIGN": "L'élève reçoit cette remise sur les factures concernées.",
+        "INVOICE_CANCEL": "La facture est annulée et la famille ne la doit plus.",
+        "PAYMENT_REVERSAL": "Le paiement est annulé : le solde de la facture augmente de ce montant.",
+        "DISCOUNT_RULE": "La règle de remise est créée ou modifiée pour les futures factures. Les factures émises gardent leurs montants."
+      },
+      "expires": "Expire le {date} si personne ne décide.",
+      "failed": "Approuvée, mais impossible à appliquer : {reason} Rien n'a été modifié.",
+      "steps": "Étapes d'approbation",
+      "stepN": "Étape {n}",
+      "approvedBy": "Approuvée par {name} le {date}",
+      "rejectedBy": "Refusée par {name} le {date}",
+      "waiting": "En attente d'une décision",
+      "notReached": "Pas encore atteinte",
+      "yourDecision": "Votre décision",
+      "finalHint": "Approuver applique la modification maintenant.",
+      "stepHint": "Approuver transmet la demande à l'approbateur suivant ; rien ne change encore.",
+      "comment": "Commentaire",
+      "commentPlaceholder": "Facultatif pour approuver ; obligatoire pour refuser",
+      "approveApply": "Approuver et appliquer",
+      "approveStep": "Approuver cette étape",
+      "reject": "Refuser",
+      "reasonNeeded": "Veuillez indiquer le motif du refus.",
+      "failedNow": "Approuvée, mais elle ne peut plus être appliquée — rien n'a été modifié. Voir le motif sur la demande.",
+      "done": {
+        "approved": "Approuvée — la modification est faite",
+        "nextStep": "Approuvée — transmise à l'approbateur suivant",
+        "rejected": "Refusée",
+        "expired": "Cette demande avait expiré"
+      },
+      "withdraw": "Retirer la demande",
+      "withdrawTitle": "Retirer cette demande ?",
+      "withdrawDescription": "Elle ne sera ni approuvée ni appliquée. Vous pourrez la refaire plus tard.",
+      "withdrawn": "Demande retirée"
+    },
+    "failure": {
+      "discount_alreadyAssigned": "l'élève a déjà cette remise pour cette période.",
+      "discount_inactive": "la remise a été désactivée.",
+      "discount_notFound": "l'élève, la remise ou le trimestre n'existe plus.",
+      "notFound": "elle n'existe plus."
+    },
+    "errors": {
+      "notFound": "Demande introuvable.",
+      "notAllowed": "Vous ne pouvez pas décider de cette demande.",
+      "noApprover": "Personne d'autre ne peut approuver ceci. Demandez à un administrateur d'ajouter un approbateur dans Paramètres → Approbations.",
+      "alreadyPending": "Ceci attend déjà une approbation.",
+      "notPending": "Cette demande a déjà été traitée.",
+      "expired": "Cette demande a expiré. Refaites-la si elle est toujours nécessaire.",
+      "ownRequest": "Vous ne pouvez pas approuver votre propre demande.",
+      "commentRequired": "Veuillez indiquer le motif du refus.",
+      "supportCannotDecide": "Le support EduCore ne peut ni approuver ni refuser les demandes d'une école.",
+      "changed": "Quelqu'un d'autre vient de décider cette étape. La page a été actualisée.",
+      "discountInactive": "Cette remise a été désactivée."
+    },
+    "pending": {
+      "title": "{count, plural, one {En attente d'approbation} other {# demandes en attente d'approbation}}",
+      "view": "voir",
+      "invoiceCancel": "Annulation de cette facture",
+      "paymentReversal": "Annulation du reçu {receipt}"
+    },
+    "settings": {
+      "explain": "Choisissez les actions qui demandent une deuxième personne. Une action activée devient une demande qui attend l'approbation, et rien ne change avant l'approbation. Personne ne peut approuver sa propre demande.",
+      "notInPlan": "Les approbations ne sont pas incluses dans l'offre de votre école.",
+      "impersonating": "Le support EduCore peut voir ces paramètres mais pas les modifier.",
+      "on": "Activé",
+      "off": "Désactivé",
+      "enabled": "Exiger une approbation",
+      "approversLegend": "Qui approuve",
+      "step1Legend": "Étape 1 — qui approuve",
+      "anyOf": "Toute personne correspondante peut approuver (sauf la personne qui demande).",
+      "everyRole": "Tout {role}",
+      "orNamed": "Ou ces personnes",
+      "addSecondStep": "Ajouter une deuxième étape pour les montants importants",
+      "secondStepFrom": "Deuxième étape à partir de",
+      "alwaysPlaceholder": "toujours",
+      "step2Legend": "Étape 2 — qui approuve",
+      "expiry": "Les demandes expirent après",
+      "days": "{count, plural, one {# jour} other {# jours}}",
+      "save": "Enregistrer",
+      "saved": "Paramètres d'approbation enregistrés",
+      "needApprover": "Choisissez au moins un approbateur.",
+      "needApprover2": "Choisissez au moins un approbateur pour la deuxième étape.",
+      "process": {
+        "DISCOUNT_ASSIGN": {
+          "title": "Accorder une remise à un élève",
+          "explain": "Quand une remise est accordée à un élève. Le montant est estimé à partir des frais de l'élève pour le trimestre ou l'année."
+        },
+        "INVOICE_CANCEL": {
+          "title": "Annuler une facture",
+          "explain": "Quand une facture est annulée. Le montant est le total de la facture."
+        },
+        "PAYMENT_REVERSAL": {
+          "title": "Annuler un paiement",
+          "explain": "Quand un paiement enregistré est annulé (ex. virement rejeté). Le montant est celui du paiement."
+        },
+        "DISCOUNT_RULE": {
+          "title": "Créer ou modifier une règle de remise",
+          "explain": "Quand une règle de remise (ex. « Fratrie 10 % ») est créée ou modifiée."
+        }
+      },
+      "warning": {
+        "step1None": "Personne ne peut approuver ceci pour l'instant : choisissez au moins un administrateur ou économe actif.",
+        "step1One": "Une seule personne peut approuver ceci. Si elle fait elle-même la demande, personne d'autre ne pourra l'approuver.",
+        "step2None": "Personne ne peut faire la deuxième étape : choisissez au moins un administrateur ou économe actif.",
+        "step2SamePeople": "La deuxième étape demande une personne différente de la première, mais la même personne seule est désignée pour les deux.",
+        "step2NoThreshold": ""
+      }
     }
   }
 }
