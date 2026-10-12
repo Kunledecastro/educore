@@ -1,4 +1,5 @@
 import { platformPrisma, recordAudit, recordPlatformAudit } from "@educore/db";
+import { sessionLimits } from "./session-limits";
 import { parseTenantSettings } from "../tenant-settings";
 import { authStage, twoFactorOffered, twoFactorRequired, type AuthStage } from "./rules";
 import { breakGlass } from "./session-state";
@@ -50,6 +51,8 @@ export async function securityState(userId: string) {
     ...user,
     twoFactorVersion: user.security?.twoFactorVersion ?? 0,
     required: twoFactorRequired(user.role, school),
+    /** Inactivity and maximum session length for this person (tester review, Oct 2026). */
+    limits: sessionLimits(user.role, parsed?.security.staffIdleMinutes),
     offered: twoFactorOffered(user.role),
     stage: (passed: boolean): AuthStage => (breakGlass() ? "ok" : authStage({ role: user.role, twoFactorEnabled: user.twoFactorEnabled, sessionPassed2fa: passed, school })),
   };

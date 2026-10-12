@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { GraduationCap, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { GraduationCap, LifeBuoy, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { cn } from "@educore/ui/utils";
 import type { NavItem } from "@/lib/nav";
+import { SUPPORT, whatsappLink } from "@/lib/support";
 import { NAV_ICONS } from "./nav-icons";
 import type { Role } from "@educore/db";
 
@@ -72,6 +73,27 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
   );
 }
 
+/**
+ * EduCore support, for the people who run the school's account. Teachers,
+ * parents and pupils get help from their school, not from us.
+ */
+function SupportLink({ role }: { role: Role }) {
+  const t = useTranslations("common");
+  if (role !== "SCHOOL_ADMIN" && role !== "ACCOUNTANT") return null;
+  const href = SUPPORT.whatsapp ? whatsappLink(SUPPORT.whatsapp, t("supportMessage")) : SUPPORT.email ? `mailto:${SUPPORT.email}` : "/contact";
+  const external = href.startsWith("http");
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+      {t("support")}
+    </a>
+  );
+}
+
 function SignOutButton({ role }: { role: Role }) {
   const t = useTranslations("common");
   // Pupils change their password on its own page; everyone else manages sign-in security here (Phase 6).
@@ -85,6 +107,7 @@ function SignOutButton({ role }: { role: Role }) {
         <ShieldCheck className="h-4 w-4" aria-hidden="true" />
         {role === "STUDENT" ? t("changePassword") : t("signInSecurity")}
       </Link>
+      <SupportLink role={role} />
       <button
         onClick={() => signOut({ callbackUrl: "/login" })}
         className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"

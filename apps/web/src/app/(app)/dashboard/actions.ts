@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auditedMutation } from "@educore/db";
 import { auditContextFor } from "@/lib/guard";
-import { NotFoundError, runAction } from "@/lib/run-action";
+import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
+import { getTranslations } from "next-intl/server";
+import { loadSampleData, removeSampleData, SampleDataError } from "@/lib/sample-data";
 
 /**
  * Hide or bring back the setup checklist on the dashboard (milestone 1.4).
@@ -37,5 +39,30 @@ export async function setOnboardingHidden(hidden: unknown) {
     });
     revalidatePath("/dashboard");
     return { hidden: value };
+  });
+}
+
+async function sampleError(err: unknown): Promise<never> {
+  if (err instanceof SampleDataError) throw new UserFacingError((await getTranslations("sampleData.errors"))(err.code));
+  throw err;
+}
+
+/** Try EduCore with sample classes, pupils, attendance and marks (fresh schools only). Not while impersonating. */
+export async function loadSampleDataAction() {
+  return runAction(["onboarding", "update"] as const, async (ctx) => {
+    if (ctx.impersonation) throw new UserFacingError((await getTranslations("sampleData.errors"))("support"));
+    const result = await loadSampleData(auditContextFor(ctx)).catch(sampleError);
+    revalidatePath("/", "layout");
+    return result;
+  });
+}
+
+/** Remove exactly what "Load sample data" added. */
+export async function removeSampleDataAction() {
+  return runAction(["onboarding", "update"] as const, async (ctx) => {
+    if (ctx.impersonation) throw new UserFacingError((await getTranslations("sampleData.errors"))("support"));
+    const result = await removeSampleData(auditContextFor(ctx)).catch(sampleError);
+    revalidatePath("/", "layout");
+    return result;
   });
 }

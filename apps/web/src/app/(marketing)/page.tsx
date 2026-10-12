@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CalendarCheck, ClipboardList, FileText, MessageSquare, ShieldCheck, Wallet } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@educore/ui/button";
+import { SCREENSHOTS } from "@/lib/marketing-screens";
 import { getCurrentTenant } from "@/lib/tenant";
 
 const HIGHLIGHTS = [
@@ -49,6 +50,27 @@ export default async function MarketingHome() {
           </ul>
         </div>
       </section>
+
+      {SCREENSHOTS.length ? (
+        <section aria-labelledby="see" className="mx-auto max-w-6xl px-4 py-16">
+          <h2 id="see" className="text-center text-2xl font-semibold">{t("seeTitle")}</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-center text-muted-foreground">{t("seeLead")}</p>
+          <ul className="mt-10 grid gap-8 md:grid-cols-2">
+            {SCREENSHOTS.map((s, i) => (
+              <li key={s.src} className={i === 0 ? "md:col-span-2" : undefined}>
+                <figure className="overflow-hidden rounded-lg border bg-card shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- static, same-origin, sized */}
+                  <img src={s.src} width={s.width} height={s.height} alt={t(`screens.${s.key}.alt`)} loading={i === 0 ? "eager" : "lazy"} className="h-auto w-full" />
+                  <figcaption className="border-t p-4">
+                    <span className="font-semibold">{t(`screens.${s.key}.title`)}</span>
+                    <span className="block text-sm text-muted-foreground">{t(`screens.${s.key}.body`)}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section aria-labelledby="how" className="mx-auto max-w-4xl px-4 py-16">
         <h2 id="how" className="text-center text-2xl font-semibold">{t("howTitle")}</h2>

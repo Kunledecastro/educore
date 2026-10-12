@@ -13,6 +13,8 @@ declare module "next-auth" {
     /** Session version at sign-in; a mismatch means "signed out everywhere". -1 = a session from before Phase 6. */
     sv: number;
     sid: string;
+    /** Minutes without activity before sign-out (0 = none known). */
+    idle: number;
   }
 
   interface User {
@@ -30,5 +32,10 @@ declare module "@auth/core/jwt" {
     mfa?: "ok" | "pending";
     sv?: number;
     sid?: string;
+    /** Inactivity limits (lib/security/session-limits.ts). */
+    act?: number;
+    aat?: number;
+    idl?: number;
+    mxa?: number;
   }
 }

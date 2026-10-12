@@ -16,7 +16,9 @@
     "more": "More actions",
     "new": "New",
     "signInSecurity": "Sign-in security",
-    "changePassword": "Change password"
+    "changePassword": "Change password",
+    "support": "EduCore support",
+    "supportMessage": "Hello EduCore team, I need help with our school's account."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -73,7 +75,8 @@
       "Unknown": "Something went wrong signing you in. Please try again."
     },
     "notices": {
-      "PasswordSet": "Your password is set. Sign in with your email and new password."
+      "PasswordSet": "Your password is set. Sign in with your email and new password.",
+      "SignedOutIdle": "You were signed out because you weren't active for a while. Sign in again to continue."
     },
     "newSchool": "New school?",
     "startTrial": "Start a free trial",
@@ -2167,7 +2170,10 @@
       "pricing": "Pricing",
       "signIn": "Sign in",
       "startTrial": "Start free trial",
-      "terms": "Terms & privacy"
+      "terms": "Terms & privacy",
+      "contact": "Contact",
+      "help": "Help",
+      "whatsapp": "WhatsApp us"
     },
     "home": {
       "eyebrow": "School management, made for Nigerian schools",
@@ -2216,6 +2222,35 @@
         "three": {
           "title": "Invite your team",
           "body": "Send staff and parents their invitations; they set their own passwords."
+        }
+      },
+      "seeTitle": "See it in action",
+      "seeLead": "Real screens from our demo school — this is what your staff and parents will use.",
+      "screens": {
+        "dashboard": {
+          "title": "The admin dashboard",
+          "body": "Enrolment, today's attendance, fees collected and what needs your attention, on one page.",
+          "alt": "EduCore admin dashboard showing enrolment, attendance and fee collection"
+        },
+        "attendance": {
+          "title": "Morning register in a minute",
+          "body": "Teachers tap present, absent or late for the whole class, on a phone or a computer.",
+          "alt": "Attendance register for a class with each pupil marked present, absent or late"
+        },
+        "reportCard": {
+          "title": "Report cards, done for you",
+          "body": "Scores, grades, positions and comments, laid out and ready to print or share.",
+          "alt": "A generated report card with subject scores, grades and teacher comments"
+        },
+        "fees": {
+          "title": "Fees without the paper chase",
+          "body": "Invoices, part-payments, discounts and receipts, with what each family still owes.",
+          "alt": "Fee invoice showing items, payments and the balance owed"
+        },
+        "parent": {
+          "title": "Parents see their own children",
+          "body": "Results, attendance, fees and messages from teachers, and fees paid online.",
+          "alt": "Parent portal showing a child's results, attendance and fees due"
         }
       }
     },
@@ -2346,6 +2381,48 @@
         "title": "Questions",
         "body": "Contact the EduCore team through your school's administrator or the address you were given when you signed up."
       }
+    },
+    "contact": {
+      "metaTitle": "Contact EduCore",
+      "title": "Talk to a person",
+      "lead": "Questions before you start, a demo for your proprietor, or help setting up — reach us the way that suits you.",
+      "waysTitle": "Ways to reach us",
+      "whatsappTitle": "WhatsApp",
+      "whatsappBody": "The quickest way to reach us. Ask a question or book a demo for your school.",
+      "whatsappCta": "Chat on WhatsApp",
+      "whatsappMessage": "Hello EduCore, I'd like to know more about EduCore for my school.",
+      "floating": "Chat with us",
+      "phoneTitle": "Call us",
+      "phoneBody": "Prefer to talk it through? Give us a call during working hours.",
+      "emailTitle": "Email",
+      "emailBody": "For detailed questions, documents or anything you'd like in writing.",
+      "noneYet": "Our contact details will be here shortly. In the meantime, start a free trial — it takes a few minutes.",
+      "schoolUsers": "Already using EduCore as a parent, pupil or teacher? Please contact your school first — they manage your account.",
+      "faqTitle": "Common questions",
+      "faq": {
+        "signIn": {
+          "q": "How do people sign in to the right school?",
+          "a": "Each email address belongs to one school, so EduCore knows which school to open — no one picks from a list. On your school's own EduCore address, only your school's accounts can sign in. Pupils sign in with the school's short name and their admission number."
+        },
+        "trial": {
+          "q": "How does the free trial work?",
+          "a": "You get 30 days with everything switched on, and no card is needed to start. At the end you choose a plan; if you don't, your data stays safe and readable so you can export it."
+        },
+        "import": {
+          "q": "Can we bring in our existing class lists?",
+          "a": "Yes. Download the spreadsheet template for classes, pupils or staff, fill it in, and upload it. EduCore checks every row and shows you exactly which rows need fixing."
+        },
+        "data": {
+          "q": "Is our school's data safe?",
+          "a": "Every school's data is kept separate from every other school's, checked on each request and again inside the database. Health information is encrypted, important changes are recorded in an audit log, and your school can export its data at any time."
+        },
+        "parents": {
+          "q": "What do parents see?",
+          "a": "Parents get their own sign-in and see only their own children: attendance, results, report cards, fees and messages from teachers. They can pay fees online, and receipts are issued automatically."
+        }
+      },
+      "ctaTrial": "Start a free trial",
+      "ctaPricing": "See pricing"
     }
   },
   "announcements": {
@@ -3507,6 +3584,41 @@
         "step2SamePeople": "The second step needs a different person from the first, but the same single person is named for both.",
         "step2NoThreshold": ""
       }
+    }
+  },
+  "sessionSecurity": {
+    "title": "Sign-out after inactivity",
+    "explain": "Staff are signed out automatically when they stop using EduCore, so a computer or phone left open in the staff room doesn't stay signed in. They get a one-minute warning first.",
+    "staffIdleLabel": "Sign staff out after",
+    "minutes": "{count} minutes",
+    "save": "Save",
+    "saved": "Inactivity setting saved. It applies from each person's next sign-in.",
+    "fixedNote": "Parents are signed out after 60 minutes and pupils after 30. School admins and bursars must also sign in again every 12 hours, however active they are.",
+    "warningTitle": "Are you still there?",
+    "warningBody": "You'll be signed out in {seconds} seconds because you haven't used EduCore for a while.",
+    "signOutNow": "Sign out now",
+    "staySignedIn": "Stay signed in"
+  },
+  "sampleData": {
+    "title": "Try EduCore with sample data",
+    "body": "Not ready to import your own lists? Load two sample classes with 24 pupils, two weeks of attendance and a first test in four subjects, then explore. Remove it all with one click when you're done.",
+    "load": "Load sample data",
+    "loadTitle": "Load sample data?",
+    "loadDescription": "Everything added is labelled \"(sample)\" and can be removed later without touching anything you add yourself. Sample teachers can't sign in and are never emailed. Marks are only added once your terms are set up.",
+    "loaded": "Sample data loaded — explore attendance, the gradebook and report cards.",
+    "loadedTitle": "You're looking at sample data",
+    "loadedBody": "{pupils} sample pupils and their classes are in your school. Remove them before you import your real lists.",
+    "remove": "Remove sample data",
+    "removeTitle": "Remove all sample data?",
+    "removeDescription": "This deletes the sample classes, pupils, teachers, subjects, attendance and marks. Anything your school added itself stays as it is.",
+    "removed": "Sample data removed.",
+    "errors": {
+      "noYear": "Set up your academic year first, then load sample data.",
+      "notEmpty": "Sample data is only for a school that hasn't added classes or pupils yet.",
+      "alreadyLoaded": "Sample data is already loaded.",
+      "notLoaded": "There's no sample data to remove.",
+      "inUse": "Some of your own pupils are in a sample class. Move them to one of your classes first, then remove the sample data.",
+      "support": "Support sessions can't load or remove sample data — ask the school admin."
     }
   }
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseStudentLogins } from "./student-logins";
 import { approvalsSettingsSchema } from "./approvals/policy";
+import { DEFAULT_STAFF_IDLE, STAFF_IDLE_CHOICES } from "./security/session-limits";
 
 /**
  * Per-school configuration (architecture rule #8: config-first). Stored in
@@ -81,9 +82,17 @@ export const tenantSettingsSchema = z.object({
   studentLogins: z.unknown().transform(parseStudentLogins),
   /** Account security (Phase 6): whether teachers must use two-factor sign-in. Admins and bursars always must. */
   security: z
-    .object({ requireTeacher2fa: z.boolean().catch(false).default(false) })
-    .catch({ requireTeacher2fa: false })
-    .default({ requireTeacher2fa: false }),
+    .object({
+      requireTeacher2fa: z.boolean().catch(false).default(false),
+      /** Staff are signed out after this many minutes without activity (one of STAFF_IDLE_CHOICES). */
+      staffIdleMinutes: z
+        .number()
+        .refine((n) => (STAFF_IDLE_CHOICES as readonly number[]).includes(n))
+        .catch(DEFAULT_STAFF_IDLE)
+        .default(DEFAULT_STAFF_IDLE),
+    })
+    .catch({ requireTeacher2fa: false, staffIdleMinutes: DEFAULT_STAFF_IDLE })
+    .default({ requireTeacher2fa: false, staffIdleMinutes: DEFAULT_STAFF_IDLE }),
   /** Student health (Phase 7): whether school admins can open full records, and how long records are kept after a pupil leaves. */
   health: z
     .object({

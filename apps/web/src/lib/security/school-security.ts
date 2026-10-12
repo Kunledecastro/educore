@@ -9,7 +9,7 @@ import { twoFactorRequired } from "./rules";
  * own school only).
  */
 
-export async function getSchoolSecurity(tenantId: string): Promise<{ requireTeacher2fa: boolean; exempt: boolean }> {
+export async function getSchoolSecurity(tenantId: string): Promise<{ requireTeacher2fa: boolean; staffIdleMinutes: number; exempt: boolean }> {
   const t = await platformPrisma().tenant.findUnique({ where: { id: tenantId }, select: { settings: true } });
   const s = parseTenantSettings(t?.settings);
   return { ...s.security, exempt: s.platformFlags.twoFactorExempt };
@@ -29,14 +29,23 @@ export async function setTwoFactorExempt(actor: { id: string; ipAddress: string 
   });
 }
 
-export async function saveSchoolSecurity(actor: { id: string; tenantId: string; ipAddress: string | null; userAgent: string | null }, requireTeacher2fa: boolean) {
+export interface SchoolSecurityChange {
+  requireTeacher2fa?: boolean;
+  /** One of STAFF_IDLE_CHOICES; checked by the settings schema on read. */
+  staffIdleMinutes?: number;
+}
+
+/** Changes only the fields given; the rest of the school's security settings are kept. */
+export async function saveSchoolSecurity(actor: { id: string; tenantId: string; ipAddress: string | null; userAgent: string | null }, change: SchoolSecurityChange | boolean) {
+  const patch: SchoolSecurityChange = typeof change === "boolean" ? { requireTeacher2fa: change } : change;
   await platformPrisma().$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${actor.tenantId} FOR UPDATE`;
     const t = await tx.tenant.findUniqueOrThrow({ where: { id: actor.tenantId }, select: { settings: true } });
     const raw = t.settings && typeof t.settings === "object" && !Array.isArray(t.settings) ? (t.settings as Record<string, unknown>) : {};
     const before = parseTenantSettings(raw).security;
-    await tx.tenant.update({ where: { id: actor.tenantId }, data: { settings: { ...raw, security: { requireTeacher2fa } } as unknown as Prisma.InputJsonValue } });
-    await recordAudit({ tenantId: actor.tenantId, actorId: actor.id, ipAddress: actor.ipAddress, userAgent: actor.userAgent }, { action: "UPDATE", entityType: "Tenant", entityId: actor.tenantId, before: { security: before }, after: { security: { requireTeacher2fa } } }, tx);
+    const after = parseTenantSettings({ security: { ...before, ...patch } }).security;
+    await tx.tenant.update({ where: { id: actor.tenantId }, data: { settings: { ...raw, security: after } as unknown as Prisma.InputJsonValue } });
+    await recordAudit({ tenantId: actor.tenantId, actorId: actor.id, ipAddress: actor.ipAddress, userAgent: actor.userAgent }, { action: "UPDATE", entityType: "Tenant", entityId: actor.tenantId, before: { security: before }, after: { security: after } }, tx);
   });
 }
 

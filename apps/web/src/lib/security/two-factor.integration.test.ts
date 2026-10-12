@@ -71,6 +71,22 @@ describe("who has to set it up", () => {
     expect(await stage("bTeacher")).toBe("ok"); // another school's setting
     await expect(startSetup(ids.pupil!)).rejects.toEqual(new TwoFactorError("notOffered"));
   });
+
+  it("the staff inactivity setting is per school, kept alongside the 2FA rule, and sets each person's limits", async () => {
+    expect((await securityState(ids.teacher!))!.limits.idleMinutes).toBe(30); // default
+    await saveSchoolSecurity({ id: ids.admin!, tenantId: A, ipAddress: null, userAgent: null }, { staffIdleMinutes: 60 });
+    expect((await securityState(ids.teacher!))!.limits.idleMinutes).toBe(60);
+    expect((await securityState(ids.admin!))!.limits).toEqual({ idleMinutes: 60, maxAgeMs: 12 * 3_600_000 });
+    expect((await securityState(ids.parent!))!.limits.idleMinutes).toBe(60); // parents: fixed
+    expect((await securityState(ids.pupil!))!.limits.idleMinutes).toBe(30); // pupils: fixed
+    expect((await securityState(ids.bTeacher!))!.limits.idleMinutes).toBe(30); // another school: untouched
+    expect((await securityState(ids.teacher!))!.stage(false)).toBe("setup"); // the 2FA rule saved earlier is kept
+    await saveSchoolSecurity({ id: ids.admin!, tenantId: A, ipAddress: null, userAgent: null }, { requireTeacher2fa: true });
+    expect((await securityState(ids.teacher!))!.limits.idleMinutes).toBe(60); // and the other way round
+    await saveSchoolSecurity({ id: ids.admin!, tenantId: A, ipAddress: null, userAgent: null }, { staffIdleMinutes: 7 });
+    expect((await securityState(ids.teacher!))!.limits.idleMinutes).toBe(30); // not a choice: safe default
+    await saveSchoolSecurity({ id: ids.admin!, tenantId: A, ipAddress: null, userAgent: null }, { staffIdleMinutes: 60 });
+  });
 });
 
 describe("set-up and codes", () => {

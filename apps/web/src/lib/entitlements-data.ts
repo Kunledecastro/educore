@@ -1,4 +1,4 @@
-import { platformPrisma, type PrismaClient } from "@educore/db";
+import { platformPrisma, type Prisma, type PrismaClient } from "@educore/db";
 import { computeEntitlements, DEFAULT_PLANS, MODULES, type Entitlements, type Module, type PlanCode, type PlanSpec } from "./entitlements";
 
 /**
@@ -51,9 +51,15 @@ export async function loadEntitlements(tenantId: string, now: Date = new Date())
   return computeEntitlements({ tenantStatus: tenant.status, tenantCreatedAt: tenant.createdAt, plan, subscription: tenant.subscription }, now);
 }
 
-/** Students that count against the plan's cap. */
-export function countActiveStudents(db: { student: { count(args: { where: { tenantId: string; status: "ACTIVE" } }): Promise<number> } }, tenantId: string): Promise<number> {
-  return db.student.count({ where: { tenantId, status: "ACTIVE" } });
+export interface StudentCountDb {
+  student: { count(args: { where: Prisma.StudentWhereInput }): Promise<number> };
+  sampleRecord: { findMany(args: { where: { tenantId: string; model: string }; select: { recordId: true } }): Promise<{ recordId: string }[]> };
+}
+
+/** Students that count against the plan's cap and the monthly bill: active, and not sample data. */
+export async function countActiveStudents(db: StudentCountDb, tenantId: string): Promise<number> {
+  const sample = (await db.sampleRecord.findMany({ where: { tenantId, model: "Student" }, select: { recordId: true } })).map((r) => r.recordId);
+  return db.student.count({ where: { tenantId, status: "ACTIVE", ...(sample.length ? { id: { notIn: sample } } : {}) } });
 }
 
 /**
@@ -62,7 +68,7 @@ export function countActiveStudents(db: { student: { count(args: { where: { tena
  * moment can't both squeeze into the last place.
  */
 export async function hasStudentCapacity(
-  tx: Pick<PrismaClient, "student" | "$executeRaw">,
+  tx: Pick<PrismaClient, "student" | "sampleRecord" | "$executeRaw">,
   tenantId: string,
   maxStudents: number | null,
   adding = 1,

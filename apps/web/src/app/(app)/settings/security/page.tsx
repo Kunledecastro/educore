@@ -6,7 +6,7 @@ import { ListPagination } from "@/components/list/list-pagination";
 import { requirePermission } from "@/lib/guard";
 import { parseListParams, type SearchParamsInput } from "@/lib/list-params";
 import { schoolAccounts } from "@/lib/security/school-security";
-import { ResetTwoFactorButton, TeacherRequirementForm } from "./controls";
+import { IdleTimeoutForm, ResetTwoFactorButton, TeacherRequirementForm } from "./controls";
 
 const FILTERS = ["all", "missing", "on"] as const;
 
@@ -16,10 +16,11 @@ export default async function SchoolSecurityPage({ searchParams }: { searchParam
   const params = parseListParams(searchParams, { sortable: ["name"] as const, defaultSort: "name" as const, defaultPageSize: 25 });
   const raw = searchParams instanceof URLSearchParams ? searchParams.get("show") : searchParams.show;
   const show = (FILTERS as readonly string[]).includes(String(Array.isArray(raw) ? raw[0] : raw)) ? (String(Array.isArray(raw) ? raw[0] : raw) as (typeof FILTERS)[number]) : "all";
-  const [data, t, tr] = await Promise.all([
+  const [data, t, tr, ts] = await Promise.all([
     schoolAccounts(user.tenantId!, { q: params.q, filter: show, skip: params.skip, take: params.take }),
     getTranslations("twoFactor.school"),
     getTranslations("roles"),
+    getTranslations("sessionSecurity"),
   ]);
 
   return (
@@ -31,6 +32,15 @@ export default async function SchoolSecurityPage({ searchParams }: { searchParam
         <p className="text-sm text-muted-foreground">{t("ruleExplain")}</p>
         {data.school.exempt ? <p className="rounded-md border border-warning p-3 text-sm">{t("exemptNote")}</p> : null}
         <TeacherRequirementForm initial={data.school.requireTeacher2fa} />
+      </section>
+
+      <section className="space-y-3 rounded-lg border bg-card p-5" aria-labelledby="sec-idle">
+        <h2 id="sec-idle" className="font-semibold">
+          {ts("title")}
+        </h2>
+        <p className="text-sm text-muted-foreground">{ts("explain")}</p>
+        <IdleTimeoutForm initial={data.school.staffIdleMinutes} />
+        <p className="text-xs text-muted-foreground">{ts("fixedNote")}</p>
       </section>
 
       <section className="space-y-3" aria-labelledby="sec-people">

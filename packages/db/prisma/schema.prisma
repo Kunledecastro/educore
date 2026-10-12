@@ -220,6 +220,7 @@ model Tenant {
   clinicVisits          ClinicVisit[]
   approvalRequests      ApprovalRequest[]
   approvalDecisions     ApprovalDecision[]
+  sampleRecords         SampleRecord[]
 
   @@map("tenants")
 }
@@ -1832,4 +1833,19 @@ model ApprovalDecision {
   @@unique([requestId, step])
   @@index([tenantId, requestId])
   @@map("approval_decisions")
+}
+
+/// Sample data for trial schools: which records "Load sample data" created, so removal deletes exactly those.
+model SampleRecord {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  /// User | Subject | ClassGrade | Student | AssessmentType | Assessment
+  model     String
+  recordId  String
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, model, recordId])
+  @@index([tenantId])
+  @@map("sample_records")
 }

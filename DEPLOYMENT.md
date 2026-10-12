@@ -154,3 +154,28 @@ data.
 
 None of these block a Phase 0 deploy — they're documented in
 `.env.example` for when the corresponding feature is built.
+
+## Support contacts, inactivity sign-out and sample data (tester review, Oct 2026)
+
+**Support contacts.** Set these in Vercel → Project Settings → Environment Variables (Production), then redeploy. They're public values, not secrets.
+- `NEXT_PUBLIC_SUPPORT_WHATSAPP`: the WhatsApp number in international format, digits only (e.g. `2348012345678`).
+- `NEXT_PUBLIC_SUPPORT_EMAIL`
+- `NEXT_PUBLIC_SUPPORT_PHONE`
+
+Any you leave out are hidden. `/contact` still shows the FAQ.
+
+**Inactivity sign-out** needs no set-up. Schools choose the staff limit in Settings → Security. Existing sessions pick up the limits on their next request.
+
+**Sample data** needs migration `0033_sample_records`. Schools load and remove it from the dashboard; nothing to configure.
+
+**Landing page screenshots.** Add each one in two steps:
+1. Put the image (about 1600 px wide, light mode, browser bar cropped, demo school only) in `apps/web/public/screens/`.
+2. List it in `apps/web/src/lib/marketing-screens.ts`.
+
+The section appears once at least one is listed.
+
+**Upstash (rate limiting across servers).** The code is ready; it needs the account and two variables:
+1. Sign up at upstash.com (free tier) and create a Redis database in the region closest to the app.
+2. On the database page, copy the REST URL and REST token.
+3. In Vercel, add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`, marking the token as Sensitive, then redeploy.
+4. Check: after six wrong passwords for one account, sign-in reports too many attempts, even from a different browser.

@@ -16,7 +16,9 @@
     "more": "Autres actions",
     "new": "Nouveau",
     "signInSecurity": "Sécurité de connexion",
-    "changePassword": "Changer le mot de passe"
+    "changePassword": "Changer le mot de passe",
+    "support": "Assistance EduCore",
+    "supportMessage": "Bonjour l'équipe EduCore, j'ai besoin d'aide pour le compte de notre école."
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -73,7 +75,8 @@
       "Unknown": "Un problème est survenu lors de la connexion. Réessayez."
     },
     "notices": {
-      "PasswordSet": "Votre mot de passe est défini. Connectez-vous avec votre e-mail et ce nouveau mot de passe."
+      "PasswordSet": "Votre mot de passe est défini. Connectez-vous avec votre e-mail et ce nouveau mot de passe.",
+      "SignedOutIdle": "Vous avez été déconnecté après une période d'inactivité. Reconnectez-vous pour continuer."
     },
     "newSchool": "Nouvelle école ?",
     "startTrial": "Commencer l'essai gratuit",
@@ -2167,7 +2170,10 @@
       "pricing": "Tarifs",
       "signIn": "Se connecter",
       "startTrial": "Essai gratuit",
-      "terms": "Conditions et confidentialité"
+      "terms": "Conditions et confidentialité",
+      "contact": "Contact",
+      "help": "Aide",
+      "whatsapp": "Écrivez-nous sur WhatsApp"
     },
     "home": {
       "eyebrow": "La gestion scolaire, pensée pour les écoles africaines",
@@ -2216,6 +2222,35 @@
         "three": {
           "title": "Invitez votre équipe",
           "body": "Envoyez les invitations au personnel et aux parents ; chacun choisit son mot de passe."
+        }
+      },
+      "seeTitle": "EduCore en images",
+      "seeLead": "De vrais écrans de notre école de démonstration : voici ce qu'utiliseront votre personnel et vos parents.",
+      "screens": {
+        "dashboard": {
+          "title": "Le tableau de bord",
+          "body": "Effectifs, présences du jour, frais encaissés et points à traiter, sur une seule page.",
+          "alt": "Tableau de bord EduCore avec effectifs, présences et encaissements"
+        },
+        "attendance": {
+          "title": "L'appel en une minute",
+          "body": "Les enseignants marquent présent, absent ou en retard pour toute la classe, sur téléphone ou ordinateur.",
+          "alt": "Registre d'appel d'une classe avec chaque élève marqué présent, absent ou en retard"
+        },
+        "reportCard": {
+          "title": "Des bulletins prêts",
+          "body": "Notes, appréciations, rangs et commentaires, mis en page et prêts à imprimer ou partager.",
+          "alt": "Bulletin généré avec notes par matière, appréciations et commentaires"
+        },
+        "fees": {
+          "title": "Les frais sans paperasse",
+          "body": "Factures, paiements partiels, réductions et reçus, avec le solde de chaque famille.",
+          "alt": "Facture de frais avec lignes, paiements et solde dû"
+        },
+        "parent": {
+          "title": "Chaque parent voit ses enfants",
+          "body": "Résultats, présences, frais et messages des enseignants, avec paiement en ligne.",
+          "alt": "Portail parent avec les résultats, les présences et les frais d'un enfant"
         }
       }
     },
@@ -2346,6 +2381,48 @@
         "title": "Questions",
         "body": "Contactez l'équipe EduCore via l'administrateur de votre école ou l'adresse communiquée lors de l'inscription."
       }
+    },
+    "contact": {
+      "metaTitle": "Contacter EduCore",
+      "title": "Parlez à une personne",
+      "lead": "Des questions avant de commencer, une démonstration pour votre promoteur ou de l'aide pour l'installation — contactez-nous comme vous préférez.",
+      "waysTitle": "Nous contacter",
+      "whatsappTitle": "WhatsApp",
+      "whatsappBody": "Le moyen le plus rapide. Posez une question ou réservez une démonstration pour votre école.",
+      "whatsappCta": "Discuter sur WhatsApp",
+      "whatsappMessage": "Bonjour EduCore, j'aimerais en savoir plus sur EduCore pour mon école.",
+      "floating": "Discutons",
+      "phoneTitle": "Appelez-nous",
+      "phoneBody": "Vous préférez en parler ? Appelez-nous aux heures de bureau.",
+      "emailTitle": "E-mail",
+      "emailBody": "Pour les questions détaillées, les documents ou tout ce que vous voulez par écrit.",
+      "noneYet": "Nos coordonnées seront bientôt disponibles. En attendant, commencez un essai gratuit — cela ne prend que quelques minutes.",
+      "schoolUsers": "Vous utilisez déjà EduCore comme parent, élève ou enseignant ? Contactez d'abord votre école — c'est elle qui gère votre compte.",
+      "faqTitle": "Questions fréquentes",
+      "faq": {
+        "signIn": {
+          "q": "Comment chacun se connecte-t-il à la bonne école ?",
+          "a": "Chaque adresse e-mail appartient à une seule école : EduCore sait donc quelle école ouvrir, sans liste à choisir. Sur l'adresse EduCore de votre école, seuls les comptes de votre école peuvent se connecter. Les élèves utilisent le nom court de l'école et leur numéro d'inscription."
+        },
+        "trial": {
+          "q": "Comment fonctionne l'essai gratuit ?",
+          "a": "Vous avez 30 jours avec toutes les fonctions, sans carte bancaire. À la fin, vous choisissez une formule ; sinon, vos données restent en sécurité et consultables pour que vous puissiez les exporter."
+        },
+        "import": {
+          "q": "Pouvons-nous reprendre nos listes existantes ?",
+          "a": "Oui. Téléchargez le modèle de tableur pour les classes, les élèves ou le personnel, remplissez-le et importez-le. EduCore vérifie chaque ligne et vous indique précisément celles à corriger."
+        },
+        "data": {
+          "q": "Les données de notre école sont-elles protégées ?",
+          "a": "Les données de chaque école sont séparées de celles des autres, vérifiées à chaque requête puis à nouveau dans la base de données. Les informations de santé sont chiffrées, les changements importants sont enregistrés dans un journal d'audit, et votre école peut exporter ses données à tout moment."
+        },
+        "parents": {
+          "q": "Que voient les parents ?",
+          "a": "Les parents ont leur propre connexion et ne voient que leurs enfants : présences, résultats, bulletins, frais et messages des enseignants. Ils peuvent payer en ligne et les reçus sont émis automatiquement."
+        }
+      },
+      "ctaTrial": "Commencer un essai gratuit",
+      "ctaPricing": "Voir les tarifs"
     }
   },
   "announcements": {
@@ -3507,6 +3584,41 @@
         "step2SamePeople": "La deuxième étape demande une personne différente de la première, mais la même personne seule est désignée pour les deux.",
         "step2NoThreshold": ""
       }
+    }
+  },
+  "sessionSecurity": {
+    "title": "Déconnexion après inactivité",
+    "explain": "Le personnel est déconnecté automatiquement lorsqu'il n'utilise plus EduCore, pour qu'un ordinateur ou un téléphone laissé ouvert en salle des professeurs ne reste pas connecté. Un avertissement apparaît une minute avant.",
+    "staffIdleLabel": "Déconnecter le personnel après",
+    "minutes": "{count} minutes",
+    "save": "Enregistrer",
+    "saved": "Réglage enregistré. Il s'applique à la prochaine connexion de chacun.",
+    "fixedNote": "Les parents sont déconnectés après 60 minutes et les élèves après 30. Les administrateurs et économes doivent aussi se reconnecter toutes les 12 heures, même s'ils sont actifs.",
+    "warningTitle": "Êtes-vous toujours là ?",
+    "warningBody": "Vous serez déconnecté dans {seconds} secondes car vous n'avez pas utilisé EduCore depuis un moment.",
+    "signOutNow": "Se déconnecter",
+    "staySignedIn": "Rester connecté"
+  },
+  "sampleData": {
+    "title": "Essayez EduCore avec des données d'exemple",
+    "body": "Pas encore prêt à importer vos listes ? Chargez deux classes d'exemple avec 24 élèves, deux semaines de présences et un premier devoir dans quatre matières, puis explorez. Supprimez tout en un clic ensuite.",
+    "load": "Charger les données d'exemple",
+    "loadTitle": "Charger les données d'exemple ?",
+    "loadDescription": "Tout ce qui est ajouté porte la mention « (sample) » et peut être supprimé plus tard sans toucher à ce que vous ajoutez vous-même. Les enseignants d'exemple ne peuvent pas se connecter et ne reçoivent aucun e-mail. Les notes ne sont ajoutées que si vos trimestres sont configurés.",
+    "loaded": "Données d'exemple chargées — explorez les présences, le carnet de notes et les bulletins.",
+    "loadedTitle": "Vous consultez des données d'exemple",
+    "loadedBody": "{pupils} élèves d'exemple et leurs classes sont dans votre école. Supprimez-les avant d'importer vos vraies listes.",
+    "remove": "Supprimer les données d'exemple",
+    "removeTitle": "Supprimer toutes les données d'exemple ?",
+    "removeDescription": "Cela supprime les classes, élèves, enseignants, matières, présences et notes d'exemple. Ce que votre école a ajouté elle-même reste inchangé.",
+    "removed": "Données d'exemple supprimées.",
+    "errors": {
+      "noYear": "Configurez d'abord votre année scolaire, puis chargez les données d'exemple.",
+      "notEmpty": "Les données d'exemple sont réservées aux écoles qui n'ont encore ajouté ni classe ni élève.",
+      "alreadyLoaded": "Les données d'exemple sont déjà chargées.",
+      "notLoaded": "Il n'y a pas de données d'exemple à supprimer.",
+      "inUse": "Certains de vos élèves sont dans une classe d'exemple. Déplacez-les d'abord dans une de vos classes, puis supprimez les données d'exemple.",
+      "support": "Les sessions d'assistance ne peuvent pas charger ni supprimer les données d'exemple — demandez à l'administrateur de l'école."
     }
   }
 }

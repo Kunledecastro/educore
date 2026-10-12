@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { platformPrisma, recordAudit, recordPlatformAudit, type PrismaClient } from "@educore/db";
 import { DEFAULT_PLANS, type PlanCode } from "../entitlements";
-import { loadEntitlements, toPlanRow, type PlanRow } from "../entitlements-data";
+import { countActiveStudents, loadEntitlements, toPlanRow, type PlanRow } from "../entitlements-data";
 import { paystack, type PaymentProvider, type Verification } from "../payments/paystack";
 import { decideSettlement } from "../payments/settle-rules";
 import { addMonths, checkoutPeriodStart, isRenewalDue, monthlyQuote, nextRetryAt, planAction, type PlanAction } from "./rules";
@@ -62,7 +62,7 @@ export async function quoteCheckout(tenantId: string, code: PlanCode, now: Date 
     planRow(db, code),
     loadEntitlements(tenantId, now),
     db.subscription.findUnique({ where: { tenantId }, select: { currentPeriodEnd: true } }),
-    db.student.count({ where: { tenantId, status: "ACTIVE" } }),
+    countActiveStudents(db, tenantId),
   ]);
   const periodStart = checkoutPeriodStart(e, sub?.currentPeriodEnd ?? null, now);
   return { plan, periodStart, periodEnd: addMonths(periodStart, 1), ...monthlyQuote(plan, active) };
@@ -263,7 +263,7 @@ export async function chargeRenewal(tenantId: string, provider: PaymentProvider 
       await recordPlatformAudit(SYSTEM, { action: "SUBSCRIPTION_DOWNGRADED", tenantId, entityType: "Subscription", entityId: tenantId, before: { plan: sub.tenant.plan }, after: { plan: sub.pendingPlan } }, tx);
     }
 
-    const q = monthlyQuote(plan, await tx.student.count({ where: { tenantId, status: "ACTIVE" } }));
+    const q = monthlyQuote(plan, await countActiveStudents(tx, tenantId));
     if (invoice && (invoice.amountMinor !== q.amountMinor || invoice.plan !== code)) {
       await tx.platformInvoice.update({ where: { id: invoice.id }, data: { status: "VOID" } });
       invoice = null;

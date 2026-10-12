@@ -12,6 +12,7 @@ import { clientIpFromHeaders } from "./request-meta";
 import { studentUsername } from "./student-logins";
 import { studentMayUseLogin } from "./student-logins-data";
 import { REMEMBER_COOKIE, tokenAfterUpdate, tokenAtSignIn } from "./security/session-state";
+import { claimsAtSignIn, isActivityPing, sessionExpired, touched } from "./security/session-limits";
 import { securityState } from "./security/two-factor";
 
 /** The "remember this device" cookie, if the request has one (sign-in runs inside a request). */
@@ -141,9 +142,18 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
         // the code step is still needed (2FA on and this device not remembered).
         const state = user.id ? await securityState(user.id) : null;
         const facts = state ? { userId: state.id, twoFactorEnabled: state.twoFactorEnabled, twoFactorVersion: state.twoFactorVersion, sessionVersion: state.sessionVersion } : null;
-        return { ...token, ...tokenAtSignIn(facts, await rememberCookie()) };
+        return { ...token, ...tokenAtSignIn(facts, await rememberCookie()), ...(state ? claimsAtSignIn(state.limits) : {}) };
       }
+      // Sessions from before the inactivity rules: start their clocks now.
+      if (token.idl === undefined && token.sub) {
+        const state = await securityState(token.sub);
+        if (state) token = { ...token, ...claimsAtSignIn(state.limits) };
+      }
+      // Idle too long, or past the longest a session may last: signed out (Auth.js clears the cookie).
+      if (sessionExpired(token)) return null;
       if (trigger === "update") {
+        // The browser's idle timer reports activity; that only moves the idle clock.
+        if (isActivityPing(session)) return touched(token);
         // Only our server can mint a valid proof (after a correct code); anything else a browser sends is ignored.
         return tokenAfterUpdate(token, session, async () => (await securityState(token.sub!))?.sessionVersion ?? null);
       }
@@ -166,6 +176,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
       session.mfa = token.mfa ?? "ok";
       session.sv = token.sv ?? -1;
       session.sid = token.sid ?? "";
+      session.idle = token.idl ?? 0;
       return session;
     },
   },

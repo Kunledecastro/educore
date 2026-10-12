@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma, Role, type TenantScopedClient } from "@educore/db";
 import { inviteIdentifier } from "./invite-token";
+import { sampleIds } from "./sample-data";
 import { buildOnboardingChecklist, type OnboardingChecklist, type OnboardingFacts } from "./onboarding";
 
 /** Staff roles whose sign-in the "invite" step tracks. Parents are deliberately excluded (see onboarding.ts). */
@@ -15,14 +16,17 @@ const STAFF_ROLES = [Role.SCHOOL_ADMIN, Role.TEACHER, Role.ACCOUNTANT] as const;
 export async function loadOnboardingFacts(db: TenantScopedClient, viewerId: string): Promise<OnboardingFacts> {
   const activeYear = await db.academicYear.findFirst({ where: { isActive: true }, select: { id: true, name: true } });
   const yearId = activeYear?.id ?? "__none__";
+  // Sample data (if loaded) never counts towards the school's own set-up.
+  const sample = await sampleIds(db as unknown as Parameters<typeof sampleIds>[0]);
+  const notSampleClass = sample.classIds.length ? { id: { notIn: sample.classIds } } : {};
 
   const [classCount, sectionCount, teacherCount, subjectCount, assignmentCount, studentCount, staffAccounts] = await Promise.all([
-    db.classGrade.count({ where: { academicYearId: yearId } }),
-    db.section.count({ where: { class: { academicYearId: yearId } } }),
+    db.classGrade.count({ where: { academicYearId: yearId, ...notSampleClass } }),
+    db.section.count({ where: { class: { academicYearId: yearId, ...notSampleClass } } }),
     db.teacher.count({ where: { user: { isActive: true } } }),
-    db.subject.count(),
-    db.classSectionSubject.count({ where: { section: { class: { academicYearId: yearId } } } }),
-    db.student.count({ where: { academicYearId: yearId, status: "ACTIVE" } }),
+    db.subject.count(sample.subjectIds.length ? { where: { id: { notIn: sample.subjectIds } } } : undefined),
+    db.classSectionSubject.count({ where: { section: { class: { academicYearId: yearId, ...notSampleClass } } } }),
+    db.student.count({ where: { academicYearId: yearId, status: "ACTIVE", ...(sample.studentIds.length ? { id: { notIn: sample.studentIds } } : {}) } }),
     db.user.findMany({
       where: { isActive: true, role: { in: [...STAFF_ROLES] }, id: { not: viewerId } },
       select: { id: true, passwordHash: true },

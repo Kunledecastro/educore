@@ -11,7 +11,7 @@ const KNOWN_ERRORS = ["WrongSchool", "SessionRequired", "CredentialsSignin", "Ac
 type KnownError = (typeof KNOWN_ERRORS)[number];
 
 /** `?notice=` codes for good news (e.g. after setting a password from an invite). */
-const KNOWN_NOTICES = ["PasswordSet"] as const;
+const KNOWN_NOTICES = ["PasswordSet", "SignedOutIdle"] as const;
 
 export default async function LoginPage({ searchParams }: { searchParams: { error?: string | string[]; notice?: string | string[]; as?: string } }) {
   const [tenant, t] = await Promise.all([getCurrentTenant(), getTranslations("login")]);

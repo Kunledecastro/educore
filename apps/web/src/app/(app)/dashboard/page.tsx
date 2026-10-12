@@ -6,6 +6,8 @@ import { requireUser } from "@/lib/guard";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { formatMoney, formatNumber, todayInTimeZone } from "@/lib/format";
 import { loadOnboardingChecklist } from "@/lib/onboarding-data";
+import { sampleDataStatus } from "@/lib/sample-data";
+import { SampleDataCard } from "@/components/dashboard/sample-data-card";
 import { getCurrentTerm } from "@/lib/current-term";
 import { isSchoolDay } from "@/lib/attendance";
 import { incompleteRegisters } from "@/lib/attendance-data";
@@ -55,9 +57,11 @@ export default async function DashboardPage() {
   // Setup checklist (milestone 1.4): school admins only. Shown until they hide
   // it; once hidden, a slim reminder stays while setup is unfinished.
   let onboarding: { checklist: Checklist; hidden: boolean } | null = null;
+  let sample: Awaited<ReturnType<typeof sampleDataStatus>> | null = null;
   if (user.tenantId && can(user.role, "onboarding", "read")) {
-    const [checklist, { tenant }] = await Promise.all([loadOnboardingChecklist(db, user.id), getTenantForUser(user.tenantId)]);
+    const [checklist, { tenant }, sampleStatus] = await Promise.all([loadOnboardingChecklist(db, user.id), getTenantForUser(user.tenantId), sampleDataStatus(user.tenantId)]);
     onboarding = { checklist, hidden: Boolean(tenant?.onboardingDismissedAt) };
+    sample = sampleStatus;
   }
 
   // Announcements and unread messages (4.4), when the school's plan includes messaging.
@@ -199,6 +203,7 @@ export default async function DashboardPage() {
           </p>
         ) : null}
       </div>
+      {sample && (sample.loaded || sample.canLoad) ? <SampleDataCard loaded={sample.loaded} pupils={sample.pupils} /> : null}
       {onboarding && !onboarding.hidden ? <OnboardingChecklist checklist={onboarding.checklist} /> : null}
       {onboarding && onboarding.hidden && !onboarding.checklist.complete ? (
         <OnboardingReminder checklist={onboarding.checklist} />

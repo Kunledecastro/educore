@@ -3,6 +3,52 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Tester review fixes (October 2026)
+
+From the first external tester's review (`EduCore_Review.docx`). Each point was checked against the code, and only the real gaps were changed.
+
+### Added
+
+- **Sign-out after inactivity.**
+  - Staff are signed out after the school's chosen time (15, 30, 60 or 120 minutes; default 30). The setting is in Settings → Security.
+  - Parents are signed out after 60 minutes and pupils after 30. The platform team is signed out after 15.
+  - A one-minute warning offers "Stay signed in".
+  - Activity in any tab counts.
+  - The server enforces the same limit through the session token, so closing the tab or blocking scripts doesn't get round it.
+- **Shorter sessions for powerful roles.** School admins, bursars and the platform team must sign in again every 12 hours, however active they are. Other roles: teachers 30 days, pupils 7 days, parents 30 days.
+- **Contact and help.**
+  - A new `/contact` page with WhatsApp click-to-chat, phone and email, and common questions (how sign-in works, the trial, imports, data safety, what parents see).
+  - Contact, Help and WhatsApp links in the site header and footer.
+  - A floating "Chat with us" button on the public site.
+  - An "EduCore support" link in the app for school admins and bursars. Teachers, parents and pupils are pointed to their school instead.
+  - Contact details come from `NEXT_PUBLIC_SUPPORT_WHATSAPP`, `NEXT_PUBLIC_SUPPORT_EMAIL` and `NEXT_PUBLIC_SUPPORT_PHONE`. Anything not set is hidden.
+- **Sample data for new schools.**
+  - Schools that haven't added classes or pupils get "Try EduCore with sample data" on the dashboard. It adds two labelled classes, 24 pupils, two weeks of attendance and, once terms exist, a first test in four subjects.
+  - "Remove sample data" deletes exactly those records. Each one is listed in the new `sample_records` table (migration 0033: RLS, and the app role can't edit markers).
+  - Removal is refused while the school's own pupils sit in a sample class.
+  - Sample data never ticks onboarding steps, counts towards the plan's pupil limit, or appears on the monthly bill.
+  - Sample teachers are switched-off accounts with no password and an undeliverable `.invalid` address.
+- **"See it in action" section on the landing page.** It shows screenshots listed in `lib/marketing-screens.ts` and stays hidden until real screenshots of the demo school are added.
+
+### Changed
+
+- `saveSchoolSecurity` now changes only the fields it is given. Previously, saving the 2FA rule would have replaced any other security setting.
+
+### Already in place (confirmed for the tester)
+
+- Parents changing an ID in the URL can't reach another child's data.
+- Password rules: at least 10 characters, letters and numbers, Argon2 hashing.
+- CSV safety: imports are validated, and exported cells are protected against formula injection.
+- Security headers: CSP, X-Frame-Options DENY, HSTS.
+- Rate limiting on every sign-in route. It is shared across servers once Upstash is configured.
+
+### Tests
+
+- Session limit rules: 7 tests.
+- Support contact parsing: 3 tests.
+- Sample data integration: 10 tests (loading conditions, labels, onboarding/billing exclusion, isolation between schools, marker grants, exact removal).
+- Per-school inactivity setting: 1 test.
+
 ## Phase 8 — Approval workflows (in progress)
 
 Spec: `claude/phase-8-spec.md` (decisions confirmed 2026-10-08):

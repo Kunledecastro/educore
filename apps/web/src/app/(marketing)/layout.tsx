@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@educore/ui/button";
+import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
+import { SUPPORT, whatsappLink } from "@/lib/support";
 
 /** Public site (Phase 4.3): header with the main links, footer. No session needed. */
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const t = await getTranslations("marketing.nav");
+  const [t, tc] = await Promise.all([getTranslations("marketing.nav"), getTranslations("marketing.contact")]);
   return (
     <div className="flex min-h-screen flex-col">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2">
@@ -21,6 +23,9 @@ export default async function MarketingLayout({ children }: { children: React.Re
             </Link>
             <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
               {t("pricing")}
+            </Link>
+            <Link href="/contact" className="text-muted-foreground hover:text-foreground">
+              {t("contact")}
             </Link>
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -41,9 +46,22 @@ export default async function MarketingLayout({ children }: { children: React.Re
           <span>© {new Date().getFullYear()} EduCore</span>
           <Link href="/features" className="hover:text-foreground">{t("features")}</Link>
           <Link href="/pricing" className="hover:text-foreground">{t("pricing")}</Link>
+          <Link href="/contact" className="hover:text-foreground">{t("contact")}</Link>
+          <Link href="/contact#help" className="hover:text-foreground">{t("help")}</Link>
           <Link href="/terms" className="hover:text-foreground">{t("terms")}</Link>
+          {SUPPORT.whatsapp ? (
+            <a href={whatsappLink(SUPPORT.whatsapp, tc("whatsappMessage"))} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+              {t("whatsapp")}
+            </a>
+          ) : null}
+          {SUPPORT.email ? (
+            <a href={`mailto:${SUPPORT.email}`} className="hover:text-foreground">
+              {SUPPORT.email}
+            </a>
+          ) : null}
         </div>
       </footer>
+      <WhatsAppButton />
     </div>
   );
 }

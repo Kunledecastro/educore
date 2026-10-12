@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Role } from "@educore/db";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
 import { getNavItemsForRole } from "@/lib/nav";
+import { IdleTimer } from "@/components/security/idle-timer";
 import { getEffectiveSession, getSignInStage } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
@@ -69,6 +70,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
           {children}
         </main>
+        <IdleTimer />
       </div>
     </>
   );
