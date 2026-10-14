@@ -5,6 +5,7 @@ import { getNavItemsForRole } from "@/lib/nav";
 import { IdleTimer } from "@/components/security/idle-timer";
 import { getEffectiveSession, getSignInStage } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
+import { TopBar } from "@/components/layout/top-bar";
 import { ImpersonationBanner } from "@/components/platform/impersonation-banner";
 import { PlanBanner } from "@/components/plan/plan-banner";
 import { BrandStyle } from "@/components/branding/brand-style";
@@ -67,8 +68,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="contents print:hidden">
           <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} logoUrl={logo} />
         </div>
-        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
-          {children}
+        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            {settings ? (
+              <TopBar
+                timeZone={settings.timezone}
+                locale={settings.locale}
+                search={(["SCHOOL_ADMIN", "TEACHER", "ACCOUNTANT", "SCHOOL_NURSE"] as string[]).includes(session.user.role)}
+              />
+            ) : null}
+            {children}
+          </div>
         </main>
         <IdleTimer />
       </div>

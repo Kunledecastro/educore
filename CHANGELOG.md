@@ -3,6 +3,41 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 9 — UI/UX redesign, "Harmattan Gold" (in progress)
+
+Spec: `claude/phase-9-spec.md`. The design was approved on the EduCore Redesign Mockups canvas.
+
+### Changed (9.0 — look and feel, every page)
+
+- **Colours.**
+  - New design tokens: a warm cream background, near-black "ink" for text and buttons, and amber highlights.
+  - A sand → honey → terracotta gradient (`bg-harmattan`, `bg-harmattan-soft`) for hero panels and big number cards.
+  - A matching dark mode: deep plum-black with muted amber.
+  - A school's brand colour still overrides `--primary` (logo tile, active menu icon, links, focus ring).
+- **Font.** Plus Jakarta Sans, self-hosted from npm (`@fontsource-variable/plus-jakarta-sans`). Nothing loads from Google, and the CSP is unchanged.
+- **Components.**
+  - Pill-shaped buttons; the default button is ink, and a new `brand` variant uses the school's colour.
+  - Cards, dialogs and menus have larger rounded corners.
+  - Inputs, selects and text areas sit on the card colour.
+  - Empty states use a soft warm icon.
+- **Sidebar.**
+  - School logo, or the school's initials, in a rounded tile.
+  - The active item is a soft amber tint with an amber icon.
+  - Counts appear as ink pills.
+  - A Light / Dark / Same-as-device switch.
+- **Desktop top bar.** Today's date and a quick pupil search (admins, teachers, bursars, nurses).
+- **Dashboard heading.** Greets by time of day in the school's time zone.
+- **Page titles** are larger and bolder.
+
+### Added (9.0)
+
+- Small SVG chart components of our own (no chart library): `LineChart`, `BarList`, `Progress` and `StatTile`. Each has a text label for screen readers. They're used by the 9.1 dashboards.
+
+### Tests (9.0)
+
+- A theme contrast test reads `globals.css`. It checks 16 colour pairings in light and dark mode, each at 4.5:1 or better (WCAG AA).
+- 5 tests for the chart maths: axis scaling, plotting, paths and percentages.
+
 ## Tester review fixes (October 2026)
 
 From the first external tester's review (`EduCore_Review.docx`). Each point was checked against the code, and only the real gaps were changed.

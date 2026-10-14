@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { GraduationCap, LifeBuoy, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { GraduationCap, LifeBuoy, LogOut, Menu, Monitor, Moon, ShieldCheck, Sun, X } from "lucide-react";
+import { useTheme } from "next-themes";
 import { cn } from "@educore/ui/utils";
 import type { NavItem } from "@/lib/nav";
 import { SUPPORT, whatsappLink } from "@/lib/support";
@@ -21,18 +22,30 @@ interface SidebarProps {
   logoUrl?: string | null;
 }
 
+/** "Greenfield Academy" → "GA" for schools without a logo. */
+function initials(name: string | null): string {
+  return (name ?? "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+}
+
 function Brand({ role, tenantName, logoUrl }: Pick<SidebarProps, "role" | "tenantName" | "logoUrl">) {
   const tr = useTranslations("roles");
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- small, versioned, same-origin logo
-        <img src={logoUrl} alt="" className="h-8 w-8 shrink-0 rounded object-contain" />
+        <img src={logoUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl border bg-card object-contain p-0.5" />
       ) : (
-        <GraduationCap className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+        <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
+          {initials(tenantName) || <GraduationCap className="h-5 w-5" />}
+        </span>
       )}
       <div className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-sm font-semibold">{tenantName ?? "EduCore"}</span>
+        <span className="truncate text-sm font-bold tracking-tight">{tenantName ?? "EduCore"}</span>
         <span className="text-xs text-muted-foreground">{tr(role)}</span>
       </div>
     </div>
@@ -43,7 +56,7 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
   const pathname = usePathname();
   const t = useTranslations("nav");
   return (
-    <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label={t("mainNavigation")}>
+    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4" aria-label={t("mainNavigation")}>
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = NAV_ICONS[item.icon];
@@ -54,14 +67,14 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              active ? "bg-accent font-semibold text-accent-foreground" : "font-medium text-muted-foreground hover:bg-accent/60 hover:text-foreground",
             )}
           >
-            <Icon className="h-4 w-4" aria-hidden="true" />
+            <Icon className={cn("h-[18px] w-[18px]", active ? "text-primary" : "")} aria-hidden="true" />
             {t(item.labelKey)}
             {item.badge ? (
-              <span className={cn("ml-auto rounded-full px-2 py-0.5 text-xs font-semibold", active ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground")}>
+              <span className="ml-auto rounded-full bg-ink px-2 py-0.5 text-xs font-bold text-ink-foreground">
                 {item.badge > 99 ? "99+" : item.badge}
                 <span className="sr-only"> {t("unread")}</span>
               </span>
@@ -70,6 +83,40 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
         );
       })}
     </nav>
+  );
+}
+
+/** Light, dark or follow the device (Phase 9). Remembered by next-themes in this browser. */
+function ThemeSwitch() {
+  const t = useTranslations("common");
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const options = [
+    { value: "light", label: t("themeLight"), Icon: Sun },
+    { value: "dark", label: t("themeDark"), Icon: Moon },
+    { value: "system", label: t("themeSystem"), Icon: Monitor },
+  ] as const;
+  return (
+    <div role="radiogroup" aria-label={t("theme")} className="mx-3 my-1 grid grid-cols-3 gap-1 rounded-full bg-muted p-1">
+      {options.map(({ value, label, Icon }) => {
+        const on = mounted && (theme ?? "system") === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            aria-label={label}
+            title={label}
+            onClick={() => setTheme(value)}
+            className={cn("flex h-8 items-center justify-center rounded-full text-muted-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring", on ? "bg-card text-foreground shadow-sm" : "hover:text-foreground")}
+          >
+            <Icon className="h-4 w-4" aria-hidden="true" />
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -86,7 +133,7 @@ function SupportLink({ role }: { role: Role }) {
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/60 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <LifeBuoy className="h-4 w-4" aria-hidden="true" />
       {t("support")}
@@ -102,15 +149,16 @@ function SignOutButton({ role }: { role: Role }) {
     <div className="space-y-1 border-t p-3">
       <Link
         href={href}
-        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/60 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ShieldCheck className="h-4 w-4" aria-hidden="true" />
         {role === "STUDENT" ? t("changePassword") : t("signInSecurity")}
       </Link>
       <SupportLink role={role} />
+      <ThemeSwitch />
       <button
         onClick={() => signOut({ callbackUrl: "/login" })}
-        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/60 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <LogOut className="h-4 w-4" aria-hidden="true" />
         {t("signOut")}
@@ -123,7 +171,7 @@ function SignOutButton({ role }: { role: Role }) {
 export function Sidebar({ items, role, tenantName, logoUrl }: SidebarProps) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r bg-card md:flex">
-      <div className="border-b px-5 py-4">
+      <div className="px-5 pb-2 pt-5">
         <Brand role={role} tenantName={tenantName} logoUrl={logoUrl} />
       </div>
       <NavLinks items={items} />

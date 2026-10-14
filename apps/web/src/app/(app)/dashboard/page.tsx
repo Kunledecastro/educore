@@ -14,6 +14,7 @@ import { incompleteRegisters } from "@/lib/attendance-data";
 import { teacherSectionIds } from "@/lib/teacher-sections";
 import { feeTotals } from "@/lib/fee-summary";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
+import { greeting } from "@/components/layout/top-bar";
 import { OnboardingChecklist, OnboardingReminder } from "@/components/dashboard/onboarding-checklist";
 import { AnnouncementsCard } from "@/components/messaging/announcements-card";
 import { AssignmentsDueCard } from "@/components/assignments/due-card";
@@ -196,7 +197,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">{t("welcome", { name: user.name })}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">{settings ? await greeting(user.name, settings.timezone) : t("welcome", { name: user.name })}</h1>
         {year ? (
           <p className="mt-1 text-sm text-muted-foreground">
             {term ? t("yearAndTerm", { year: year.name, term: term.name }) : t("yearOnly", { year: year.name })}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Providers } from "@/components/providers";
+import "@fontsource-variable/plus-jakarta-sans";
 import "./globals.css";
 
 export const metadata: Metadata = {

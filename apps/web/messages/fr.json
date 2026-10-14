@@ -18,7 +18,11 @@
     "signInSecurity": "Sécurité de connexion",
     "changePassword": "Changer le mot de passe",
     "support": "Assistance EduCore",
-    "supportMessage": "Bonjour l'équipe EduCore, j'ai besoin d'aide pour le compte de notre école."
+    "supportMessage": "Bonjour l'équipe EduCore, j'ai besoin d'aide pour le compte de notre école.",
+    "theme": "Thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Comme l'appareil"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -3798,5 +3802,19 @@
       "add": "Ajouter",
       "saved": "Type de congé enregistré."
     }
+  },
+  "topBar": {
+    "greeting": {
+      "morning": "Bonjour, {name}",
+      "afternoon": "Bon après-midi, {name}",
+      "evening": "Bonsoir, {name}"
+    },
+    "greetingNoName": {
+      "morning": "Bonjour",
+      "afternoon": "Bon après-midi",
+      "evening": "Bonsoir"
+    },
+    "searchLabel": "Rechercher un élève",
+    "searchPlaceholder": "Nom ou numéro d'inscription"
   }
 }

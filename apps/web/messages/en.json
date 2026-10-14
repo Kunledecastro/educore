@@ -18,7 +18,11 @@
     "signInSecurity": "Sign-in security",
     "changePassword": "Change password",
     "support": "EduCore support",
-    "supportMessage": "Hello EduCore team, I need help with our school's account."
+    "supportMessage": "Hello EduCore team, I need help with our school's account.",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "Same as device"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -3798,5 +3802,19 @@
       "add": "Add",
       "saved": "Leave type saved."
     }
+  },
+  "topBar": {
+    "greeting": {
+      "morning": "Good morning, {name}",
+      "afternoon": "Good afternoon, {name}",
+      "evening": "Good evening, {name}"
+    },
+    "greetingNoName": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "searchLabel": "Search pupils",
+    "searchPlaceholder": "Search pupils by name or admission no."
   }
 }

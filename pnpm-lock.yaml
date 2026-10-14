@@ -35,6 +35,9 @@ importers:
       '@educore/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@fontsource-variable/plus-jakarta-sans':
+        specifier: 5.1.1
+        version: 5.1.1
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.87.0(react@18.3.1))
@@ -575,6 +578,9 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource-variable/plus-jakarta-sans@5.1.1':
+    resolution: {integrity: sha512-89gGj8paLxMnlJWVbsWwTgI3T0VwncJmA2pf3nrOWTJK1RT+mQsE++3+BLTNLo7RpYvtuMbEFrsMsZXwGuL2zg==}
 
   '@formatjs/ecma402-abstract@2.3.6':
     resolution: {integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw==}
@@ -3751,6 +3757,8 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@fontsource-variable/plus-jakarta-sans@5.1.1': {}
 
   '@formatjs/ecma402-abstract@2.3.6':
     dependencies:

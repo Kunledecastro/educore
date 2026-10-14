@@ -2,58 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens — EduCore's default theme. A school's brand colour
-   (Tenant.branding.primaryColor) overrides --primary, --primary-foreground and
-   --ring for light and dark mode via <BrandStyle> in the app layout and the
-   school's sign-in page (accessible foreground chosen automatically). */
+/* Design tokens — EduCore's "Harmattan Gold" theme (Phase 9). Warm cream
+   ground, near-black ink for text and buttons, amber for highlights, and a
+   sand → honey → terracotta gradient for hero panels and big number cards.
+   A school's brand colour (Tenant.branding.primaryColor) overrides --primary,
+   --primary-foreground and --ring for light and dark mode via <BrandStyle> in
+   the app layout and the school's sign-in page (accessible foreground chosen
+   automatically). Contrast of every pairing is checked by theme.test.ts. */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 24 38% 97%;
+    --foreground: 262 22% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --primary: 173 80% 24%;
+    --card-foreground: 262 22% 10%;
+    --primary: 26 90% 37%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;
+    --secondary: 30 44% 94%;
+    --secondary-foreground: 262 22% 10%;
+    --muted: 27 33% 94%;
+    --muted-foreground: 263 10% 36%;
+    --accent: 37 100% 93%;
+    --accent-foreground: 262 22% 10%;
+    --destructive: 3 72% 44%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 71% 33%;
+    --success: 142 72% 29%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 173 80% 24%;
-    --radius: 0.5rem;
+    --warning: 32 95% 44%;
+    --warning-foreground: 262 22% 10%;
+    --ink: 262 22% 10%;
+    --ink-foreground: 0 0% 100%;
+    --border: 26 28% 89%;
+    --input: 26 28% 85%;
+    --ring: 26 90% 37%;
+    --radius: 0.75rem;
+    --harmattan: linear-gradient(135deg, #fff3dc 0%, #ffd796 38%, #f6b27a 68%, #ebc3b4 100%);
+    --harmattan-soft: linear-gradient(150deg, #fff6e6 0%, #ffe7bf 55%, #fbd3b6 100%);
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 98%;
-    --card: 222 44% 11%;
-    --card-foreground: 210 40% 98%;
-    --primary: 173 70% 40%;
-    --primary-foreground: 222 47% 8%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 20%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 40%;
-    --destructive-foreground: 210 40% 98%;
-    --success: 142 60% 40%;
-    --success-foreground: 210 40% 98%;
-    --warning: 38 85% 55%;
-    --warning-foreground: 222 47% 8%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 173 70% 40%;
+    --background: 260 20% 9%;
+    --foreground: 38 35% 94%;
+    --card: 260 19% 13%;
+    --card-foreground: 38 35% 94%;
+    --primary: 37 91% 55%;
+    --primary-foreground: 262 22% 10%;
+    --secondary: 264 17% 17%;
+    --secondary-foreground: 38 35% 94%;
+    --muted: 264 17% 17%;
+    --muted-foreground: 266 15% 73%;
+    --accent: 30 24% 16%;
+    --accent-foreground: 38 35% 94%;
+    --destructive: 3 75% 60%;
+    --destructive-foreground: 262 22% 10%;
+    --success: 141 49% 49%;
+    --success-foreground: 262 22% 10%;
+    --warning: 37 91% 55%;
+    --warning-foreground: 262 22% 10%;
+    --ink: 38 35% 94%;
+    --ink-foreground: 262 22% 10%;
+    --border: 263 17% 21%;
+    --input: 263 17% 26%;
+    --ring: 37 91% 55%;
+    --harmattan: linear-gradient(135deg, #3a2a1a 0%, #5a3b1c 40%, #4d2c25 70%, #352b3b 100%);
+    --harmattan-soft: linear-gradient(150deg, #2b2219 0%, #3a2a1c 60%, #34252a 100%);
   }
 
   * {
@@ -62,6 +73,17 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer utilities {
+  /* Hero panels, big number cards and the parent's child card (Phase 9). Text on them uses foreground colours. */
+  .bg-harmattan {
+    background-image: var(--harmattan);
+  }
+  .bg-harmattan-soft {
+    background-image: var(--harmattan-soft);
   }
 }
 
