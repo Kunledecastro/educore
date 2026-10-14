@@ -21,7 +21,7 @@ export interface PolicyFormValue {
   secondStepFrom: string; // major units as typed
 }
 
-function StepPicker({ legend, value, onChange, people }: { legend: string; value: Step; onChange: (s: Step) => void; people: { id: string; name: string; role: string }[] }) {
+function StepPicker({ legend, value, onChange, people, roles }: { legend: string; value: Step; onChange: (s: Step) => void; people: { id: string; name: string; role: string }[]; roles: readonly string[] }) {
   const t = useTranslations("approvals.settings");
   const tr = useTranslations("roles");
   const toggle = (list: string[], x: string, on: boolean) => (on ? [...new Set([...list, x])] : list.filter((y) => y !== x));
@@ -30,10 +30,10 @@ function StepPicker({ legend, value, onChange, people }: { legend: string; value
       <legend className="px-1 text-sm font-medium">{legend}</legend>
       <p className="text-xs text-muted-foreground">{t("anyOf")}</p>
       <div className="flex flex-wrap gap-4">
-        {(["SCHOOL_ADMIN", "ACCOUNTANT"] as const).map((r) => (
+        {roles.map((r) => (
           <label key={r} className="flex items-center gap-2 text-sm">
             <input type="checkbox" className="h-4 w-4 accent-primary" checked={value.roles.includes(r)} onChange={(e) => onChange({ ...value, roles: toggle(value.roles, r, e.target.checked) })} />
-            {t("everyRole", { role: tr(r) })}
+            {t("everyRole", { role: tr(r as never) })}
           </label>
         ))}
       </div>
@@ -55,7 +55,7 @@ function StepPicker({ legend, value, onChange, people }: { legend: string; value
 }
 
 /** One process's approval policy (Settings → Approvals). */
-export function PolicyForm({ process, initial, people, hasAmount, currencySymbol }: { process: string; initial: PolicyFormValue; people: { id: string; name: string; role: string }[]; hasAmount: boolean; currencySymbol: string }) {
+export function PolicyForm({ process, initial, people, hasAmount, currencySymbol, roles }: { process: string; initial: PolicyFormValue; people: { id: string; name: string; role: string }[]; hasAmount: boolean; currencySymbol: string; roles: readonly string[] }) {
   const t = useTranslations("approvals.settings");
   const router = useRouter();
   const [v, setV] = React.useState<PolicyFormValue>(initial);
@@ -80,7 +80,7 @@ export function PolicyForm({ process, initial, people, hasAmount, currencySymbol
         <input type="checkbox" className="h-4 w-4 accent-primary" checked={v.enabled} onChange={(e) => setV({ ...v, enabled: e.target.checked })} />
         {t("enabled")}
       </label>
-      <StepPicker legend={hasAmount && v.step2 ? t("step1Legend") : t("approversLegend")} value={v.step1} onChange={(s) => setV({ ...v, step1: s })} people={people} />
+      <StepPicker roles={roles} legend={hasAmount && v.step2 ? t("step1Legend") : t("approversLegend")} value={v.step1} onChange={(s) => setV({ ...v, step1: s })} people={people} />
       {hasAmount ? (
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm">
@@ -94,7 +94,7 @@ export function PolicyForm({ process, initial, people, hasAmount, currencySymbol
                 <span className="text-muted-foreground">{currencySymbol}</span>
                 <Input id={`${id}-from`} className="w-40" inputMode="decimal" value={v.secondStepFrom} onChange={(e) => setV({ ...v, secondStepFrom: e.target.value })} placeholder={t("alwaysPlaceholder")} />
               </div>
-              <StepPicker legend={t("step2Legend")} value={v.step2} onChange={(s) => setV({ ...v, step2: s })} people={people} />
+              <StepPicker roles={roles} legend={t("step2Legend")} value={v.step2} onChange={(s) => setV({ ...v, step2: s })} people={people} />
             </>
           ) : null}
         </div>

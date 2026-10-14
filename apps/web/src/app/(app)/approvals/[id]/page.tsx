@@ -31,6 +31,8 @@ export default async function ApprovalRequestPage({ params }: { params: { id: st
   if (s.receiptNo) facts.push([t("detail.receipt"), s.receiptNo]);
   if (s.discount) facts.push([t("detail.discount"), `${s.discount}${s.discountValue ? ` · ${discountValueText(s.discountValue, settings)}` : ""}`]);
   if (s.scope) facts.push([t("detail.scope"), s.scope]);
+  if (s.className) facts.push([t("detail.class"), `${s.className}${s.termName ? ` · ${s.termName}` : ""}`]);
+  if (s.subjects) facts.push([t("detail.subjects"), s.subjects]);
   if (r.amountMinor !== null) facts.push([r.process === "DISCOUNT_ASSIGN" ? t("detail.estimatedValue") : t("detail.amount"), formatMoney(r.amountMinor / 100, settings)]);
   if (s.reason) facts.push([t("detail.reason"), s.reason]);
   if (r.note && r.note !== s.reason) facts.push([t("detail.note"), r.note]);

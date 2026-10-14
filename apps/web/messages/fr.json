@@ -1111,7 +1111,22 @@
       "unpublish": "Dépublier",
       "unpublishTitle": "Dépublier {label} ?",
       "unpublishDescription": "Les familles ne verront plus ces résultats, les enseignants pourront modifier les notes, et les bulletins de la classe pour ce trimestre devront être régénérés.",
-      "unpublished": "Résultats de {label} dépubliés."
+      "unpublished": "Résultats de {label} dépubliés.",
+      "requestPublish": "Demander la publication",
+      "publishNeedsApproval": "Votre école exige l'approbation d'un second administrateur pour publier. Rien ne change avant l'approbation ; ensuite parents et élèves voient les résultats et les notes sont verrouillées.",
+      "sendRequest": "Envoyer pour approbation",
+      "requestUnpublish": "Demander le retrait",
+      "unpublishNeedsApproval": "Votre école exige l'approbation d'un second administrateur. Indiquez pourquoi les résultats doivent être retirés et quelles matières changent. Les résultats restent publiés jusqu'à l'approbation.",
+      "reasonLabel": "Pourquoi retirer les résultats ?",
+      "reasonPlaceholder": "ex. Deux notes de mathématiques ont été saisies pour les mauvais élèves.",
+      "subjectsLabel": "Matières dont les notes vont changer",
+      "needReasonAndSubjects": "Indiquez pourquoi et choisissez au moins une matière.",
+      "needReason": "Indiquez pourquoi les résultats doivent être retirés.",
+      "needSubjects": "Choisissez au moins une matière.",
+      "errors": {
+        "alreadyPublished": "Ces résultats sont déjà publiés.",
+        "notPublished": "Ces résultats ne sont pas publiés."
+      }
     },
     "profileTitle": "Résultats · {term}",
     "profileTitleNoTerm": "Résultats",
@@ -3454,7 +3469,9 @@
       "DISCOUNT_ASSIGN": "Remise pour un élève",
       "INVOICE_CANCEL": "Annulation de facture",
       "PAYMENT_REVERSAL": "Annulation de paiement",
-      "DISCOUNT_RULE": "Règle de remise"
+      "DISCOUNT_RULE": "Règle de remise",
+      "RESULTS_PUBLISH": "Publication des résultats",
+      "RESULTS_UNPUBLISH": "Retrait des résultats"
     },
     "stepOf": "étape {step} sur {steps}",
     "headline": {
@@ -3462,7 +3479,9 @@
       "INVOICE_CANCEL": "Annuler la facture {invoice} · {pupil}",
       "PAYMENT_REVERSAL": "Annuler le reçu {receipt} · {pupil}",
       "DISCOUNT_RULE_create": "Nouvelle remise : {discount}",
-      "DISCOUNT_RULE_update": "Modifier la remise : {discount}"
+      "DISCOUNT_RULE_update": "Modifier la remise : {discount}",
+      "RESULTS_PUBLISH": "Publier les résultats : {class} · {term}",
+      "RESULTS_UNPUBLISH": "Retirer les résultats : {class} · {term}"
     },
     "back": "Retour aux approbations",
     "requestedByOn": "demandée par {name} le {date}",
@@ -3481,7 +3500,9 @@
         "DISCOUNT_ASSIGN": "L'élève reçoit cette remise sur les factures concernées.",
         "INVOICE_CANCEL": "La facture est annulée et la famille ne la doit plus.",
         "PAYMENT_REVERSAL": "Le paiement est annulé : le solde de la facture augmente de ce montant.",
-        "DISCOUNT_RULE": "La règle de remise est créée ou modifiée pour les futures factures. Les factures émises gardent leurs montants."
+        "DISCOUNT_RULE": "La règle de remise est créée ou modifiée pour les futures factures. Les factures émises gardent leurs montants.",
+        "RESULTS_PUBLISH": "Les résultats de la classe pour le trimestre sont publiés : parents et élèves peuvent les voir et les notes sont verrouillées.",
+        "RESULTS_UNPUBLISH": "Les résultats de la classe sont retirés pour corriger les notes des matières indiquées. Les familles ne les voient plus et les bulletins du trimestre doivent être régénérés."
       },
       "expires": "Expire le {date} si personne ne décide.",
       "failed": "Approuvée, mais impossible à appliquer : {reason} Rien n'a été modifié.",
@@ -3510,13 +3531,18 @@
       "withdraw": "Retirer la demande",
       "withdrawTitle": "Retirer cette demande ?",
       "withdrawDescription": "Elle ne sera ni approuvée ni appliquée. Vous pourrez la refaire plus tard.",
-      "withdrawn": "Demande retirée"
+      "withdrawn": "Demande retirée",
+      "class": "Classe",
+      "subjects": "Matières à modifier"
     },
     "failure": {
       "discount_alreadyAssigned": "l'élève a déjà cette remise pour cette période.",
       "discount_inactive": "la remise a été désactivée.",
       "discount_notFound": "l'élève, la remise ou le trimestre n'existe plus.",
-      "notFound": "elle n'existe plus."
+      "notFound": "elle n'existe plus.",
+      "results_alreadyPublished": "les résultats étaient déjà publiés.",
+      "results_notPublished": "les résultats ne sont plus publiés.",
+      "results_notFound": "la classe ou le trimestre n'existe plus."
     },
     "errors": {
       "notFound": "Demande introuvable.",
@@ -3575,6 +3601,14 @@
         "DISCOUNT_RULE": {
           "title": "Créer ou modifier une règle de remise",
           "explain": "Quand une règle de remise (ex. « Fratrie 10 % ») est créée ou modifiée."
+        },
+        "RESULTS_PUBLISH": {
+          "title": "Publier les résultats d'une classe",
+          "explain": "Lorsqu'un administrateur publie les résultats d'une classe pour un trimestre, visibles par les parents et les élèves. Seuls les administrateurs de l'école peuvent approuver."
+        },
+        "RESULTS_UNPUBLISH": {
+          "title": "Retirer des résultats pour modifier des notes",
+          "explain": "Lorsque des résultats publiés sont retirés pour corriger des notes. La demande doit indiquer pourquoi et quelles matières changent. Seuls les administrateurs de l'école peuvent approuver."
         }
       },
       "warning": {
@@ -3583,6 +3617,10 @@
         "step2None": "Personne ne peut faire la deuxième étape : choisissez au moins un administrateur ou économe actif.",
         "step2SamePeople": "La deuxième étape demande une personne différente de la première, mais la même personne seule est désignée pour les deux.",
         "step2NoThreshold": ""
+      },
+      "group": {
+        "money": "Argent",
+        "academic": "Résultats"
       }
     }
   },

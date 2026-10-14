@@ -100,6 +100,8 @@ const PROCESS_WORDS: Record<string, string> = {
   INVOICE_CANCEL: "an invoice cancellation",
   PAYMENT_REVERSAL: "a payment reversal",
   DISCOUNT_RULE: "a discount rule change",
+  RESULTS_PUBLISH: "publishing a class's results",
+  RESULTS_UNPUBLISH: "unpublishing a class's results",
 };
 
 /**

@@ -5,6 +5,8 @@ import { assignStudentDiscount, checkStudentDiscount, DiscountError, estimateDis
 import { toMinor } from "../fees";
 import { cancelInvoice, FeeRuleError, reversePayment } from "../invoice-writer";
 import { cancelInvoiceSchema, discountSchema, reversalSchema, studentDiscountSchema } from "../validation/fees";
+import { publishClassResults, ResultsError, resultsTarget, unpublishClassResults } from "../results-writer";
+import { publishRequestSchema, unpublishRequestSchema } from "../validation/results";
 import type { ApprovalProcess } from "./policy";
 
 /**
@@ -29,6 +31,10 @@ export interface Summary {
   scope?: string;
   reason?: string;
   ruleChange?: "create" | "update";
+  /** 8.1: results. */
+  className?: string;
+  termName?: string;
+  subjects?: string;
 }
 
 export class ApplyError extends Error {
@@ -42,6 +48,7 @@ export class ApplyError extends Error {
 export function errorCode(err: unknown): string | null {
   if (err instanceof FeeRuleError) return `fee.${err.code}`;
   if (err instanceof DiscountError) return `discount.${err.code}`;
+  if (err instanceof ResultsError) return `results.${err.code}`;
   if (err instanceof ApplyError) return err.code;
   return null;
 }
@@ -119,9 +126,40 @@ const discountRule: ProcessDef<typeof discountRuleSchema> = {
   },
 };
 
+const resultsPublish: ProcessDef<typeof publishRequestSchema> = {
+  schema: publishRequestSchema,
+  targetKey: (p) => `${p.classId}:${p.termId}`,
+  async prepare(tx, tenantId, p) {
+    const { cls, term, publication } = await resultsTarget(tx, tenantId, p);
+    if (publication) throw new ResultsError("alreadyPublished");
+    return { amountMinor: null, summary: { className: cls.name, termName: term.name, reason: p.note || undefined } };
+  },
+  async apply(tx, audit, p) {
+    await publishClassResults(tx, audit, { classId: p.classId, termId: p.termId });
+  },
+};
+
+const resultsUnpublish: ProcessDef<typeof unpublishRequestSchema> = {
+  schema: unpublishRequestSchema,
+  targetKey: (p) => `${p.classId}:${p.termId}`,
+  async prepare(tx, tenantId, p) {
+    const { cls, term, publication } = await resultsTarget(tx, tenantId, p);
+    if (!publication) throw new ResultsError("notPublished");
+    const ids = [...new Set(p.subjectIds)];
+    const subjects = await tx.subject.findMany({ where: { tenantId, id: { in: ids } }, select: { name: true }, orderBy: { name: "asc" } });
+    if (subjects.length !== ids.length) throw new ApplyError("notFound");
+    return { amountMinor: null, summary: { className: cls.name, termName: term.name, subjects: subjects.map((s) => s.name).join(", "), reason: p.reason } };
+  },
+  async apply(tx, audit, p) {
+    await unpublishClassResults(tx, audit, p);
+  },
+};
+
 export const PROCESSES: Record<ApprovalProcess, ProcessDef<z.ZodTypeAny>> = {
   DISCOUNT_ASSIGN: discountAssign,
   INVOICE_CANCEL: invoiceCancel,
   PAYMENT_REVERSAL: paymentReversal,
   DISCOUNT_RULE: discountRule,
+  RESULTS_PUBLISH: resultsPublish,
+  RESULTS_UNPUBLISH: resultsUnpublish,
 };

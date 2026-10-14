@@ -1,7 +1,8 @@
 import "server-only";
 import { Prisma, platformPrisma, recordAudit, withRls, type PrismaClient } from "@educore/db";
+import { loadEntitlements } from "../entitlements-data";
 import { parseTenantSettings } from "../tenant-settings";
-import { APPROVER_ROLES, canDecideStep, eligibleApprovers, expiryFrom, hasEnoughApprovers, reminderDue, stepsFor, type ApprovalProcess, type ApprovalsSettings, type ApprovalStep, type Person, type ProcessPolicy } from "./policy";
+import { APPROVER_ROLES, canDecideStep, eligibleApprovers, PROCESS_APPROVER_ROLES, expiryFrom, hasEnoughApprovers, reminderDue, stepsFor, type ApprovalProcess, type ApprovalsSettings, type ApprovalStep, type Person, type ProcessPolicy } from "./policy";
 import { errorCode, PROCESSES, type Summary } from "./processes";
 
 /**
@@ -43,9 +44,14 @@ export async function approvalSettings(tenantId: string): Promise<ApprovalsSetti
   return parseTenantSettings(t?.settings).approvals;
 }
 
-/** Does this action need approval in this school right now? */
+/**
+ * Does this action need approval in this school right now? Only when the
+ * school switched it on AND its plan includes approvals — after a downgrade
+ * the inbox is closed, so actions must not wait on approvers who can't act.
+ */
 export async function approvalRequired(tenantId: string, process: ApprovalProcess): Promise<boolean> {
-  return (await approvalSettings(tenantId))[process].enabled;
+  if (!(await approvalSettings(tenantId))[process].enabled) return false;
+  return (await loadEntitlements(tenantId)).modules.has("approvals");
 }
 
 async function approverPool(tx: Tx, tenantId: string): Promise<(Person & { name: string; email: string })[]> {
@@ -54,6 +60,8 @@ async function approverPool(tx: Tx, tenantId: string): Promise<(Person & { name:
 }
 
 const stepOf = (policy: ProcessPolicy, n: number): ApprovalStep => (n === 2 && policy.step2 ? policy.step2 : policy.step1);
+/** Who may approve this kind of request (8.1: academic requests are for school admins only). */
+const rolesOf = (process: string): readonly string[] => PROCESS_APPROVER_ROLES[process as ApprovalProcess] ?? [];
 const ctxOf = (a: Actor, m: Meta) => ({ tenantId: a.tenantId, actorId: a.userId, ipAddress: m.ipAddress, userAgent: m.userAgent });
 
 // ---------------------------------------------------------------------------
@@ -73,7 +81,7 @@ export async function requestApproval(actor: Actor, process: ApprovalProcess, ra
       const { summary, amountMinor } = await def.prepare(tx, actor.tenantId, payload);
       const steps = stepsFor(policy, amountMinor);
       const people = await approverPool(tx, actor.tenantId);
-      if (!hasEnoughApprovers(policy, steps, people, actor.userId)) throw new ApprovalError("noApprover");
+      if (!hasEnoughApprovers(policy, steps, people, actor.userId, PROCESS_APPROVER_ROLES[process])) throw new ApprovalError("noApprover");
       const row = await tx.approvalRequest.create({
         data: {
           tenantId: actor.tenantId,
@@ -89,7 +97,7 @@ export async function requestApproval(actor: Actor, process: ApprovalProcess, ra
         },
       });
       await recordAudit(ctxOf(actor, meta), { action: "CREATE", entityType: "ApprovalRequest", entityId: row.id, after: { process, targetKey: row.targetKey, amountMinor, steps } }, tx);
-      return { id: row.id, approverIds: eligibleApprovers(policy.step1, people, { requesterId: actor.userId }).map((p) => p.id) };
+      return { id: row.id, approverIds: eligibleApprovers(policy.step1, people, { requesterId: actor.userId, allowedRoles: PROCESS_APPROVER_ROLES[process] }).map((p) => p.id) };
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new ApprovalError("alreadyPending");
@@ -131,7 +139,7 @@ export async function decide(actor: Actor, requestId: string, input: { decision:
     if (!me) throw new ApprovalError("notAllowed");
     if (me.id === req.requestedById) throw new ApprovalError("ownRequest");
     const earlier = req.decisions.map((d) => d.approverId).filter((x): x is string => Boolean(x));
-    if (!canDecideStep(stepOf(policy, req.currentStep), me, { requesterId: req.requestedById, earlierApproverIds: earlier })) throw new ApprovalError("notAllowed");
+    if (!canDecideStep(stepOf(policy, req.currentStep), me, { requesterId: req.requestedById, earlierApproverIds: earlier, allowedRoles: rolesOf(req.process) })) throw new ApprovalError("notAllowed");
     return { req, policy };
   };
 
@@ -154,7 +162,7 @@ export async function decide(actor: Actor, requestId: string, input: { decision:
         await tx.approvalRequest.update({ where: { id: req.id }, data: { currentStep: req.currentStep + 1 } });
         await recordAudit(audit, { action: "UPDATE", entityType: "ApprovalRequest", entityId: req.id, before: { step: req.currentStep }, after: { step: req.currentStep + 1, approvedStep: req.currentStep } }, tx);
         const people = await approverPool(tx, actor.tenantId);
-        const next = eligibleApprovers(stepOf(policy, req.currentStep + 1), people, { requesterId: req.requestedById, earlierApproverIds: [actor.userId] });
+        const next = eligibleApprovers(stepOf(policy, req.currentStep + 1), people, { requesterId: req.requestedById, earlierApproverIds: [actor.userId], allowedRoles: rolesOf(req.process) });
         return { outcome: "nextStep", approverIds: next.map((p) => p.id) };
       }
       // Final approval: apply the change now, as the person who asked for it.
@@ -240,7 +248,8 @@ async function canSee(settings: ApprovalsSettings, actor: Actor, me: Person, r: 
   if (r.requestedById === actor.userId) return true;
   if (actor.role === "SCHOOL_ADMIN") return true;
   const policy = settings[r.process as ApprovalProcess];
-  return canDecideStep(policy.step1, me, { requesterId: r.requestedById, earlierApproverIds: [] }) || Boolean(policy.step2 && canDecideStep(policy.step2, me, { requesterId: r.requestedById, earlierApproverIds: [] }));
+  const allowedRoles = rolesOf(r.process);
+  return canDecideStep(policy.step1, me, { requesterId: r.requestedById, earlierApproverIds: [], allowedRoles }) || Boolean(policy.step2 && canDecideStep(policy.step2, me, { requesterId: r.requestedById, earlierApproverIds: [], allowedRoles }));
 }
 
 export type InboxTab = "waiting" | "mine" | "all";
@@ -256,7 +265,7 @@ export async function listRequests(actor: Actor, opts: { tab: InboxTab; status?:
       if (!me) return { rows: [], total: 0 };
       const pending = await tx.approvalRequest.findMany({ where: { tenantId: actor.tenantId, status: "PENDING" }, orderBy: { createdAt: "asc" }, take: 500, include: { ...include, decisions: { select: { approverId: true } } } });
       const mine = pending.filter((r) =>
-        canDecideStep(stepOf(settings[r.process as ApprovalProcess], r.currentStep), me, { requesterId: r.requestedById, earlierApproverIds: r.decisions.map((d) => d.approverId).filter((x): x is string => Boolean(x)) }),
+        canDecideStep(stepOf(settings[r.process as ApprovalProcess], r.currentStep), me, { requesterId: r.requestedById, earlierApproverIds: r.decisions.map((d) => d.approverId).filter((x): x is string => Boolean(x)), allowedRoles: rolesOf(r.process) }),
       );
       const page = mine.slice(opts.skip ?? 0, (opts.skip ?? 0) + (opts.take ?? 25));
       return { rows: page.map(toRow), total: mine.length };
@@ -286,7 +295,7 @@ export async function getRequest(actor: Actor, id: string) {
     if (!me || !(await canSee(settings, actor, me, r))) return null;
     const policy = settings[r.process as ApprovalProcess];
     const earlier = r.decisions.map((d) => d.approverId).filter((x): x is string => Boolean(x));
-    const canDecide = !actor.impersonating && r.status === "PENDING" && canDecideStep(stepOf(policy, r.currentStep), me, { requesterId: r.requestedById, earlierApproverIds: earlier });
+    const canDecide = !actor.impersonating && r.status === "PENDING" && canDecideStep(stepOf(policy, r.currentStep), me, { requesterId: r.requestedById, earlierApproverIds: earlier, allowedRoles: rolesOf(r.process) });
     return {
       ...toRow(r),
       decisions: r.decisions.map((d) => ({ step: d.step, decision: d.decision as "APPROVE" | "REJECT", comment: d.comment, by: d.approver?.name ?? d.approver?.email ?? "—", at: d.createdAt })),
@@ -325,7 +334,7 @@ export async function recipients(tenantId: string, requestId: string, who: "appr
     if (r.status !== "PENDING") return { ...base, to: [] };
     const people = await approverPool(tx, tenantId);
     const earlier = r.decisions.map((d) => d.approverId).filter((x): x is string => Boolean(x));
-    return { ...base, to: eligibleApprovers(stepOf(settings[r.process as ApprovalProcess], r.currentStep), people, { requesterId: r.requestedById, earlierApproverIds: earlier }).map((p) => ({ id: p.id, email: p.email, name: p.name })) };
+    return { ...base, to: eligibleApprovers(stepOf(settings[r.process as ApprovalProcess], r.currentStep), people, { requesterId: r.requestedById, earlierApproverIds: earlier, allowedRoles: rolesOf(r.process) }).map((p) => ({ id: p.id, email: p.email, name: p.name })) };
   });
 }
 

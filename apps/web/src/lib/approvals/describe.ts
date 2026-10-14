@@ -24,6 +24,10 @@ export function headline(t: T, process: ApprovalProcess, s: Summary): string {
       return t("headline.PAYMENT_REVERSAL", { receipt: s.receiptNo ?? "—", pupil: s.pupil ?? "" });
     case "DISCOUNT_RULE":
       return t(s.ruleChange === "update" ? "headline.DISCOUNT_RULE_update" : "headline.DISCOUNT_RULE_create", { discount: s.discount ?? "" });
+    case "RESULTS_PUBLISH":
+      return t("headline.RESULTS_PUBLISH", { class: s.className ?? "", term: s.termName ?? "" });
+    case "RESULTS_UNPUBLISH":
+      return t("headline.RESULTS_UNPUBLISH", { class: s.className ?? "", term: s.termName ?? "" });
   }
 }
 

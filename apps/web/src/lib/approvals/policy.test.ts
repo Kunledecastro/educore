@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseTenantSettings } from "../tenant-settings";
-import { canDecideStep, DEFAULT_POLICY, eligibleApprovers, expiryFrom, hasEnoughApprovers, policyWarnings, reminderDue, stepsFor, type Person, type ProcessPolicy } from "./policy";
+import { canDecideStep, DEFAULT_POLICY, PROCESS_APPROVER_ROLES, eligibleApprovers, expiryFrom, hasEnoughApprovers, policyWarnings, reminderDue, stepsFor, type Person, type ProcessPolicy } from "./policy";
 
 const people: Person[] = [
   { id: "prop", role: "SCHOOL_ADMIN", isActive: true },
@@ -37,6 +37,17 @@ describe("approval policies (Phase 8)", () => {
     expect(canDecideStep({ roles: ["SCHOOL_ADMIN"], userIds: [] }, people[3]!, ctx)).toBe(false); // disabled
     expect(canDecideStep(step, people[0]!, { requesterId: "prop", earlierApproverIds: [] })).toBe(false); // own request
     expect(canDecideStep(step, people[0]!, { requesterId: "adm2", earlierApproverIds: ["prop"] })).toBe(false); // took step 1
+  });
+
+  it("results (8.1) are approved by school admins only — a bursar never, even when named or by role", () => {
+    const step = { roles: ["SCHOOL_ADMIN" as const, "ACCOUNTANT" as const], userIds: ["burs"] };
+    const ctx = { requesterId: "adm2", earlierApproverIds: [], allowedRoles: PROCESS_APPROVER_ROLES.RESULTS_UNPUBLISH };
+    expect(canDecideStep(step, people[2]!, ctx)).toBe(false);
+    expect(canDecideStep(step, people[0]!, ctx)).toBe(true);
+    expect(eligibleApprovers(step, people, { requesterId: "adm2", allowedRoles: PROCESS_APPROVER_ROLES.RESULTS_PUBLISH }).map((p) => p.id)).toEqual(["prop"]);
+    expect(hasEnoughApprovers(policy({ step1: step }), 1, people, "prop", PROCESS_APPROVER_ROLES.RESULTS_PUBLISH)).toBe(true); // adm2
+    expect(hasEnoughApprovers(policy({ step1: { roles: [], userIds: ["burs"] } }), 1, people, "prop", PROCESS_APPROVER_ROLES.RESULTS_PUBLISH)).toBe(false);
+    expect(PROCESS_APPROVER_ROLES.INVOICE_CANCEL).toContain("ACCOUNTANT");
   });
 
   it("a request needs someone else to approve it — and two different people for two steps", () => {

@@ -6,12 +6,35 @@ import { z } from "zod";
  * stored per school in tenant settings (config-first) and read by the engine.
  */
 
-export const APPROVAL_PROCESSES = ["DISCOUNT_ASSIGN", "INVOICE_CANCEL", "PAYMENT_REVERSAL", "DISCOUNT_RULE"] as const;
+export const APPROVAL_PROCESSES = ["DISCOUNT_ASSIGN", "INVOICE_CANCEL", "PAYMENT_REVERSAL", "DISCOUNT_RULE", "RESULTS_PUBLISH", "RESULTS_UNPUBLISH"] as const;
 export type ApprovalProcess = (typeof APPROVAL_PROCESSES)[number];
 
-/** Roles that may be approvers (8.0: money). */
+/** Roles that may ever be approvers. */
 export const APPROVER_ROLES = ["SCHOOL_ADMIN", "ACCOUNTANT"] as const;
 export type ApproverRole = (typeof APPROVER_ROLES)[number];
+
+/**
+ * Who may approve each process. Money (8.0): admins and bursars. Academic
+ * (8.1): school admins only; a bursar never signs off results, even if named.
+ */
+export const PROCESS_APPROVER_ROLES: Record<ApprovalProcess, readonly ApproverRole[]> = {
+  DISCOUNT_ASSIGN: APPROVER_ROLES,
+  INVOICE_CANCEL: APPROVER_ROLES,
+  PAYMENT_REVERSAL: APPROVER_ROLES,
+  DISCOUNT_RULE: APPROVER_ROLES,
+  RESULTS_PUBLISH: ["SCHOOL_ADMIN"],
+  RESULTS_UNPUBLISH: ["SCHOOL_ADMIN"],
+};
+
+/** Which group a process belongs to (Settings → Approvals sections). */
+export const PROCESS_GROUP: Record<ApprovalProcess, "money" | "academic"> = {
+  DISCOUNT_ASSIGN: "money",
+  INVOICE_CANCEL: "money",
+  PAYMENT_REVERSAL: "money",
+  DISCOUNT_RULE: "money",
+  RESULTS_PUBLISH: "academic",
+  RESULTS_UNPUBLISH: "academic",
+};
 
 export const approvalStepSchema = z.object({
   roles: z.array(z.enum(APPROVER_ROLES)).max(APPROVER_ROLES.length).default([]),
@@ -40,7 +63,7 @@ export const approvalsSettingsSchema = z
 export type ApprovalsSettings = Record<ApprovalProcess, ProcessPolicy>;
 
 /** Processes that have an amount (and so can have a second step by amount). */
-export const HAS_AMOUNT: Record<ApprovalProcess, boolean> = { DISCOUNT_ASSIGN: true, INVOICE_CANCEL: true, PAYMENT_REVERSAL: true, DISCOUNT_RULE: false };
+export const HAS_AMOUNT: Record<ApprovalProcess, boolean> = { DISCOUNT_ASSIGN: true, INVOICE_CANCEL: true, PAYMENT_REVERSAL: true, DISCOUNT_RULE: false, RESULTS_PUBLISH: false, RESULTS_UNPUBLISH: false };
 
 /** How many steps a request needs. */
 export function stepsFor(policy: ProcessPolicy, amountMinor: number | null): 1 | 2 {
@@ -57,28 +80,28 @@ export interface Person {
 }
 
 /** Can this person decide this step? Never their own request, never an earlier step's approver, only active approvers who match. */
-export function canDecideStep(step: ApprovalStep, person: Person, ctx: { requesterId: string | null; earlierApproverIds: readonly string[] }): boolean {
+export function canDecideStep(step: ApprovalStep, person: Person, ctx: { requesterId: string | null; earlierApproverIds: readonly string[]; allowedRoles?: readonly string[] }): boolean {
   if (!person.isActive) return false;
-  if (!(APPROVER_ROLES as readonly string[]).includes(person.role)) return false;
+  if (!(ctx.allowedRoles ?? APPROVER_ROLES).includes(person.role)) return false;
   if (person.id === ctx.requesterId) return false;
   if (ctx.earlierApproverIds.includes(person.id)) return false;
   return step.roles.includes(person.role as ApproverRole) || step.userIds.includes(person.id);
 }
 
 /** Everyone in `people` who could decide the step (for "is there anybody?" and notifications). */
-export function eligibleApprovers<P extends Person>(step: ApprovalStep, people: readonly P[], ctx: { requesterId: string | null; earlierApproverIds?: readonly string[] }): P[] {
-  return people.filter((p) => canDecideStep(step, p, { requesterId: ctx.requesterId, earlierApproverIds: ctx.earlierApproverIds ?? [] }));
+export function eligibleApprovers<P extends Person>(step: ApprovalStep, people: readonly P[], ctx: { requesterId: string | null; earlierApproverIds?: readonly string[]; allowedRoles?: readonly string[] }): P[] {
+  return people.filter((p) => canDecideStep(step, p, { requesterId: ctx.requesterId, earlierApproverIds: ctx.earlierApproverIds ?? [], allowedRoles: ctx.allowedRoles }));
 }
 
 /**
  * A two-step request needs two different people: is that possible at all?
  * (Step 1 and step 2 must not be the only same single person.)
  */
-export function hasEnoughApprovers(policy: ProcessPolicy, steps: 1 | 2, people: readonly Person[], requesterId: string | null): boolean {
-  const first = eligibleApprovers(policy.step1, people, { requesterId });
+export function hasEnoughApprovers(policy: ProcessPolicy, steps: 1 | 2, people: readonly Person[], requesterId: string | null, allowedRoles?: readonly string[]): boolean {
+  const first = eligibleApprovers(policy.step1, people, { requesterId, allowedRoles });
   if (first.length === 0) return false;
   if (steps === 1) return true;
-  const second = eligibleApprovers(policy.step2!, people, { requesterId });
+  const second = eligibleApprovers(policy.step2!, people, { requesterId, allowedRoles });
   if (second.length === 0) return false;
   // Some pair of different people must exist.
   return first.some((a) => second.some((b) => b.id !== a.id));
@@ -96,13 +119,13 @@ export function reminderDue(createdAt: Date, remindedAt: Date | null, now: Date)
 }
 
 /** Settings warnings shown to the admin (a step nobody, or only one person, can decide). */
-export function policyWarnings(policy: ProcessPolicy, people: readonly Person[]): ("step1None" | "step1One" | "step2None" | "step2SamePeople" | "step2NoThreshold")[] {
+export function policyWarnings(policy: ProcessPolicy, people: readonly Person[], allowedRoles?: readonly string[]): ("step1None" | "step1One" | "step2None" | "step2SamePeople" | "step2NoThreshold")[] {
   const out: ReturnType<typeof policyWarnings> = [];
-  const first = eligibleApprovers(policy.step1, people, { requesterId: null });
+  const first = eligibleApprovers(policy.step1, people, { requesterId: null, allowedRoles });
   if (first.length === 0) out.push("step1None");
   else if (first.length === 1) out.push("step1One");
   if (policy.step2) {
-    const second = eligibleApprovers(policy.step2, people, { requesterId: null });
+    const second = eligibleApprovers(policy.step2, people, { requesterId: null, allowedRoles });
     if (second.length === 0) out.push("step2None");
     else if (!first.some((a) => second.some((b) => b.id !== a.id))) out.push("step2SamePeople");
   }

@@ -48,6 +48,7 @@ export function ConfirmAction({
   onSuccess?: () => void;
 }) {
   const t = useTranslations("common");
+  const tRoot = useTranslations();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = onOpenChange ?? setUncontrolledOpen;
@@ -71,7 +72,9 @@ export function ConfirmAction({
               startTransition(async () => {
                 const result = await action();
                 if (result.ok) {
-                  toast.success(successMessage);
+                  // Phase 8: the action became an approval request instead of happening now.
+                  const pendingApproval = Boolean(result.data && typeof result.data === "object" && "pendingApproval" in result.data);
+                  toast.success(pendingApproval ? tRoot("approvals.sentForApproval") : successMessage);
                   setOpen(false);
                   onSuccess?.();
                 } else {

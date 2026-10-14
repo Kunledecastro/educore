@@ -49,13 +49,41 @@ From the first external tester's review (`EduCore_Review.docx`). Each point was 
 - Sample data integration: 10 tests (loading conditions, labels, onboarding/billing exclusion, isolation between schools, marker grants, exact removal).
 - Per-school inactivity setting: 1 test.
 
-## Phase 8 — Approval workflows (in progress)
+## Phase 8 — Approval workflows (in progress: 8.0 and 8.1 live)
 
 Spec: `claude/phase-8-spec.md` (decisions confirmed 2026-10-08):
 - approvers can be roles, named people, or both
 - one step, plus an optional second step above an amount
 - off until the school switches each process on
 - 8.0 money, 8.1 academic, 8.2 people and communication
+
+### Added (8.1 — academic approvals)
+
+- **Publishing results can need approval** (Settings → Approvals → Results, off by default). The admin who publishes sends a request; parents and pupils see nothing and scores stay unlocked until another school admin approves.
+- **Unpublishing results to change marks can need approval.** The request must say why and pick the subjects whose scores will change. Results stay published (and scores locked) until it's approved. On approval the results come down and the class's report cards for the term go back to "needs generating".
+- **Only school admins approve results.** Bursars can't be approvers for results, even if named; the settings drop the bursar role for these processes and refuse a named bursar.
+- Results page: "Request to publish" / "Request to unpublish" buttons when approval is on, and a "Waiting for approval" note for the class and term.
+- Confirm dialogs now say "Sent for approval" when an action became a request.
+
+### Changed (8.1)
+
+- **Approvals follow the plan.** An action only waits for approval when the school's plan includes approvals. After a downgrade, actions happen directly again instead of waiting on an inbox nobody can open (a fix to 8.0).
+- Publishing and unpublishing share one writer (`lib/results-writer.ts`) between the results page and the approval engine, so both run the same checks.
+- Migration `0034_results_approvals` lets approval requests hold the two new processes.
+
+### Tests (8.1)
+
+- 9 new integration tests:
+  - off by default
+  - results approvers limited to admins
+  - nothing changes before approval
+  - credited to the requester
+  - reason and subjects required (and this school's own)
+  - report cards reset on approval
+  - a stale request fails safely
+  - other schools can't see or decide
+  - the plan gate
+- 1 new policy unit test.
 
 ### Added (8.0 — the approval engine and money approvals)
 

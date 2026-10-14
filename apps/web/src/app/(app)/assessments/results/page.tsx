@@ -16,6 +16,9 @@ import { resolveTermRange } from "@/lib/term-range";
 import { ScoresTabs } from "../tabs";
 import { ClassSwitcher } from "./class-switcher";
 import { PublishControls } from "./publish-controls";
+import { PendingApprovals } from "@/components/approvals/pending-banner";
+import { approvalSettings, pendingFor } from "@/lib/approvals/engine";
+import { getEntitlements } from "@/lib/entitlements-server";
 
 export default async function ClassResultsPage({ searchParams }: { searchParams: { term?: string | string[]; class?: string | string[] } }) {
   const ctx = await requirePermission("results", "update", { page: true });
@@ -54,11 +57,24 @@ export default async function ClassResultsPage({ searchParams }: { searchParams:
   }
   const wanted = Array.isArray(searchParams.class) ? searchParams.class[0] : searchParams.class;
   const cls = classes.find((c) => c.id === wanted) ?? classes[0]!;
-  const [results, publication, options] = await Promise.all([
+  const targetKey = `${cls.id}:${range.term.id}`;
+  const [results, publication, options, policies, ent, pendingPublish, pendingUnpublish, ta] = await Promise.all([
     loadClassResults(db, cls.id, range.term.id),
     db.resultPublication.findFirst({ where: { termId: range.term.id, classId: cls.id }, include: { publishedBy: { select: { name: true } } } }),
     db.academicSettings.findFirst({ select: { showPosition: true } }),
+    approvalSettings(user.tenantId!),
+    getEntitlements(user.tenantId!),
+    pendingFor(user.tenantId!, "RESULTS_PUBLISH", [targetKey]),
+    pendingFor(user.tenantId!, "RESULTS_UNPUBLISH", [targetKey]),
+    getTranslations("approvals"),
   ]);
+  // Phase 8.1: approval applies only when the plan includes approvals and the school switched it on.
+  const approvalsOn = ent.modules.has("approvals");
+  const approval = { publish: approvalsOn && policies.RESULTS_PUBLISH.enabled, unpublish: approvalsOn && policies.RESULTS_UNPUBLISH.enabled };
+  const waiting = [
+    ...[...pendingPublish.values()].map((id) => ({ id, label: ta("headline.RESULTS_PUBLISH", { class: cls.name, term: range.term!.name }) })),
+    ...[...pendingUnpublish.values()].map((id) => ({ id, label: ta("headline.RESULTS_UNPUBLISH", { class: cls.name, term: range.term!.name }) })),
+  ];
   const showPosition = options?.showPosition ?? false;
   const num = (n: number | null) => (n === null ? "—" : formatNumber(n, settings));
 
@@ -70,6 +86,11 @@ export default async function ClassResultsPage({ searchParams }: { searchParams:
         <ClassSwitcher classes={classes} selectedId={cls.id} />
       </div>
 
+      {waiting.length ? (
+        <div className="mb-4">
+          <PendingApprovals items={waiting} />
+        </div>
+      ) : null}
       <div className="mb-4 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1 text-sm">
           <p className="flex items-center gap-2 font-medium">
@@ -91,6 +112,9 @@ export default async function ClassResultsPage({ searchParams }: { searchParams:
           published={Boolean(publication)}
           missingScores={results.missingScores}
           disabled={results.students.length === 0}
+          approval={approval}
+          subjects={results.subjects.map((s) => ({ id: s.id, name: s.name }))}
+          pending={waiting.length > 0}
         />
       </div>
 

@@ -1111,7 +1111,22 @@
       "unpublish": "Unpublish",
       "unpublishTitle": "Unpublish {label}?",
       "unpublishDescription": "Families will stop seeing these results, teachers can change scores again, and the class's report cards for this term will need regenerating.",
-      "unpublished": "{label} results unpublished."
+      "unpublished": "{label} results unpublished.",
+      "requestPublish": "Request to publish",
+      "publishNeedsApproval": "Your school needs a second admin to approve publishing. Nothing changes until it's approved; then parents and pupils can see the results and scores are locked.",
+      "sendRequest": "Send for approval",
+      "requestUnpublish": "Request to unpublish",
+      "unpublishNeedsApproval": "Your school needs a second admin to approve this. Say why the results must come down and which subjects will change. Results stay published until it's approved.",
+      "reasonLabel": "Why must the results come down?",
+      "reasonPlaceholder": "e.g. Two Mathematics scores were entered for the wrong pupils.",
+      "subjectsLabel": "Subjects whose scores will change",
+      "needReasonAndSubjects": "Say why, and pick at least one subject.",
+      "needReason": "Say why the results must come down.",
+      "needSubjects": "Pick at least one subject.",
+      "errors": {
+        "alreadyPublished": "These results are already published.",
+        "notPublished": "These results aren't published."
+      }
     },
     "profileTitle": "Results · {term}",
     "profileTitleNoTerm": "Results",
@@ -3454,7 +3469,9 @@
       "DISCOUNT_ASSIGN": "Discount for a pupil",
       "INVOICE_CANCEL": "Invoice cancellation",
       "PAYMENT_REVERSAL": "Payment reversal",
-      "DISCOUNT_RULE": "Discount rule"
+      "DISCOUNT_RULE": "Discount rule",
+      "RESULTS_PUBLISH": "Publishing results",
+      "RESULTS_UNPUBLISH": "Unpublishing results"
     },
     "stepOf": "step {step} of {steps}",
     "headline": {
@@ -3462,7 +3479,9 @@
       "INVOICE_CANCEL": "Cancel invoice {invoice} · {pupil}",
       "PAYMENT_REVERSAL": "Reverse receipt {receipt} · {pupil}",
       "DISCOUNT_RULE_create": "New discount: {discount}",
-      "DISCOUNT_RULE_update": "Change discount: {discount}"
+      "DISCOUNT_RULE_update": "Change discount: {discount}",
+      "RESULTS_PUBLISH": "Publish results: {class} · {term}",
+      "RESULTS_UNPUBLISH": "Unpublish results: {class} · {term}"
     },
     "back": "Back to approvals",
     "requestedByOn": "asked by {name} on {date}",
@@ -3481,7 +3500,9 @@
         "DISCOUNT_ASSIGN": "The pupil gets this discount on the bills it covers.",
         "INVOICE_CANCEL": "The invoice is cancelled and the family no longer owes it.",
         "PAYMENT_REVERSAL": "The payment is reversed: the invoice's balance goes back up by this amount.",
-        "DISCOUNT_RULE": "The discount rule is created or changed for future bills. Issued invoices keep their amounts."
+        "DISCOUNT_RULE": "The discount rule is created or changed for future bills. Issued invoices keep their amounts.",
+        "RESULTS_PUBLISH": "The class's results for the term are published: parents and pupils can see them and the scores are locked.",
+        "RESULTS_UNPUBLISH": "The class's results are taken down so the listed subjects' scores can be corrected. Families stop seeing them, and the class's report cards for the term need generating again."
       },
       "expires": "Expires {date} if nobody decides.",
       "failed": "Approved, but it couldn't be applied: {reason} Nothing was changed.",
@@ -3510,13 +3531,18 @@
       "withdraw": "Withdraw request",
       "withdrawTitle": "Withdraw this request?",
       "withdrawDescription": "It won't be approved or applied. You can ask again later.",
-      "withdrawn": "Request withdrawn"
+      "withdrawn": "Request withdrawn",
+      "class": "Class",
+      "subjects": "Subjects to change"
     },
     "failure": {
       "discount_alreadyAssigned": "the pupil already has this discount for that period.",
       "discount_inactive": "the discount has been switched off.",
       "discount_notFound": "the pupil, discount or term no longer exists.",
-      "notFound": "it no longer exists."
+      "notFound": "it no longer exists.",
+      "results_alreadyPublished": "the results were already published.",
+      "results_notPublished": "the results are no longer published.",
+      "results_notFound": "the class or term no longer exists."
     },
     "errors": {
       "notFound": "That request wasn't found.",
@@ -3575,6 +3601,14 @@
         "DISCOUNT_RULE": {
           "title": "Creating or changing a discount rule",
           "explain": "When a discount rule (e.g. \"Sibling 10%\") is created or changed."
+        },
+        "RESULTS_PUBLISH": {
+          "title": "Publishing a class's results",
+          "explain": "When an admin publishes a class's results for a term, so parents and pupils can see them. Only school admins can approve."
+        },
+        "RESULTS_UNPUBLISH": {
+          "title": "Unpublishing results to change marks",
+          "explain": "When published results are taken down to correct scores. The request must say why and which subjects will change. Only school admins can approve."
         }
       },
       "warning": {
@@ -3583,6 +3617,10 @@
         "step2None": "Nobody can take the second step: choose at least one active admin or bursar.",
         "step2SamePeople": "The second step needs a different person from the first, but the same single person is named for both.",
         "step2NoThreshold": ""
+      },
+      "group": {
+        "money": "Money",
+        "academic": "Results"
       }
     }
   },

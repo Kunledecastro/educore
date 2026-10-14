@@ -146,6 +146,8 @@ data.
 
 ## Approval workflows (Phase 8)
 
+8.1 needs migration `0034_results_approvals` (widens the allowed processes on `approval_requests`). Results approvals are switched on per school in Settings → Approvals → Results.
+
 - **Nothing to set up:** no new secrets. Migration `0032_approvals` adds the approval tables.
 - **Off by default.** Each school switches processes on in **Settings → Approvals**.
 - **Background jobs** (Inngest, synced on deploy):
