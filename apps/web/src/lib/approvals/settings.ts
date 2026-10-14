@@ -2,7 +2,7 @@ import "server-only";
 import { platformPrisma, recordAudit, type Prisma } from "@educore/db";
 import { parseTenantSettings } from "../tenant-settings";
 import { ApprovalError, type Actor, type Meta } from "./engine";
-import { HAS_AMOUNT, PROCESS_APPROVER_ROLES, processPolicySchema, type ApprovalProcess, type ProcessPolicy } from "./policy";
+import { ALWAYS_ON, HAS_AMOUNT, PROCESS_APPROVER_ROLES, processPolicySchema, type ApprovalProcess, type ProcessPolicy } from "./policy";
 
 /**
  * Settings → Approvals (Phase 8.0): a school admin sets one process's
@@ -17,7 +17,9 @@ export async function saveProcessPolicy(actor: Actor, process: ApprovalProcess, 
   const allowed = PROCESS_APPROVER_ROLES[process] as readonly string[];
   const keep = (step: ProcessPolicy["step1"]) => ({ ...step, roles: step.roles.filter((r) => allowed.includes(r)) });
   const scoped: ProcessPolicy = { ...parsed, step1: keep(parsed.step1), step2: parsed.step2 ? keep(parsed.step2) : null };
-  const next: ProcessPolicy = HAS_AMOUNT[process] ? scoped : { ...scoped, step2: null, secondStepFromMinor: null };
+  const shaped: ProcessPolicy = HAS_AMOUNT[process] ? scoped : { ...scoped, step2: null, secondStepFromMinor: null };
+  // Leave is always a request: its switch can't be turned off.
+  const next: ProcessPolicy = ALWAYS_ON.has(process) ? { ...shaped, enabled: true } : shaped;
   const db = platformPrisma();
   const named = [...new Set([...next.step1.userIds, ...(next.step2?.userIds ?? [])])];
   if (named.length) {

@@ -9,6 +9,7 @@ import { DeleteAnnouncementButton, EditAnnouncementButton, NewAnnouncementButton
 import { PageHeader } from "@/components/page-header";
 import { formatDateTime } from "@/lib/format";
 import { requirePermission } from "@/lib/guard";
+import { approvalRequired } from "@/lib/approvals/engine";
 import { parseListParams, type SearchParamsInput } from "@/lib/list-params";
 import { listAnnouncements, viewerFor } from "@/lib/messaging/data";
 import type { MessagingRole } from "@/lib/messaging/rules";
@@ -36,14 +37,16 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
       orderBy: [{ order: "asc" }, { name: "asc" }],
       select: { id: true, name: true },
     });
-    options = { isAdmin, classes };
+    // Phase 8.2: teachers can ask for a school-wide or role announcement when the school allows it.
+    const schoolWideNeedsApproval = !isAdmin && user.role === Role.TEACHER && (await approvalRequired(tenantId, "ANNOUNCEMENT_SCHOOL"));
+    options = { isAdmin, classes, schoolWideNeedsApproval };
   }
   const audience = (a: (typeof rows)[number]) =>
     a.audienceScope === "SCHOOL" ? t("audiences.SCHOOL") : a.audienceScope === "ROLE" ? t("toRole", { role: tr(a.audienceRole ?? "PARENT") }) : t("toClass", { name: a.audienceClass?.name ?? "—" });
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} actions={options && (isAdmin || options.classes.length > 0) ? <NewAnnouncementButton options={options} /> : null} />
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")} actions={options && (isAdmin || options.classes.length > 0 || options.schoolWideNeedsApproval) ? <NewAnnouncementButton options={options} /> : null} />
       {rows.length === 0 ? (
         <EmptyState icon={<Megaphone className="h-6 w-6" />} title={t("emptyTitle")} description={canPost ? t("emptyPoster") : t("emptyReader")} />
       ) : (

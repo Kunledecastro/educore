@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { approvalGate, approvalUserError } from "@/lib/approvals/gate";
 import { auditedMutation, Role, type PrismaClient } from "@educore/db";
 import { auditContextFor } from "@/lib/guard";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
@@ -125,6 +126,17 @@ export async function setStudentStatus(id: unknown, status: unknown) {
   return runAction(["student", "update"], async (ctx) => {
     const studentId = idSchema.parse(id);
     const next = studentStatusSchema.parse(status);
+    // Phase 8.2: taking a pupil off the roll (left, graduated, withdrawn) can need approval. Bringing one back never does.
+    if (next !== "ACTIVE") {
+      const gate = await approvalGate(ctx, "STUDENT_STATUS", { studentId, status: next }, "").catch(async (err) => {
+        throw await approvalUserError(err);
+      });
+      if (gate) {
+        revalidate(studentId);
+        revalidatePath("/approvals");
+        return gate;
+      }
+    }
     const audit = auditContextFor(ctx);
     await auditedMutation(audit, {
       action: "UPDATE",

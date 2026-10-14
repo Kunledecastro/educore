@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@educore/ui/badge";
 import { approvalSettings, approverChoices } from "@/lib/approvals/engine";
-import { APPROVAL_PROCESSES, HAS_AMOUNT, policyWarnings, PROCESS_APPROVER_ROLES, PROCESS_GROUP } from "@/lib/approvals/policy";
+import { ALWAYS_ON, APPROVAL_PROCESSES, HAS_AMOUNT, policyWarnings, PROCESS_APPROVER_ROLES, PROCESS_GROUP } from "@/lib/approvals/policy";
 import { getEntitlements } from "@/lib/entitlements-server";
 import { requirePermission } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
@@ -23,21 +23,21 @@ export default async function ApprovalSettingsPage() {
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">{t("explain")}</p>
       {ctx.impersonation ? <p className="rounded-md border p-3 text-sm">{t("impersonating")}</p> : null}
-      {(["money", "academic"] as const).map((group) => (
+      {(["money", "academic", "people"] as const).map((group) => (
         <div key={group} className="space-y-4">
           <h2 className="text-lg font-semibold">{t(`group.${group}`)}</h2>
       {APPROVAL_PROCESSES.filter((p) => PROCESS_GROUP[p] === group).map((p) => {
         const policy = policies[p];
         const roles = PROCESS_APPROVER_ROLES[p];
         const eligible = active.filter((x) => (roles as readonly string[]).includes(x.role));
-        const warnings = policy.enabled ? policyWarnings(policy, active, roles) : [];
+        const warnings = policy.enabled || ALWAYS_ON.has(p) ? policyWarnings(policy, active, roles) : [];
         return (
           <section key={p} className="space-y-3 rounded-lg border bg-card p-5" aria-labelledby={`ap-${p}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 id={`ap-${p}`} className="font-semibold">
                 {t(`process.${p}.title`)}
               </h3>
-              <Badge variant={policy.enabled ? "success" : "secondary"}>{policy.enabled ? t("on") : t("off")}</Badge>
+              <Badge variant={policy.enabled || ALWAYS_ON.has(p) ? "success" : "secondary"}>{policy.enabled || ALWAYS_ON.has(p) ? t("on") : t("off")}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">{t(`process.${p}.explain`)}</p>
             {warnings.map((w) => (
@@ -50,6 +50,7 @@ export default async function ApprovalSettingsPage() {
               hasAmount={HAS_AMOUNT[p]}
               currencySymbol={symbol}
               roles={roles}
+              alwaysOn={ALWAYS_ON.has(p)}
               people={eligible.map((x) => ({ id: x.id, name: x.name, role: x.role }))}
               initial={{
                 enabled: policy.enabled,

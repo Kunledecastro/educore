@@ -1,12 +1,16 @@
 import "server-only";
 import { z } from "zod";
-import type { AuditContext, PrismaClient } from "@educore/db";
+import { recordAudit, type AuditContext, type PrismaClient } from "@educore/db";
 import { assignStudentDiscount, checkStudentDiscount, DiscountError, estimateDiscountMinor, saveDiscountRule } from "../discount-writer";
 import { toMinor } from "../fees";
 import { cancelInvoice, FeeRuleError, reversePayment } from "../invoice-writer";
 import { cancelInvoiceSchema, discountSchema, reversalSchema, studentDiscountSchema } from "../validation/fees";
 import { publishClassResults, ResultsError, resultsTarget, unpublishClassResults } from "../results-writer";
 import { publishRequestSchema, unpublishRequestSchema } from "../validation/results";
+import { randomUUID } from "node:crypto";
+import { assessLeave, bookLeave, LeaveError, leaveTargetKey } from "../leave/data";
+import { leaveRequestSchema } from "../leave/rules";
+import { announcementSchema } from "../validation/messaging";
 import type { ApprovalProcess } from "./policy";
 
 /**
@@ -35,6 +39,17 @@ export interface Summary {
   className?: string;
   termName?: string;
   subjects?: string;
+  /** 8.2: people and communication. */
+  status?: string;
+  title?: string;
+  audience?: string;
+  staff?: string;
+  leaveType?: string;
+  startDate?: string;
+  endDate?: string;
+  days?: number;
+  /** The announcement text, so the approver reads exactly what will go out. */
+  body?: string;
 }
 
 export class ApplyError extends Error {
@@ -49,14 +64,16 @@ export function errorCode(err: unknown): string | null {
   if (err instanceof FeeRuleError) return `fee.${err.code}`;
   if (err instanceof DiscountError) return `discount.${err.code}`;
   if (err instanceof ResultsError) return `results.${err.code}`;
+  if (err instanceof LeaveError) return `leave.${err.code}`;
   if (err instanceof ApplyError) return err.code;
   return null;
 }
 
 interface ProcessDef<S extends z.ZodTypeAny> {
   schema: S;
-  targetKey(p: z.infer<S>): string;
-  prepare(tx: Tx, tenantId: string, p: z.infer<S>): Promise<{ summary: Summary; amountMinor: number | null }>;
+  /** One pending request per target. `requesterId`: whose request it is. */
+  targetKey(p: z.infer<S>, requesterId: string): string;
+  prepare(tx: Tx, tenantId: string, p: z.infer<S>, requesterId: string): Promise<{ summary: Summary; amountMinor: number | null }>;
   apply(tx: Tx, audit: AuditContext, p: z.infer<S>): Promise<void>;
 }
 
@@ -155,6 +172,63 @@ const resultsUnpublish: ProcessDef<typeof unpublishRequestSchema> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// 8.2 People and communication
+// ---------------------------------------------------------------------------
+
+export const studentStatusRequestSchema = z.object({
+  studentId: z.string().min(1).max(64),
+  status: z.enum(["INACTIVE", "GRADUATED", "WITHDRAWN"]),
+  reason: z.string().trim().max(300).optional(),
+});
+const studentStatus: ProcessDef<typeof studentStatusRequestSchema> = {
+  schema: studentStatusRequestSchema,
+  targetKey: (p) => p.studentId,
+  async prepare(tx, tenantId, p) {
+    const st = await tx.student.findFirst({ where: { id: p.studentId, tenantId }, select: { firstName: true, lastName: true, admissionNo: true, status: true } });
+    if (!st) throw new ApplyError("notFound");
+    if (st.status === p.status) throw new ApplyError("student.unchanged");
+    return { amountMinor: null, summary: { pupil: name(st), admissionNo: st.admissionNo, status: p.status, reason: p.reason || undefined } };
+  },
+  async apply(tx, audit, p) {
+    const before = await tx.student.findFirst({ where: { id: p.studentId, tenantId: audit.tenantId } });
+    if (!before) throw new ApplyError("notFound");
+    if (before.status === p.status) throw new ApplyError("student.unchanged");
+    const after = await tx.student.update({ where: { id: before.id }, data: { status: p.status } });
+    await recordAudit(audit, { action: "UPDATE", entityType: "Student", entityId: before.id, before, after }, tx);
+  },
+};
+
+/** A teacher's announcement to the whole school or a role (teachers can otherwise only post to their classes). */
+export const schoolAnnouncementSchema = announcementSchema.refine((a) => a.audienceScope !== "CLASS" && !a.isPinned, { message: "validation.invalidChoice" });
+const announcementSchool: ProcessDef<typeof schoolAnnouncementSchema> = {
+  schema: schoolAnnouncementSchema,
+  targetKey: () => `ann:${randomUUID()}`,
+  async prepare(_tx, _tenantId, p) {
+    return { amountMinor: null, summary: { title: p.title, body: p.body, audience: p.audienceScope === "ROLE" ? `ROLE:${p.audienceRole}` : "SCHOOL" } };
+  },
+  async apply(tx, audit, p) {
+    const after = await tx.announcement.create({
+      data: { tenantId: audit.tenantId, publishedById: audit.actorId!, title: p.title, body: p.body, audienceScope: p.audienceScope, audienceClassId: null, audienceRole: p.audienceScope === "ROLE" ? p.audienceRole : null, isPinned: false },
+    });
+    await recordAudit(audit, { action: "CREATE", entityType: "Announcement", entityId: after.id, before: null, after }, tx);
+  },
+};
+
+const leave: ProcessDef<typeof leaveRequestSchema> = {
+  schema: leaveRequestSchema,
+  targetKey: (p, requesterId) => leaveTargetKey(requesterId, p),
+  async prepare(tx, tenantId, p, requesterId) {
+    const a = await assessLeave(tx, tenantId, requesterId, p);
+    if (a.refusal) throw new LeaveError(a.refusal);
+    const who = await tx.user.findFirst({ where: { id: requesterId, tenantId }, select: { name: true, email: true } });
+    return { amountMinor: null, summary: { staff: who?.name ?? who?.email ?? "", leaveType: a.type.name, startDate: p.startDate, endDate: p.endDate, days: a.days, reason: p.note || undefined } };
+  },
+  async apply(tx, audit, p) {
+    await bookLeave(tx, audit, p);
+  },
+};
+
 export const PROCESSES: Record<ApprovalProcess, ProcessDef<z.ZodTypeAny>> = {
   DISCOUNT_ASSIGN: discountAssign,
   INVOICE_CANCEL: invoiceCancel,
@@ -162,4 +236,7 @@ export const PROCESSES: Record<ApprovalProcess, ProcessDef<z.ZodTypeAny>> = {
   DISCOUNT_RULE: discountRule,
   RESULTS_PUBLISH: resultsPublish,
   RESULTS_UNPUBLISH: resultsUnpublish,
+  STUDENT_STATUS: studentStatus,
+  ANNOUNCEMENT_SCHOOL: announcementSchool,
+  LEAVE: leave,
 };

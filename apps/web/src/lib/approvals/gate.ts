@@ -5,6 +5,7 @@ import { inngest } from "../inngest/client";
 import { NotFoundError, UserFacingError } from "../run-action";
 import { DiscountError } from "../discount-writer";
 import { ResultsError } from "../results-writer";
+import { LeaveError } from "../leave/data";
 import { ApplyError } from "./processes";
 import { ApprovalError, approvalRequired, requestApproval } from "./engine";
 import type { ApprovalProcess } from "./policy";
@@ -33,6 +34,11 @@ export async function approvalGate(ctx: RequestContext, process: ApprovalProcess
 export async function approvalUserError(err: unknown): Promise<unknown> {
   if (err instanceof ApprovalError) return new UserFacingError((await getTranslations("approvals.errors"))(err.code));
   if (err instanceof ApplyError && err.code === "notFound") return new NotFoundError();
+  if (err instanceof ApplyError && err.code === "student.unchanged") return new UserFacingError((await getTranslations("approvals.errors"))("studentUnchanged"));
+  if (err instanceof LeaveError) {
+    if (err.code === "notFound") return new NotFoundError();
+    return new UserFacingError((await getTranslations("leave.errors"))(err.code));
+  }
   if (err instanceof ResultsError) {
     if (err.code === "notFound") return new NotFoundError();
     return new UserFacingError((await getTranslations("gradebook.publish.errors"))(err.code));

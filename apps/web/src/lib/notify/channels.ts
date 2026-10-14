@@ -102,6 +102,9 @@ const PROCESS_WORDS: Record<string, string> = {
   DISCOUNT_RULE: "a discount rule change",
   RESULTS_PUBLISH: "publishing a class's results",
   RESULTS_UNPUBLISH: "unpublishing a class's results",
+  STUDENT_STATUS: "a pupil leaving the roll",
+  ANNOUNCEMENT_SCHOOL: "a school-wide announcement",
+  LEAVE: "a leave request",
 };
 
 /**

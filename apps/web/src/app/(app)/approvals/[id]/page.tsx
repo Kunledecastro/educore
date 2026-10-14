@@ -6,7 +6,7 @@ import { Badge } from "@educore/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import { discountValueText, headline, STATUS_VARIANT } from "@/lib/approvals/describe";
 import { getRequest } from "@/lib/approvals/engine";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatDateOnly, formatDateTime, formatMoney } from "@/lib/format";
 import { auditContextFor, requirePermission } from "@/lib/guard";
 import { getSettingsForUser } from "@/lib/tenant";
 import { idSchema } from "@/lib/validation/common";
@@ -21,7 +21,7 @@ export default async function ApprovalRequestPage({ params }: { params: { id: st
   if (!id.success) notFound();
   const a = auditContextFor(ctx);
   const actor = { tenantId: a.tenantId, userId: ctx.user.id, role: ctx.user.role, impersonating: Boolean(ctx.impersonation) };
-  const [r, settings, t, tf] = await Promise.all([getRequest(actor, id.data), getSettingsForUser(a.tenantId), getTranslations("approvals"), getTranslations("fees.rules")]);
+  const [r, settings, t, tf, tRoles] = await Promise.all([getRequest(actor, id.data), getSettingsForUser(a.tenantId), getTranslations("approvals"), getTranslations("fees.rules"), getTranslations("roles")]);
   if (!r) notFound();
   const when = (d: Date) => formatDateTime(d, settings);
   const s = r.summary;
@@ -33,6 +33,12 @@ export default async function ApprovalRequestPage({ params }: { params: { id: st
   if (s.scope) facts.push([t("detail.scope"), s.scope]);
   if (s.className) facts.push([t("detail.class"), `${s.className}${s.termName ? ` · ${s.termName}` : ""}`]);
   if (s.subjects) facts.push([t("detail.subjects"), s.subjects]);
+  if (s.status && r.process === "STUDENT_STATUS") facts.push([t("detail.newStatus"), t(`studentStatus.${s.status}` as never)]);
+  if (s.staff) facts.push([t("detail.staff"), s.staff]);
+  if (s.leaveType) facts.push([t("detail.leaveType"), s.leaveType]);
+  if (s.startDate && s.endDate) facts.push([t("detail.dates"), `${formatDateOnly(s.startDate, settings)} – ${formatDateOnly(s.endDate, settings)}${s.days ? ` · ${t("detail.workingDays", { count: s.days })}` : ""}`]);
+  if (s.title) facts.push([t("detail.announcement"), s.title]);
+  if (s.audience) facts.push([t("detail.audience"), s.audience === "SCHOOL" ? t("detail.audienceSchool") : t("detail.audienceRole", { role: tRoles(s.audience.replace("ROLE:", "") as never) })]);
   if (r.amountMinor !== null) facts.push([r.process === "DISCOUNT_ASSIGN" ? t("detail.estimatedValue") : t("detail.amount"), formatMoney(r.amountMinor / 100, settings)]);
   if (s.reason) facts.push([t("detail.reason"), s.reason]);
   if (r.note && r.note !== s.reason) facts.push([t("detail.note"), r.note]);
@@ -67,6 +73,7 @@ export default async function ApprovalRequestPage({ params }: { params: { id: st
             </div>
           ))}
         </dl>
+        {s.body ? <p className="whitespace-pre-wrap rounded-md border bg-muted/30 p-3 text-sm">{s.body}</p> : null}
         {r.status === "PENDING" ? <p className="text-xs text-muted-foreground">{t("detail.expires", { date: when(r.expiresAt) })}</p> : null}
         {failure ? <p className="rounded-md border border-destructive/50 bg-destructive/5 p-3 text-sm">{t("detail.failed", { reason: failure })}</p> : null}
       </section>

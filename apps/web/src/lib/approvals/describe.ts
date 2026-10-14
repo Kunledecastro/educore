@@ -28,6 +28,12 @@ export function headline(t: T, process: ApprovalProcess, s: Summary): string {
       return t("headline.RESULTS_PUBLISH", { class: s.className ?? "", term: s.termName ?? "" });
     case "RESULTS_UNPUBLISH":
       return t("headline.RESULTS_UNPUBLISH", { class: s.className ?? "", term: s.termName ?? "" });
+    case "STUDENT_STATUS":
+      return t("headline.STUDENT_STATUS", { pupil: s.pupil ?? "", status: s.status ? t(`studentStatus.${s.status}`) : "" });
+    case "ANNOUNCEMENT_SCHOOL":
+      return t("headline.ANNOUNCEMENT_SCHOOL", { title: s.title ?? "" });
+    case "LEAVE":
+      return t("headline.LEAVE", { staff: s.staff ?? "", type: s.leaveType ?? "", days: s.days ?? 0 });
   }
 }
 

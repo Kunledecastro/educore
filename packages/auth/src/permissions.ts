@@ -32,6 +32,8 @@ export const RESOURCES = [
   "healthSettings",
   "approval",
   "approvalSettings",
+  "leave",
+  "leaveSettings",
   "user",
   "academicYear",
   "classGrade",
@@ -90,6 +92,9 @@ export const PERMISSION_MATRIX: Matrix = {
     // Approvals (Phase 8) are a school's own control: the platform team never decides them.
     approval: [],
     approvalSettings: [],
+    // Staff leave (Phase 8.2) is the school's own HR record.
+    leave: [],
+    leaveSettings: [],
   },
 
   [Role.SCHOOL_ADMIN]: {
@@ -132,6 +137,9 @@ export const PERMISSION_MATRIX: Matrix = {
     // Phase 8: request and decide approvals (only where a policy names them, never their own — checked in code).
     approval: ["read", "update", "export"],
     approvalSettings: ["read", "update"],
+    // Phase 8.2: their own leave, everyone's leave calendar, cancelling approved leave; leave types.
+    leave: ["create", "read", "update", "export"],
+    leaveSettings: ["read", "update"],
   },
 
   [Role.ACCOUNTANT]: {
@@ -143,6 +151,7 @@ export const PERMISSION_MATRIX: Matrix = {
     announcement: R,
     auditLog: R,
     approval: ["read", "update"], // Phase 8: request and decide approvals where a policy names the bursar
+    leave: ["create", "read"], // Phase 8.2: request and see their own leave
   },
 
   [Role.TEACHER]: {
@@ -165,6 +174,7 @@ export const PERMISSION_MATRIX: Matrix = {
     assignment: [...CRUDE], // own sections/subjects only (checked in code); delete only before any work is handed in
     healthAlert: R, // alerts only, for pupils in their classes (Phase 7.1) — never the health record
     submission: ["create", "read", "update", "export"], // mark; create = record paper work
+    leave: ["create", "read"], // Phase 8.2: request and see their own leave
   },
 
   // Phase 7: the school clinic. Every pupil's health record, alerts and clinic visits; nothing academic or financial.
@@ -176,6 +186,7 @@ export const PERMISSION_MATRIX: Matrix = {
     healthRecord: ["create", "read", "update", "delete", "export"],
     healthAlert: CRUDE,
     clinicVisit: ["create", "read", "update", "export"],
+    leave: ["create", "read"], // Phase 8.2: request and see their own leave
   },
 
   [Role.PARENT]: {

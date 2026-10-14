@@ -3,6 +3,13 @@ import { approvalNeededEmail, approvalOutcomeEmail, CHANNELS } from "@/lib/notif
 import { inngest } from "./client";
 import { appUrl } from "./notify-message";
 
+/** Where an email sends someone: approvers to the request; requesters of leave or announcements to their own page. */
+function requesterLink(who: "requester" | "approvers", process: string, requestId: string): string {
+  if (who === "requester" && process === "LEAVE") return `${appUrl()}/leave`;
+  if (who === "requester" && process === "ANNOUNCEMENT_SCHOOL") return `${appUrl()}/announcements`;
+  return `${appUrl()}/approvals/${requestId}`;
+}
+
 /**
  * Approval emails (Phase 8.0). In-app, the Approvals menu count and the
  * dashboard already show what's waiting; these send email once a channel is
@@ -21,7 +28,8 @@ export const notifyApproval = inngest.createFunction(
     if (!r || r.to.length === 0) return { skipped: "no recipients" };
     for (const to of r.to) {
       await step.run(`send-${to.id}`, async () => {
-        const link = `${appUrl()}/approvals/${requestId}`;
+        // Staff without the Approvals inbox follow their own requests elsewhere (8.2: leave, announcements).
+        const link = requesterLink(who, r.process, requestId);
         const n =
           who === "requester"
             ? approvalOutcomeEmail({ recipient: { email: to.email, name: to.name }, process: r.process, status: r.status, schoolName: r.school, link })
@@ -47,7 +55,7 @@ export const approvalSweep = inngest.createFunction(
       for (const e of out.expired) {
         await step.run(`expired-${e.id}`, async () => {
           const r = await recipients(e.tenantId, e.id, "requester");
-          for (const to of r?.to ?? []) for (const c of channels) await c.send(approvalOutcomeEmail({ recipient: { email: to.email, name: to.name }, process: r!.process, status: "EXPIRED", schoolName: r!.school, link: `${appUrl()}/approvals/${e.id}` }));
+          for (const to of r?.to ?? []) for (const c of channels) await c.send(approvalOutcomeEmail({ recipient: { email: to.email, name: to.name }, process: r!.process, status: "EXPIRED", schoolName: r!.school, link: requesterLink("requester", r!.process, e.id) }));
         });
       }
       for (const x of out.remind) {

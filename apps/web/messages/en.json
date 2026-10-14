@@ -53,7 +53,8 @@
     "health": "Health",
     "healthAlerts": "Health alerts",
     "clinicVisits": "Clinic visits",
-    "approvals": "Approvals"
+    "approvals": "Approvals",
+    "leave": "Leave"
   },
   "login": {
     "title": "Sign in to your school portal",
@@ -788,7 +789,8 @@
       "branding": "Branding",
       "security": "Security",
       "health": "Health",
-      "approvals": "Approvals"
+      "approvals": "Approvals",
+      "leave": "Leave"
     },
     "terms": {
       "noYearTitle": "Create an academic year first",
@@ -2485,7 +2487,8 @@
       "notFound": "That announcement or class no longer exists.",
       "noRecipients": "Choose who should see it.",
       "recipientNotAllowed": "You can't post to that audience."
-    }
+    },
+    "needsApproval": "Announcements to the whole school or a role go to an admin for approval before they're sent."
   },
   "messages": {
     "pageTitle": "Messages",
@@ -3471,7 +3474,10 @@
       "PAYMENT_REVERSAL": "Payment reversal",
       "DISCOUNT_RULE": "Discount rule",
       "RESULTS_PUBLISH": "Publishing results",
-      "RESULTS_UNPUBLISH": "Unpublishing results"
+      "RESULTS_UNPUBLISH": "Unpublishing results",
+      "STUDENT_STATUS": "Pupil leaving the roll",
+      "ANNOUNCEMENT_SCHOOL": "Teacher's school-wide announcement",
+      "LEAVE": "Staff leave"
     },
     "stepOf": "step {step} of {steps}",
     "headline": {
@@ -3481,7 +3487,10 @@
       "DISCOUNT_RULE_create": "New discount: {discount}",
       "DISCOUNT_RULE_update": "Change discount: {discount}",
       "RESULTS_PUBLISH": "Publish results: {class} · {term}",
-      "RESULTS_UNPUBLISH": "Unpublish results: {class} · {term}"
+      "RESULTS_UNPUBLISH": "Unpublish results: {class} · {term}",
+      "STUDENT_STATUS": "{pupil}: mark as {status}",
+      "ANNOUNCEMENT_SCHOOL": "Announcement: {title}",
+      "LEAVE": "{staff}: {type}, {days, plural, one {# day} other {# days}}"
     },
     "back": "Back to approvals",
     "requestedByOn": "asked by {name} on {date}",
@@ -3502,7 +3511,10 @@
         "PAYMENT_REVERSAL": "The payment is reversed: the invoice's balance goes back up by this amount.",
         "DISCOUNT_RULE": "The discount rule is created or changed for future bills. Issued invoices keep their amounts.",
         "RESULTS_PUBLISH": "The class's results for the term are published: parents and pupils can see them and the scores are locked.",
-        "RESULTS_UNPUBLISH": "The class's results are taken down so the listed subjects' scores can be corrected. Families stop seeing them, and the class's report cards for the term need generating again."
+        "RESULTS_UNPUBLISH": "The class's results are taken down so the listed subjects' scores can be corrected. Families stop seeing them, and the class's report cards for the term need generating again.",
+        "STUDENT_STATUS": "The pupil comes off the active roll: they drop out of registers, class lists and new bills, and their records are kept.",
+        "ANNOUNCEMENT_SCHOOL": "The announcement goes out to everyone shown, from the teacher who wrote it.",
+        "LEAVE": "The leave is booked for these dates and the days come off the person's balance for this type."
       },
       "expires": "Expires {date} if nobody decides.",
       "failed": "Approved, but it couldn't be applied: {reason} Nothing was changed.",
@@ -3533,7 +3545,16 @@
       "withdrawDescription": "It won't be approved or applied. You can ask again later.",
       "withdrawn": "Request withdrawn",
       "class": "Class",
-      "subjects": "Subjects to change"
+      "subjects": "Subjects to change",
+      "newStatus": "New status",
+      "staff": "Staff member",
+      "leaveType": "Leave",
+      "dates": "Dates",
+      "workingDays": "{count, plural, one {# working day} other {# working days}}",
+      "announcement": "Announcement",
+      "audience": "To",
+      "audienceSchool": "The whole school",
+      "audienceRole": "Everyone who is a {role}"
     },
     "failure": {
       "discount_alreadyAssigned": "the pupil already has this discount for that period.",
@@ -3542,7 +3563,15 @@
       "notFound": "it no longer exists.",
       "results_alreadyPublished": "the results were already published.",
       "results_notPublished": "the results are no longer published.",
-      "results_notFound": "the class or term no longer exists."
+      "results_notFound": "the class or term no longer exists.",
+      "student_unchanged": "the pupil already had that status.",
+      "leave_balance": "there weren't enough days left.",
+      "leave_overlap": "it overlapped other leave.",
+      "leave_outsideYear": "the dates were outside the school year.",
+      "leave_noWorkingDays": "there were no working days in it.",
+      "leave_typeInactive": "that type of leave was switched off.",
+      "leave_noYear": "there was no active school year.",
+      "leave_notFound": "the leave type no longer exists."
     },
     "errors": {
       "notFound": "That request wasn't found.",
@@ -3555,7 +3584,8 @@
       "commentRequired": "Please give a reason for rejecting.",
       "supportCannotDecide": "EduCore support can't approve or reject a school's requests.",
       "changed": "Someone else decided this step a moment ago. The page has been refreshed.",
-      "discountInactive": "That discount has been switched off."
+      "discountInactive": "That discount has been switched off.",
+      "studentUnchanged": "The pupil already has that status."
     },
     "pending": {
       "title": "{count, plural, one {Waiting for approval} other {# requests waiting for approval}}",
@@ -3609,6 +3639,18 @@
         "RESULTS_UNPUBLISH": {
           "title": "Unpublishing results to change marks",
           "explain": "When published results are taken down to correct scores. The request must say why and which subjects will change. Only school admins can approve."
+        },
+        "STUDENT_STATUS": {
+          "title": "A pupil leaving the roll",
+          "explain": "When a pupil is marked as left, graduated or withdrawn. Bringing a pupil back is never held. Only school admins can approve."
+        },
+        "ANNOUNCEMENT_SCHOOL": {
+          "title": "Teachers' school-wide announcements",
+          "explain": "When this is on, teachers can write to the whole school or to everyone in a role (e.g. all parents), and an admin approves it first. When it's off, teachers can only post to their own classes."
+        },
+        "LEAVE": {
+          "title": "Staff leave",
+          "explain": "Who approves leave requests from staff. Nobody approves their own leave."
         }
       },
       "warning": {
@@ -3620,8 +3662,15 @@
       },
       "group": {
         "money": "Money",
-        "academic": "Results"
-      }
+        "academic": "Results",
+        "people": "People and announcements"
+      },
+      "alwaysOn": "Always on: every leave request needs approval."
+    },
+    "studentStatus": {
+      "INACTIVE": "Left the school",
+      "GRADUATED": "Graduated",
+      "WITHDRAWN": "Withdrawn"
     }
   },
   "sessionSecurity": {
@@ -3657,6 +3706,97 @@
       "notLoaded": "There's no sample data to remove.",
       "inUse": "Some of your own pupils are in a sample class. Move them to one of your classes first, then remove the sample data.",
       "support": "Support sessions can't load or remove sample data — ask the school admin."
+    }
+  },
+  "leave": {
+    "title": "Leave",
+    "description": "Your leave for {year}. Requests go to a school admin for approval.",
+    "noYear": "Leave opens once the school has an active academic year.",
+    "calendarLink": "Leave calendar",
+    "typesLink": "Leave types",
+    "balances": "What you have left",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "balanceDetail": "{allowance} a year · {taken} taken · {pending} waiting for approval",
+    "requestTitle": "Ask for leave",
+    "requestExplain": "Days are counted Monday to Friday. Nothing is booked until it's approved.",
+    "myRequests": "My requests",
+    "noRequests": "No leave requests yet",
+    "noRequestsHint": "When you ask for leave it shows here with its status.",
+    "col": {
+      "type": "Type",
+      "dates": "Dates",
+      "days": "Days",
+      "status": "Status",
+      "actions": "Actions",
+      "staff": "Staff"
+    },
+    "range": "{from} – {to}",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "failure": {
+      "noYear": "There's no active school year, so leave can't be booked yet.",
+      "noWorkingDays": "Those dates are all weekend days.",
+      "outsideYear": "Leave must fall within this school year.",
+      "overlap": "You already have leave booked or requested on some of those days.",
+      "balance": "That's more days than you have left for this type of leave.",
+      "typeInactive": "This type of leave has been switched off.",
+      "notAllowed": "You can't do that."
+    },
+    "booked": "Booked leave this year",
+    "bookedStatus": {
+      "APPROVED": "Booked",
+      "CANCELLED": "Cancelled"
+    },
+    "noTypes": "Your school hasn't set up any leave types yet.",
+    "form": {
+      "type": "Type of leave",
+      "typeOption": "{name} ({left} left)",
+      "overBalance": "{count, plural, one {# working day} other {# working days}}: more than you have left",
+      "workingDays": "{count, plural, one {# working day} other {# working days}}",
+      "from": "From",
+      "to": "To (last day off)",
+      "note": "Note for the approver",
+      "noteHint": "Optional: e.g. who is covering your classes.",
+      "submit": "Send for approval"
+    },
+    "withdraw": "Withdraw",
+    "withdrawTitle": "Withdraw this leave request?",
+    "withdrawDescription": "It won't be decided, and the days go back to your balance.",
+    "withdrawn": "Request withdrawn.",
+    "cancel": "Cancel leave",
+    "cancelTitle": "Cancel {label}?",
+    "cancelDescription": "The leave is no longer booked and the days go back to the person's balance. This is recorded in the audit log.",
+    "cancelled": "Leave cancelled.",
+    "calendarTitle": "Leave calendar",
+    "calendarDescription": "Who is away, or asking to be, each day this month.",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "legendApproved": "Booked",
+    "legendPending": "Waiting for approval",
+    "nobodyAway": "Nobody is away this month",
+    "nobodyAwayHint": "Booked and requested leave shows here.",
+    "calendarCaption": "Staff leave in {month}",
+    "thisMonth": "This month",
+    "review": "Review",
+    "errors": {
+      "noYear": "There's no active school year, so leave can't be booked yet.",
+      "noWorkingDays": "Those dates are all weekend days.",
+      "outsideYear": "Leave must fall within this school year.",
+      "overlap": "You already have leave booked or requested on some of those days.",
+      "balance": "That's more days than you have left for this type of leave.",
+      "typeInactive": "This type of leave has been switched off.",
+      "notAllowed": "You can't do that."
+    },
+    "settings": {
+      "notInPlan": "Staff leave comes with approval workflows, which aren't in your school's plan.",
+      "explain": "The types of leave your staff can take and how many working days of each they get per school year. Balances start again each school year. Switch a type off rather than removing it; past leave keeps its type.",
+      "typesTitle": "Leave types",
+      "addTitle": "Add a leave type",
+      "name": "Name",
+      "daysPerYear": "Days per year",
+      "active": "Available",
+      "save": "Save",
+      "add": "Add",
+      "saved": "Leave type saved."
     }
   }
 }

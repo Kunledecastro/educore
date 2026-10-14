@@ -49,13 +49,41 @@ From the first external tester's review (`EduCore_Review.docx`). Each point was 
 - Sample data integration: 10 tests (loading conditions, labels, onboarding/billing exclusion, isolation between schools, marker grants, exact removal).
 - Per-school inactivity setting: 1 test.
 
-## Phase 8 — Approval workflows (in progress: 8.0 and 8.1 live)
+## Phase 8 — Approval workflows (complete)
 
 Spec: `claude/phase-8-spec.md` (decisions confirmed 2026-10-08):
 - approvers can be roles, named people, or both
 - one step, plus an optional second step above an amount
 - off until the school switches each process on
 - 8.0 money, 8.1 academic, 8.2 people and communication
+
+### Added (8.2 — people, communication and staff leave)
+
+- **A pupil leaving the roll can need approval** (left the school, graduated, withdrawn; off by default). The pupil stays active until a school admin approves; bringing a pupil back is never held. On approval the leaving date is recorded (it starts the health-record retention clock from 7.2).
+- **Teachers' school-wide announcements** (off by default). When switched on, teachers can write to the whole school or to everyone in a role; a school admin reads the full text and approves before it goes out, from the teacher. Pinning stays admin-only. When off, teachers post to their own classes only, as before.
+- **Staff leave (new).**
+  - Leave types per school with days per school year. Defaults: Annual 20, Sick 12, Casual 5, Maternity 60, Paternity 5. Admins edit them in Settings → Leave; types are switched off, never deleted.
+  - Staff (teachers, bursars, nurses, admins) see their balances, ask for leave (working days Mon–Fri counted as they pick dates), and follow their requests on the new Leave page.
+  - Every request needs a school admin's approval (always on). Nobody approves their own leave, so an admin's leave needs a different admin.
+  - Pending requests count against the balance. Overlapping, weekend-only, out-of-year and over-balance requests are refused, and checked again at approval.
+  - Admins get a monthly leave calendar (booked and waiting) and can cancel booked leave, which returns the days. Audited.
+  - Balances reset each academic year; no carry-over; school holidays aren't excluded yet.
+- Settings → Approvals has a "People and announcements" section; leave shows as always on.
+- Leave and announcement outcome emails link to the Leave and Announcements pages.
+
+### Database (8.2)
+
+- Migration `0035_people_approvals_leave`:
+  - `leave_types` and `staff_leave` tables, with RLS. The app can insert and update them but never delete.
+  - Widens `approval_requests.process`.
+
+### Tests (8.2)
+
+- 12 new integration tests:
+  - pupil status approval: a bursar refused, `leftAt` set, stale request fails safely
+  - teacher announcements: held until approved, from the teacher, no pinning
+  - leave: defaults, pending balance, overlap / weekend / outside-year / over-balance refusals, who can decide, booking, calendar isolation, withdraw, cancel, an admin's own leave, types per school, no deletes
+- 6 leave rule unit tests and 1 permission test.
 
 ### Added (8.1 — academic approvals)
 

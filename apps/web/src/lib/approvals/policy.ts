@@ -6,7 +6,7 @@ import { z } from "zod";
  * stored per school in tenant settings (config-first) and read by the engine.
  */
 
-export const APPROVAL_PROCESSES = ["DISCOUNT_ASSIGN", "INVOICE_CANCEL", "PAYMENT_REVERSAL", "DISCOUNT_RULE", "RESULTS_PUBLISH", "RESULTS_UNPUBLISH"] as const;
+export const APPROVAL_PROCESSES = ["DISCOUNT_ASSIGN", "INVOICE_CANCEL", "PAYMENT_REVERSAL", "DISCOUNT_RULE", "RESULTS_PUBLISH", "RESULTS_UNPUBLISH", "STUDENT_STATUS", "ANNOUNCEMENT_SCHOOL", "LEAVE"] as const;
 export type ApprovalProcess = (typeof APPROVAL_PROCESSES)[number];
 
 /** Roles that may ever be approvers. */
@@ -24,16 +24,25 @@ export const PROCESS_APPROVER_ROLES: Record<ApprovalProcess, readonly ApproverRo
   DISCOUNT_RULE: APPROVER_ROLES,
   RESULTS_PUBLISH: ["SCHOOL_ADMIN"],
   RESULTS_UNPUBLISH: ["SCHOOL_ADMIN"],
+  STUDENT_STATUS: ["SCHOOL_ADMIN"],
+  ANNOUNCEMENT_SCHOOL: ["SCHOOL_ADMIN"],
+  LEAVE: ["SCHOOL_ADMIN"],
 };
 
+/** Processes that are always requests (8.2: staff leave), whatever the switch says. */
+export const ALWAYS_ON: ReadonlySet<ApprovalProcess> = new Set<ApprovalProcess>(["LEAVE"]);
+
 /** Which group a process belongs to (Settings → Approvals sections). */
-export const PROCESS_GROUP: Record<ApprovalProcess, "money" | "academic"> = {
+export const PROCESS_GROUP: Record<ApprovalProcess, "money" | "academic" | "people"> = {
   DISCOUNT_ASSIGN: "money",
   INVOICE_CANCEL: "money",
   PAYMENT_REVERSAL: "money",
   DISCOUNT_RULE: "money",
   RESULTS_PUBLISH: "academic",
   RESULTS_UNPUBLISH: "academic",
+  STUDENT_STATUS: "people",
+  ANNOUNCEMENT_SCHOOL: "people",
+  LEAVE: "people",
 };
 
 export const approvalStepSchema = z.object({
@@ -63,7 +72,7 @@ export const approvalsSettingsSchema = z
 export type ApprovalsSettings = Record<ApprovalProcess, ProcessPolicy>;
 
 /** Processes that have an amount (and so can have a second step by amount). */
-export const HAS_AMOUNT: Record<ApprovalProcess, boolean> = { DISCOUNT_ASSIGN: true, INVOICE_CANCEL: true, PAYMENT_REVERSAL: true, DISCOUNT_RULE: false, RESULTS_PUBLISH: false, RESULTS_UNPUBLISH: false };
+export const HAS_AMOUNT: Record<ApprovalProcess, boolean> = { DISCOUNT_ASSIGN: true, INVOICE_CANCEL: true, PAYMENT_REVERSAL: true, DISCOUNT_RULE: false, RESULTS_PUBLISH: false, RESULTS_UNPUBLISH: false, STUDENT_STATUS: false, ANNOUNCEMENT_SCHOOL: false, LEAVE: false };
 
 /** How many steps a request needs. */
 export function stepsFor(policy: ProcessPolicy, amountMinor: number | null): 1 | 2 {

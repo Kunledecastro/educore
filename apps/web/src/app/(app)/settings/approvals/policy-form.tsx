@@ -55,7 +55,7 @@ function StepPicker({ legend, value, onChange, people, roles }: { legend: string
 }
 
 /** One process's approval policy (Settings → Approvals). */
-export function PolicyForm({ process, initial, people, hasAmount, currencySymbol, roles }: { process: string; initial: PolicyFormValue; people: { id: string; name: string; role: string }[]; hasAmount: boolean; currencySymbol: string; roles: readonly string[] }) {
+export function PolicyForm({ process, initial, people, hasAmount, currencySymbol, roles, alwaysOn = false }: { process: string; initial: PolicyFormValue; people: { id: string; name: string; role: string }[]; hasAmount: boolean; currencySymbol: string; roles: readonly string[]; alwaysOn?: boolean }) {
   const t = useTranslations("approvals.settings");
   const router = useRouter();
   const [v, setV] = React.useState<PolicyFormValue>(initial);
@@ -76,10 +76,14 @@ export function PolicyForm({ process, initial, people, hasAmount, currencySymbol
         });
       }}
     >
-      <label className="flex items-center gap-2 text-sm font-medium">
-        <input type="checkbox" className="h-4 w-4 accent-primary" checked={v.enabled} onChange={(e) => setV({ ...v, enabled: e.target.checked })} />
-        {t("enabled")}
-      </label>
+      {alwaysOn ? (
+        <p className="text-sm font-medium">{t("alwaysOn")}</p>
+      ) : (
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" className="h-4 w-4 accent-primary" checked={v.enabled} onChange={(e) => setV({ ...v, enabled: e.target.checked })} />
+          {t("enabled")}
+        </label>
+      )}
       <StepPicker roles={roles} legend={hasAmount && v.step2 ? t("step1Legend") : t("approversLegend")} value={v.step1} onChange={(s) => setV({ ...v, step1: s })} people={people} />
       {hasAmount ? (
         <div className="space-y-2">

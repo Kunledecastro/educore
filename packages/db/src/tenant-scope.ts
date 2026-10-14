@@ -12,6 +12,8 @@ export const TENANT_OWNED_MODELS = new Set<Prisma.ModelName>([
   "ApprovalRequest",
   "ApprovalDecision",
   "SampleRecord",
+  "LeaveType",
+  "StaffLeave",
   "AcademicYear",
   "ClassGrade",
   "Section",

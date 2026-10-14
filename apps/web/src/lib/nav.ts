@@ -18,6 +18,7 @@ const MODULE_OF_HREF: Record<string, Module> = {
   "/health-alerts": "health",
   "/clinic/visits": "health",
   "/approvals": "approvals",
+  "/leave": "approvals",
 };
 
 export interface NavItem {
@@ -76,6 +77,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "approvals", href: "/approvals", icon: "Stamp" },
+      { labelKey: "leave", href: "/leave", icon: "CalendarOff" },
       { labelKey: "clinic", href: "/clinic", icon: "HeartPulse" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
       { labelKey: "plan", href: "/plan", icon: "BadgeCheck" },
@@ -93,6 +95,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "healthAlerts", href: "/health-alerts", icon: "HeartPulse" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "messages", href: "/messages", icon: "MessageSquare" },
+      { labelKey: "leave", href: "/leave", icon: "CalendarOff" },
     );
   }
 
@@ -102,6 +105,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "fees", href: "/fees", icon: "Wallet" },
       { labelKey: "payments", href: "/payments", icon: "Receipt" },
       { labelKey: "approvals", href: "/approvals", icon: "Stamp" },
+      { labelKey: "leave", href: "/leave", icon: "CalendarOff" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
       { labelKey: "auditLog", href: "/audit-log", icon: "ShieldCheck" },
     );
@@ -113,6 +117,7 @@ function navItemsForRole(role: Role): NavItem[] {
       { labelKey: "clinicVisits", href: "/clinic/visits", icon: "ClipboardList" },
       { labelKey: "healthAlerts", href: "/health-alerts", icon: "HeartPulse" },
       { labelKey: "announcements", href: "/announcements", icon: "Megaphone" },
+      { labelKey: "leave", href: "/leave", icon: "CalendarOff" },
     );
   }
 

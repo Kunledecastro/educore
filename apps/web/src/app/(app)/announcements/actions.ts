@@ -6,6 +6,8 @@ import { auditContextFor, type RequestContext } from "@/lib/guard";
 import { createAnnouncement, deleteAnnouncement, MessagingError, updateAnnouncement, viewerFor } from "@/lib/messaging/data";
 import type { MessagingRole } from "@/lib/messaging/rules";
 import { runAction, UserFacingError } from "@/lib/run-action";
+import { approvalRequired } from "@/lib/approvals/engine";
+import { approvalGate, approvalUserError } from "@/lib/approvals/gate";
 import { idSchema } from "@/lib/validation/common";
 import { announcementSchema } from "@/lib/validation/messaging";
 
@@ -29,6 +31,17 @@ export async function createAnnouncementAction(input: unknown) {
   return runAction(["announcement", "create"], async (ctx) => {
     const data = announcementSchema.parse(input);
     const { viewer, meta } = await context(ctx);
+    // Phase 8.2: a teacher's announcement to the whole school or a role goes to an admin for approval,
+    // when the school allows it; otherwise teachers post to their own classes only, as before.
+    if (ctx.user.role === "TEACHER" && data.audienceScope !== "CLASS" && !data.isPinned && ctx.user.tenantId && (await approvalRequired(ctx.user.tenantId, "ANNOUNCEMENT_SCHOOL"))) {
+      const gate = await approvalGate(ctx, "ANNOUNCEMENT_SCHOOL", data, "").catch(async (err) => {
+        throw await approvalUserError(err);
+      });
+      if (gate) {
+        revalidatePath("/approvals");
+        return gate;
+      }
+    }
     try {
       const a = await createAnnouncement(viewer, data, meta);
       revalidatePath("/announcements");

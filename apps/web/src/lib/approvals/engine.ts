@@ -78,7 +78,7 @@ export async function requestApproval(actor: Actor, process: ApprovalProcess, ra
   const payload = def.schema.parse(rawPayload);
   try {
     return await withRls(actor.tenantId, async (tx) => {
-      const { summary, amountMinor } = await def.prepare(tx, actor.tenantId, payload);
+      const { summary, amountMinor } = await def.prepare(tx, actor.tenantId, payload, actor.userId);
       const steps = stepsFor(policy, amountMinor);
       const people = await approverPool(tx, actor.tenantId);
       if (!hasEnoughApprovers(policy, steps, people, actor.userId, PROCESS_APPROVER_ROLES[process])) throw new ApprovalError("noApprover");
@@ -86,7 +86,7 @@ export async function requestApproval(actor: Actor, process: ApprovalProcess, ra
         data: {
           tenantId: actor.tenantId,
           process,
-          targetKey: def.targetKey(payload),
+          targetKey: def.targetKey(payload, actor.userId),
           payload: payload as Prisma.InputJsonValue,
           summary: summary as Prisma.InputJsonValue,
           amountMinor: amountMinor === null ? null : BigInt(amountMinor),

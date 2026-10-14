@@ -18,6 +18,8 @@ export interface AnnouncementOptions {
   classes: { id: string; name: string }[];
   /** Admins: whole school, a role, pinning. Teachers: their classes only. */
   isAdmin: boolean;
+  /** Phase 8.2: teachers may ask to address the whole school or a role; an admin approves it first. */
+  schoolWideNeedsApproval?: boolean;
 }
 
 export function NewAnnouncementButton({ options }: { options: AnnouncementOptions }) {
@@ -98,8 +100,8 @@ function AnnouncementForm({ id, initial, options, onDone }: { id?: string; initi
       <FormField label={t("body")} htmlFor="an-body" error={fieldError("body")} required>
         <Textarea id="an-body" rows={6} maxLength={5000} {...form.register("body")} />
       </FormField>
-      {options.isAdmin ? (
-        <FormField label={t("audience")} htmlFor="an-scope" error={fieldError("audienceScope")} required>
+      {options.isAdmin || options.schoolWideNeedsApproval ? (
+        <FormField label={t("audience")} htmlFor="an-scope" error={fieldError("audienceScope")} required hint={!options.isAdmin && scope !== "CLASS" ? t("needsApproval") : undefined}>
           <Select id="an-scope" {...form.register("audienceScope")}>
             <option value="SCHOOL">{t("audiences.SCHOOL")}</option>
             <option value="CLASS">{t("audiences.CLASS")}</option>

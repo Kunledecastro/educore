@@ -4,7 +4,7 @@ import { can, assertPermission, ForbiddenError, PERMISSION_MATRIX, RESOURCES, st
 
 describe("RBAC permission matrix", () => {
   it("grants PLATFORM_ADMIN every action on every resource except deleting the audit log, and nothing on pupils' health data or school approvals", () => {
-    const SCHOOL_ONLY = new Set(["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings", "approval", "approvalSettings"]);
+    const SCHOOL_ONLY = new Set(["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog", "healthSettings", "approval", "approvalSettings", "leave", "leaveSettings"]);
     for (const resource of RESOURCES) {
       if (SCHOOL_ONLY.has(resource)) {
         expect(can(Role.PLATFORM_ADMIN, resource, "read")).toBe(false);
@@ -317,6 +317,20 @@ describe("health (Phase 7): minimum necessary access", () => {
   it("nobody may change or delete the access log; the platform team can't open pupils' health data", () => {
     for (const role of Object.values(Role)) for (const a of ["update", "delete"] as const) expect(can(role, "healthAccessLog", a)).toBe(false);
     for (const r of ["healthRecord", "healthAlert", "clinicVisit", "healthAccessLog"] as const) expect(can(Role.PLATFORM_ADMIN, r, "read")).toBe(false);
+  });
+});
+
+describe("staff leave (Phase 8.2)", () => {
+  it("staff request and see their own leave; admins also manage it and the leave types; families and the platform team never", () => {
+    for (const role of [Role.TEACHER, Role.ACCOUNTANT, Role.SCHOOL_NURSE, Role.SCHOOL_ADMIN]) {
+      expect(can(role, "leave", "create")).toBe(true);
+      expect(can(role, "leave", "read")).toBe(true);
+    }
+    expect(can(Role.SCHOOL_ADMIN, "leave", "update")).toBe(true);
+    expect(can(Role.TEACHER, "leave", "update")).toBe(false);
+    expect(can(Role.SCHOOL_ADMIN, "leaveSettings", "update")).toBe(true);
+    for (const role of [Role.TEACHER, Role.ACCOUNTANT, Role.SCHOOL_NURSE, Role.PARENT, Role.STUDENT, Role.PLATFORM_ADMIN]) expect(can(role, "leaveSettings", "read")).toBe(false);
+    for (const role of [Role.PARENT, Role.STUDENT, Role.PLATFORM_ADMIN]) expect(can(role, "leave", "read")).toBe(false);
   });
 });
 

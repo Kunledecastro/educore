@@ -53,6 +53,8 @@ export const RESOURCE_MODULE: Partial<Record<Resource, Module>> = {
   healthSettings: "health",
   approval: "approvals",
   approvalSettings: "approvals",
+  leave: "approvals",
+  leaveSettings: "approvals",
 };
 
 export type SubscriptionState =

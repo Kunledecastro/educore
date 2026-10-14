@@ -20,6 +20,7 @@ import {
   Settings,
   ShieldCheck,
   Stamp,
+  CalendarOff,
   Users,
   Wallet,
   type LucideIcon,
@@ -48,6 +49,7 @@ export const NAV_ICONS = {
   Settings,
   ShieldCheck,
   Stamp,
+  CalendarOff,
   Users,
   Wallet,
 } satisfies Record<string, LucideIcon>;

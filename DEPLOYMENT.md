@@ -148,6 +148,8 @@ data.
 
 8.1 needs migration `0034_results_approvals` (widens the allowed processes on `approval_requests`). Results approvals are switched on per school in Settings → Approvals → Results.
 
+8.2 needs migration `0035_people_approvals_leave` (leave tables with RLS and no-delete grants; widens the allowed processes). Staff leave appears for staff on plans with the approvals module; leave types are created with defaults the first time a school opens Leave.
+
 - **Nothing to set up:** no new secrets. Migration `0032_approvals` adds the approval tables.
 - **Off by default.** Each school switches processes on in **Settings → Approvals**.
 - **Background jobs** (Inngest, synced on deploy):

@@ -53,7 +53,8 @@
     "health": "Santé",
     "healthAlerts": "Alertes santé",
     "clinicVisits": "Passages à l'infirmerie",
-    "approvals": "Approbations"
+    "approvals": "Approbations",
+    "leave": "Congés"
   },
   "login": {
     "title": "Connectez-vous à votre portail scolaire",
@@ -788,7 +789,8 @@
       "branding": "Identité visuelle",
       "security": "Sécurité",
       "health": "Santé",
-      "approvals": "Approbations"
+      "approvals": "Approbations",
+      "leave": "Congés"
     },
     "terms": {
       "noYearTitle": "Créez d'abord une année scolaire",
@@ -2485,7 +2487,8 @@
       "notFound": "Cette annonce ou cette classe n'existe plus.",
       "noRecipients": "Choisissez qui doit la voir.",
       "recipientNotAllowed": "Vous ne pouvez pas publier pour ce public."
-    }
+    },
+    "needsApproval": "Les annonces à toute l'école ou à un rôle sont approuvées par un administrateur avant l'envoi."
   },
   "messages": {
     "pageTitle": "Messages",
@@ -3471,7 +3474,10 @@
       "PAYMENT_REVERSAL": "Annulation de paiement",
       "DISCOUNT_RULE": "Règle de remise",
       "RESULTS_PUBLISH": "Publication des résultats",
-      "RESULTS_UNPUBLISH": "Retrait des résultats"
+      "RESULTS_UNPUBLISH": "Retrait des résultats",
+      "STUDENT_STATUS": "Sortie d'un élève",
+      "ANNOUNCEMENT_SCHOOL": "Annonce générale d'un enseignant",
+      "LEAVE": "Congé du personnel"
     },
     "stepOf": "étape {step} sur {steps}",
     "headline": {
@@ -3481,7 +3487,10 @@
       "DISCOUNT_RULE_create": "Nouvelle remise : {discount}",
       "DISCOUNT_RULE_update": "Modifier la remise : {discount}",
       "RESULTS_PUBLISH": "Publier les résultats : {class} · {term}",
-      "RESULTS_UNPUBLISH": "Retirer les résultats : {class} · {term}"
+      "RESULTS_UNPUBLISH": "Retirer les résultats : {class} · {term}",
+      "STUDENT_STATUS": "{pupil} : marquer comme {status}",
+      "ANNOUNCEMENT_SCHOOL": "Annonce : {title}",
+      "LEAVE": "{staff} : {type}, {days, plural, one {# jour} other {# jours}}"
     },
     "back": "Retour aux approbations",
     "requestedByOn": "demandée par {name} le {date}",
@@ -3502,7 +3511,10 @@
         "PAYMENT_REVERSAL": "Le paiement est annulé : le solde de la facture augmente de ce montant.",
         "DISCOUNT_RULE": "La règle de remise est créée ou modifiée pour les futures factures. Les factures émises gardent leurs montants.",
         "RESULTS_PUBLISH": "Les résultats de la classe pour le trimestre sont publiés : parents et élèves peuvent les voir et les notes sont verrouillées.",
-        "RESULTS_UNPUBLISH": "Les résultats de la classe sont retirés pour corriger les notes des matières indiquées. Les familles ne les voient plus et les bulletins du trimestre doivent être régénérés."
+        "RESULTS_UNPUBLISH": "Les résultats de la classe sont retirés pour corriger les notes des matières indiquées. Les familles ne les voient plus et les bulletins du trimestre doivent être régénérés.",
+        "STUDENT_STATUS": "L'élève sort des effectifs actifs : il n'apparaît plus dans les appels, les listes de classe ni les nouvelles factures, et son dossier est conservé.",
+        "ANNOUNCEMENT_SCHOOL": "L'annonce est envoyée aux destinataires indiqués, au nom de l'enseignant qui l'a rédigée.",
+        "LEAVE": "Le congé est posé pour ces dates et les jours sont déduits du solde de la personne pour ce type."
       },
       "expires": "Expire le {date} si personne ne décide.",
       "failed": "Approuvée, mais impossible à appliquer : {reason} Rien n'a été modifié.",
@@ -3533,7 +3545,16 @@
       "withdrawDescription": "Elle ne sera ni approuvée ni appliquée. Vous pourrez la refaire plus tard.",
       "withdrawn": "Demande retirée",
       "class": "Classe",
-      "subjects": "Matières à modifier"
+      "subjects": "Matières à modifier",
+      "newStatus": "Nouveau statut",
+      "staff": "Membre du personnel",
+      "leaveType": "Congé",
+      "dates": "Dates",
+      "workingDays": "{count, plural, one {# jour ouvré} other {# jours ouvrés}}",
+      "announcement": "Annonce",
+      "audience": "Destinataires",
+      "audienceSchool": "Toute l'école",
+      "audienceRole": "Tous les {role}"
     },
     "failure": {
       "discount_alreadyAssigned": "l'élève a déjà cette remise pour cette période.",
@@ -3542,7 +3563,15 @@
       "notFound": "elle n'existe plus.",
       "results_alreadyPublished": "les résultats étaient déjà publiés.",
       "results_notPublished": "les résultats ne sont plus publiés.",
-      "results_notFound": "la classe ou le trimestre n'existe plus."
+      "results_notFound": "la classe ou le trimestre n'existe plus.",
+      "student_unchanged": "l'élève avait déjà ce statut.",
+      "leave_balance": "il ne restait pas assez de jours.",
+      "leave_overlap": "il chevauchait un autre congé.",
+      "leave_outsideYear": "les dates étaient hors de l'année scolaire.",
+      "leave_noWorkingDays": "il ne comprenait aucun jour ouvré.",
+      "leave_typeInactive": "ce type de congé était désactivé.",
+      "leave_noYear": "aucune année scolaire n'était active.",
+      "leave_notFound": "ce type de congé n'existe plus."
     },
     "errors": {
       "notFound": "Demande introuvable.",
@@ -3555,7 +3584,8 @@
       "commentRequired": "Veuillez indiquer le motif du refus.",
       "supportCannotDecide": "Le support EduCore ne peut ni approuver ni refuser les demandes d'une école.",
       "changed": "Quelqu'un d'autre vient de décider cette étape. La page a été actualisée.",
-      "discountInactive": "Cette remise a été désactivée."
+      "discountInactive": "Cette remise a été désactivée.",
+      "studentUnchanged": "L'élève a déjà ce statut."
     },
     "pending": {
       "title": "{count, plural, one {En attente d'approbation} other {# demandes en attente d'approbation}}",
@@ -3609,6 +3639,18 @@
         "RESULTS_UNPUBLISH": {
           "title": "Retirer des résultats pour modifier des notes",
           "explain": "Lorsque des résultats publiés sont retirés pour corriger des notes. La demande doit indiquer pourquoi et quelles matières changent. Seuls les administrateurs de l'école peuvent approuver."
+        },
+        "STUDENT_STATUS": {
+          "title": "Sortie d'un élève des effectifs",
+          "explain": "Lorsqu'un élève est marqué comme parti, diplômé ou retiré. Réintégrer un élève n'est jamais bloqué. Seuls les administrateurs de l'école peuvent approuver."
+        },
+        "ANNOUNCEMENT_SCHOOL": {
+          "title": "Annonces générales des enseignants",
+          "explain": "Si activé, les enseignants peuvent écrire à toute l'école ou à tout un rôle (ex. tous les parents), après approbation d'un administrateur. Sinon, ils ne publient que pour leurs classes."
+        },
+        "LEAVE": {
+          "title": "Congés du personnel",
+          "explain": "Qui approuve les demandes de congé du personnel. Personne n'approuve son propre congé."
         }
       },
       "warning": {
@@ -3620,8 +3662,15 @@
       },
       "group": {
         "money": "Argent",
-        "academic": "Résultats"
-      }
+        "academic": "Résultats",
+        "people": "Personnes et annonces"
+      },
+      "alwaysOn": "Toujours actif : chaque demande de congé doit être approuvée."
+    },
+    "studentStatus": {
+      "INACTIVE": "A quitté l'école",
+      "GRADUATED": "Diplômé",
+      "WITHDRAWN": "Retiré"
     }
   },
   "sessionSecurity": {
@@ -3657,6 +3706,97 @@
       "notLoaded": "Il n'y a pas de données d'exemple à supprimer.",
       "inUse": "Certains de vos élèves sont dans une classe d'exemple. Déplacez-les d'abord dans une de vos classes, puis supprimez les données d'exemple.",
       "support": "Les sessions d'assistance ne peuvent pas charger ni supprimer les données d'exemple — demandez à l'administrateur de l'école."
+    }
+  },
+  "leave": {
+    "title": "Congés",
+    "description": "Vos congés pour {year}. Les demandes sont approuvées par un administrateur.",
+    "noYear": "Les congés s'ouvrent dès que l'école a une année scolaire active.",
+    "calendarLink": "Calendrier des congés",
+    "typesLink": "Types de congé",
+    "balances": "Ce qu'il vous reste",
+    "daysLeft": "{count, plural, one {# jour restant} other {# jours restants}}",
+    "balanceDetail": "{allowance} par an · {taken} pris · {pending} en attente",
+    "requestTitle": "Demander un congé",
+    "requestExplain": "Les jours sont comptés du lundi au vendredi. Rien n'est posé avant l'approbation.",
+    "myRequests": "Mes demandes",
+    "noRequests": "Aucune demande de congé",
+    "noRequestsHint": "Vos demandes apparaissent ici avec leur statut.",
+    "col": {
+      "type": "Type",
+      "dates": "Dates",
+      "days": "Jours",
+      "status": "Statut",
+      "actions": "Actions",
+      "staff": "Personnel"
+    },
+    "range": "{from} – {to}",
+    "days": "{count, plural, one {# jour} other {# jours}}",
+    "failure": {
+      "noYear": "Aucune année scolaire active : impossible de poser un congé pour l'instant.",
+      "noWorkingDays": "Ces dates tombent toutes un week-end.",
+      "outsideYear": "Le congé doit être compris dans l'année scolaire en cours.",
+      "overlap": "Vous avez déjà un congé posé ou demandé sur certains de ces jours.",
+      "balance": "C'est plus de jours qu'il ne vous en reste pour ce type de congé.",
+      "typeInactive": "Ce type de congé a été désactivé.",
+      "notAllowed": "Vous ne pouvez pas faire cela."
+    },
+    "booked": "Congés posés cette année",
+    "bookedStatus": {
+      "APPROVED": "Posé",
+      "CANCELLED": "Annulé"
+    },
+    "noTypes": "Votre école n'a encore défini aucun type de congé.",
+    "form": {
+      "type": "Type de congé",
+      "typeOption": "{name} ({left} restants)",
+      "overBalance": "{count, plural, one {# jour ouvré} other {# jours ouvrés}} : plus que votre solde",
+      "workingDays": "{count, plural, one {# jour ouvré} other {# jours ouvrés}}",
+      "from": "Du",
+      "to": "Au (dernier jour d'absence)",
+      "note": "Note pour l'approbateur",
+      "noteHint": "Facultatif : ex. qui assure vos cours.",
+      "submit": "Envoyer pour approbation"
+    },
+    "withdraw": "Retirer",
+    "withdrawTitle": "Retirer cette demande de congé ?",
+    "withdrawDescription": "Elle ne sera pas traitée et les jours reviennent à votre solde.",
+    "withdrawn": "Demande retirée.",
+    "cancel": "Annuler le congé",
+    "cancelTitle": "Annuler {label} ?",
+    "cancelDescription": "Le congé n'est plus posé et les jours reviennent au solde de la personne. C'est consigné dans le journal d'audit.",
+    "cancelled": "Congé annulé.",
+    "calendarTitle": "Calendrier des congés",
+    "calendarDescription": "Qui est absent, ou le demande, chaque jour du mois.",
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "legendApproved": "Posé",
+    "legendPending": "En attente d'approbation",
+    "nobodyAway": "Personne n'est absent ce mois-ci",
+    "nobodyAwayHint": "Les congés posés et demandés apparaissent ici.",
+    "calendarCaption": "Congés du personnel en {month}",
+    "thisMonth": "Ce mois-ci",
+    "review": "Examiner",
+    "errors": {
+      "noYear": "Aucune année scolaire active : impossible de poser un congé pour l'instant.",
+      "noWorkingDays": "Ces dates tombent toutes un week-end.",
+      "outsideYear": "Le congé doit être compris dans l'année scolaire en cours.",
+      "overlap": "Vous avez déjà un congé posé ou demandé sur certains de ces jours.",
+      "balance": "C'est plus de jours qu'il ne vous en reste pour ce type de congé.",
+      "typeInactive": "Ce type de congé a été désactivé.",
+      "notAllowed": "Vous ne pouvez pas faire cela."
+    },
+    "settings": {
+      "notInPlan": "Les congés du personnel font partie des circuits d'approbation, absents de la formule de votre école.",
+      "explain": "Les types de congé de votre personnel et le nombre de jours ouvrés de chacun par année scolaire. Les soldes repartent à chaque année scolaire. Désactivez un type plutôt que de le supprimer ; les congés passés gardent leur type.",
+      "typesTitle": "Types de congé",
+      "addTitle": "Ajouter un type de congé",
+      "name": "Nom",
+      "daysPerYear": "Jours par an",
+      "active": "Disponible",
+      "save": "Enregistrer",
+      "add": "Ajouter",
+      "saved": "Type de congé enregistré."
     }
   }
 }

@@ -221,6 +221,8 @@ model Tenant {
   approvalRequests      ApprovalRequest[]
   approvalDecisions     ApprovalDecision[]
   sampleRecords         SampleRecord[]
+  leaveTypes            LeaveType[]
+  staffLeave            StaffLeave[]
 
   @@map("tenants")
 }
@@ -417,6 +419,8 @@ model User {
   clinicVisitsRecorded  ClinicVisit[]          @relation("ClinicVisitRecordedBy")
   approvalRequests      ApprovalRequest[]      @relation("ApprovalRequestedBy")
   approvalDecisions     ApprovalDecision[]     @relation("ApprovalDecidedBy")
+  staffLeave            StaffLeave[]           @relation("StaffLeaveOf")
+  staffLeaveCancelled   StaffLeave[]           @relation("StaffLeaveCancelledBy")
 
   @@index([tenantId])
   @@map("users")
@@ -477,6 +481,7 @@ model AcademicYear {
   invoices         Invoice[]
   studentDiscounts StudentDiscount[]
   assignments      Assignment[]
+  staffLeave       StaffLeave[]
 
   // Also enforced in migration 0006 (not expressible in Prisma schema):
   //   - partial unique index: at most one isActive = true per tenant
@@ -1848,4 +1853,50 @@ model SampleRecord {
   @@unique([tenantId, model, recordId])
   @@index([tenantId])
   @@map("sample_records")
+}
+
+/// Phase 8.2: kinds of staff leave a school offers, with days per school year.
+model LeaveType {
+  id          String       @id @default(cuid())
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  daysPerYear Int
+  isActive    Boolean      @default(true)
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  leave       StaffLeave[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("leave_types")
+}
+
+/// Phase 8.2: approved staff leave (pending requests live in approval_requests, process LEAVE).
+model StaffLeave {
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation("StaffLeaveOf", fields: [userId], references: [id], onDelete: Cascade)
+  leaveTypeId    String
+  leaveType      LeaveType    @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  startDate      DateTime     @db.Date
+  endDate        DateTime     @db.Date
+  /// Working days (Mon–Fri) counted against the balance.
+  days           Int
+  note           String       @default("")
+  /// APPROVED | CANCELLED
+  status         String       @default("APPROVED")
+  cancelledAt    DateTime?
+  cancelledById  String?
+  cancelledBy    User?        @relation("StaffLeaveCancelledBy", fields: [cancelledById], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, userId, academicYearId])
+  @@index([tenantId, startDate, endDate])
+  @@map("staff_leave")
 }
