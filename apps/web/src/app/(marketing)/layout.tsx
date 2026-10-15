@@ -12,12 +12,13 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2">
         {t("skip")}
       </a>
-      <header className="border-b">
+      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
         <nav aria-label={t("label")} className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <Link href="/" className="text-lg font-bold tracking-tight">
+          <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
+            <span aria-hidden="true" className="h-8 w-8 rounded-[10px] bg-harmattan ring-1 ring-inset ring-foreground/10" />
             EduCore
           </Link>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-5 text-sm font-medium">
             <Link href="/features" className="text-muted-foreground hover:text-foreground">
               {t("features")}
             </Link>

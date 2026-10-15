@@ -96,7 +96,9 @@
     "schoolHint": "It's on your login slip, e.g. greenfield-academy",
     "admissionNo": "Admission number",
     "studentPasswordHint": "The first time, use the password on your login slip",
-    "forgot": "Forgot password?"
+    "forgot": "Forgot password?",
+    "panelTitle": "Your whole school, in one place.",
+    "panelBody": "Registers, results, fees and parents — on any phone."
   },
   "dashboard": {
     "welcome": "Welcome back, {name}",
@@ -2357,6 +2359,82 @@
           "body": "Results, attendance, fees and messages from teachers, and fees paid online.",
           "alt": "Parent portal showing a child's results, attendance and fees due"
         }
+      },
+      "ctaWhatsApp": "Chat on WhatsApp",
+      "demoNote": "Screens from our demo school, Greenfield Academy.",
+      "illustrationNote": "An illustration of the EduCore dashboard with demo figures.",
+      "bentoTitle": "Everything your school runs on.",
+      "bentoSub": "Nothing it doesn't.",
+      "bento": {
+        "register": {
+          "title": "Morning register in a minute",
+          "body": "Teachers tap present, absent or late for the whole class on their phone. You see who hasn't marked theirs before assembly ends.",
+          "present": "Present",
+          "late": "Late"
+        },
+        "fees": {
+          "title": "Fees, paid online",
+          "body": "Parents pay by card, transfer or USSD through Paystack. Receipts are issued automatically.",
+          "receipt": "Receipt RC-2291",
+          "received": "₦85,000 received",
+          "paid": "Paid"
+        },
+        "reports": {
+          "title": "Report cards, done for you",
+          "body": "Scores, grades, positions and comments, in your school's colours and ready to print.",
+          "subject": "Subject",
+          "score": "Score",
+          "grade": "Grade"
+        },
+        "parents": {
+          "title": "Parents in the loop",
+          "body": "Each parent sees only their own children: attendance, results, fees and messages from teachers.",
+          "msgTeacher": "Chiamaka did very well in today's maths quiz.",
+          "msgParent": "Thank you, Mrs Eze!"
+        },
+        "safe": {
+          "title": "Safe by design",
+          "body": "Every school's data is kept apart. Sensitive actions need a second approver. Health records are encrypted. Every change is logged.",
+          "tags": {
+            "twoFactor": "Two-factor sign-in",
+            "approvals": "Approvals",
+            "audit": "Audit log"
+          }
+        }
+      },
+      "numbersTitle": "Less paperwork. More teaching.",
+      "numbers": {
+        "trial": {
+          "value": "30 days",
+          "body": "Free trial with everything switched on. No card needed to start."
+        },
+        "tap": {
+          "value": "1 tap",
+          "body": "Per pupil to take the register. Works on any smartphone."
+        },
+        "price": {
+          "value": "from {price}",
+          "fallback": "Per pupil",
+          "body": "Per pupil per month. You only pay for the pupils you have."
+        }
+      },
+      "quotesTitle": "What schools say",
+      "ctaBandTitle": "See EduCore with your own school.",
+      "ctaBandBody": "Start free, or talk to a person first.",
+      "ctaTrialShort": "Start free trial",
+      "ctaDemo": "Book a demo on WhatsApp",
+      "ctaContact": "Talk to us",
+      "illustration": {
+        "nav": {
+          "overview": "Overview",
+          "attendance": "Attendance",
+          "results": "Results",
+          "fees": "Fees",
+          "messages": "Messages"
+        },
+        "present": "Present today",
+        "fees": "Fees collected",
+        "registers": "Registers taken"
       }
     },
     "features": {

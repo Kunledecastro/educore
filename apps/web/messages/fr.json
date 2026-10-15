@@ -96,7 +96,9 @@
     "schoolHint": "Il figure sur votre fiche de connexion, ex. greenfield-academy",
     "admissionNo": "Numéro d'inscription",
     "studentPasswordHint": "La première fois, utilisez le mot de passe de votre fiche",
-    "forgot": "Mot de passe oublié ?"
+    "forgot": "Mot de passe oublié ?",
+    "panelTitle": "Toute votre école, au même endroit.",
+    "panelBody": "Appels, résultats, frais et parents — sur tout téléphone."
   },
   "dashboard": {
     "welcome": "Bon retour, {name}",
@@ -2357,6 +2359,82 @@
           "body": "Résultats, présences, frais et messages des enseignants, avec paiement en ligne.",
           "alt": "Portail parent avec les résultats, les présences et les frais d'un enfant"
         }
+      },
+      "ctaWhatsApp": "Discuter sur WhatsApp",
+      "demoNote": "Écrans de notre école de démonstration, Greenfield Academy.",
+      "illustrationNote": "Illustration du tableau de bord EduCore avec des chiffres de démonstration.",
+      "bentoTitle": "Tout ce dont votre école a besoin.",
+      "bentoSub": "Rien de superflu.",
+      "bento": {
+        "register": {
+          "title": "L'appel en une minute",
+          "body": "Les enseignants marquent présent, absent ou en retard pour toute la classe sur leur téléphone. Vous voyez qui n'a pas fait l'appel avant la fin du rassemblement.",
+          "present": "Présent",
+          "late": "Retard"
+        },
+        "fees": {
+          "title": "Les frais, payés en ligne",
+          "body": "Les parents paient par carte, virement ou USSD via Paystack. Les reçus sont émis automatiquement.",
+          "receipt": "Reçu RC-2291",
+          "received": "85 000 ₦ reçus",
+          "paid": "Payé"
+        },
+        "reports": {
+          "title": "Des bulletins prêts",
+          "body": "Notes, appréciations, rangs et commentaires, aux couleurs de votre école et prêts à imprimer.",
+          "subject": "Matière",
+          "score": "Note",
+          "grade": "Appréciation"
+        },
+        "parents": {
+          "title": "Les parents informés",
+          "body": "Chaque parent ne voit que ses enfants : présences, résultats, frais et messages des enseignants.",
+          "msgTeacher": "Chiamaka a très bien réussi le contrôle de maths aujourd'hui.",
+          "msgParent": "Merci, Mme Eze !"
+        },
+        "safe": {
+          "title": "Sûr par conception",
+          "body": "Les données de chaque école sont séparées. Les actions sensibles exigent un second approbateur. Les dossiers de santé sont chiffrés. Chaque changement est journalisé.",
+          "tags": {
+            "twoFactor": "Double authentification",
+            "approvals": "Approbations",
+            "audit": "Journal d'audit"
+          }
+        }
+      },
+      "numbersTitle": "Moins de paperasse. Plus d'enseignement.",
+      "numbers": {
+        "trial": {
+          "value": "30 jours",
+          "body": "Essai gratuit avec toutes les fonctions. Aucune carte nécessaire."
+        },
+        "tap": {
+          "value": "1 geste",
+          "body": "Par élève pour faire l'appel. Fonctionne sur tout smartphone."
+        },
+        "price": {
+          "value": "dès {price}",
+          "fallback": "Par élève",
+          "body": "Par élève et par mois. Vous ne payez que pour vos élèves."
+        }
+      },
+      "quotesTitle": "Ce que disent les écoles",
+      "ctaBandTitle": "Découvrez EduCore avec votre école.",
+      "ctaBandBody": "Commencez gratuitement, ou parlez d'abord à une personne.",
+      "ctaTrialShort": "Essai gratuit",
+      "ctaDemo": "Réserver une démo sur WhatsApp",
+      "ctaContact": "Nous contacter",
+      "illustration": {
+        "nav": {
+          "overview": "Vue d'ensemble",
+          "attendance": "Présences",
+          "results": "Résultats",
+          "fees": "Frais",
+          "messages": "Messages"
+        },
+        "present": "Présents aujourd'hui",
+        "fees": "Frais encaissés",
+        "registers": "Appels faits"
       }
     },
     "features": {

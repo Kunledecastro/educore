@@ -7,6 +7,15 @@ All notable changes to EduCore are documented here. Format loosely follows
 
 Spec: `claude/phase-9-spec.md`. The design was approved on the EduCore Redesign Mockups canvas.
 
+### Added (9.2 — public site, sign-in and loading states)
+
+- **Landing page rebuilt** in Harmattan Gold: hero with trial, WhatsApp and contact calls to action; a product shot (a real Greenfield screenshot when one is added to `lib/marketing-screens.ts`, otherwise a clearly labelled illustration with demo figures); a bento grid (register, online fees, report cards, parents, security); three number cards with the price taken from the cheapest public plan; screenshots; how it works; a closing call-to-action band.
+- **Testimonials** section reads from `lib/marketing-testimonials.ts` and stays hidden while the list is empty. Only real, permissioned quotes go there.
+- **Sign-in page:** split layout with a warm Harmattan panel on wide screens; phones get the form alone.
+- **Sign-up page:** Harmattan intro panel and a rounded form card.
+- **Loading skeletons** for the dashboard and twelve busy pages (attendance, assessments, fees, payments, approvals, messages, leave, announcements, assignments, report cards, clinic, imports). The table skeleton is restyled.
+- English and French strings for all of the above.
+
 ### Added (9.1 — dashboards that show what to do)
 
 - **School admin dashboard:**

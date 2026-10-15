@@ -8,7 +8,7 @@ export function TableSkeleton({ rows = 8, columns = 5 }: { rows?: number; column
         <Skeleton className="h-10 w-full sm:w-72" />
         <Skeleton className="h-10 w-full sm:w-44" />
       </div>
-      <div className="rounded-lg border">
+      <div className="rounded-2xl border bg-card">
         <div className="flex gap-4 border-b p-4">
           {Array.from({ length: columns }).map((_, i) => (
             <Skeleton key={i} className="h-4 flex-1" />
