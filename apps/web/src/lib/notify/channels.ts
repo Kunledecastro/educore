@@ -112,6 +112,16 @@ const PROCESS_WORDS: Record<string, string> = {
  * never amounts, pupils or invoice numbers; the details are behind sign-in.
  * Exported for tests.
  */
+/** Phase 9.1: the office reminds a form teacher to take today's register. */
+export function registerReminderEmail(input: { recipient: { email: string; name: string }; className: string; schoolName: string; link: string }): OutgoingNotification {
+  return {
+    to: input.recipient,
+    subject: `Reminder: today's register for ${input.className} — ${input.schoolName}`,
+    text: `Hello ${input.recipient.name || "there"},\n\nThe school office noticed that today's register for ${input.className} hasn't been taken yet. Please mark it when you can:`,
+    link: input.link,
+  };
+}
+
 export function approvalNeededEmail(input: { recipient: { email: string; name: string }; process: string; requester: string; schoolName: string; reminder: boolean; link: string }): OutgoingNotification {
   const what = PROCESS_WORDS[input.process] ?? "a request";
   const subject = input.reminder ? `Reminder: ${what} is waiting for your approval — ${input.schoolName}` : `Approval needed: ${what} — ${input.schoolName}`;

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { Role } from "@educore/db";
 import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
-import { getNavItemsForRole } from "@/lib/nav";
+import { bottomTabsFor, getNavItemsForRole } from "@/lib/nav";
+import { BottomTabs } from "@/components/layout/bottom-tabs";
 import { IdleTimer } from "@/components/security/idle-timer";
 import { getEffectiveSession, getSignInStage } from "@/lib/session";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
@@ -51,6 +52,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     i.href === "/messages" && unread ? { ...i, badge: unread } : i.href === "/approvals" && waiting ? { ...i, badge: waiting } : i,
   );
   const settings = session.user.tenantId ? await getSettingsForUser(session.user.tenantId) : null;
+  const tabs = bottomTabsFor(session.user.role, items);
 
   // The school's own look (logo, brand colour) for everyone signed in to it.
   const branding = tenant ? parseBranding(tenant.branding) : null;
@@ -68,7 +70,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="contents print:hidden">
           <MobileNav items={items} role={session.user.role} tenantName={tenant?.name ?? null} logoUrl={logo} />
         </div>
-        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6 lg:px-8">
+        <main id="main" className={`min-w-0 flex-1 p-4 sm:p-6 lg:px-8 ${tabs.length ? "pb-24 md:pb-6" : ""}`}>
           <div className="mx-auto max-w-7xl">
             {settings ? (
               <TopBar
@@ -80,6 +82,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {children}
           </div>
         </main>
+        <BottomTabs items={tabs} />
         <IdleTimer />
       </div>
     </>

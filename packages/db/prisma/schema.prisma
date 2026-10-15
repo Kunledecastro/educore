@@ -223,6 +223,7 @@ model Tenant {
   sampleRecords         SampleRecord[]
   leaveTypes            LeaveType[]
   staffLeave            StaffLeave[]
+  registerReminders     RegisterReminder[]
 
   @@map("tenants")
 }
@@ -420,6 +421,7 @@ model User {
   approvalRequests      ApprovalRequest[]      @relation("ApprovalRequestedBy")
   approvalDecisions     ApprovalDecision[]     @relation("ApprovalDecidedBy")
   staffLeave            StaffLeave[]           @relation("StaffLeaveOf")
+  registerReminders     RegisterReminder[]     @relation("RegisterReminderSentBy")
   staffLeaveCancelled   StaffLeave[]           @relation("StaffLeaveCancelledBy")
 
   @@index([tenantId])
@@ -533,6 +535,7 @@ model Section {
   timetableEntries     TimetableEntry[]
   reportCardRuns       ReportCardRun[]
   assignments          Assignment[]
+  registerReminders    RegisterReminder[]
 
   // Also enforced in migration 0006: CHECK (capacity IS NULL OR capacity > 0)
   @@unique([tenantId, classId, name])
@@ -1899,4 +1902,21 @@ model StaffLeave {
   @@index([tenantId, userId, academicYearId])
   @@index([tenantId, startDate, endDate])
   @@map("staff_leave")
+}
+
+/// Phase 9.1: the office reminded a form teacher to take today's register (once per section per day).
+model RegisterReminder {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  sentById  String?
+  sentBy    User?    @relation("RegisterReminderSentBy", fields: [sentById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, sectionId, date])
+  @@index([tenantId, date])
+  @@map("register_reminders")
 }

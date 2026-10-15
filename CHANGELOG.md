@@ -7,6 +7,50 @@ All notable changes to EduCore are documented here. Format loosely follows
 
 Spec: `claude/phase-9-spec.md`. The design was approved on the EduCore Redesign Mockups canvas.
 
+### Added (9.1 — dashboards that show what to do)
+
+- **School admin dashboard:**
+  - Tiles: present today (with absences), registers taken, fees collected this term (with a progress bar), and overdue fees with the number of families and a link to the overdue bills.
+  - Charts: weekly attendance trend for the term, and fees collected vs still owed for each class.
+  - Lists:
+    - registers not taken, each with its form teacher and a **Remind** button
+    - the first requests waiting for your approval
+    - the latest payments
+- **Bursar dashboard:**
+  - Tiles: collected today, collected this term (with progress), still owed, and overdue.
+  - Fees by class.
+  - The largest balances, each linked to the pupil.
+  - Latest payments, and approvals waiting.
+- **Teacher dashboard:**
+  - Today's lessons in time order. Each shows whether that class's register is taken, with one tap to the register or the marks.
+  - Their form-class registers, work to mark, and unread messages.
+  - A notice when the office has sent a reminder.
+- **Parent dashboard (phone first):**
+  - A warm card for each of their own children: class, form teacher, attendance this term, days absent, and the latest *published* term average (with position only if the school shows positions).
+  - A dark "Fees to pay" card with the due date and a large **Pay now** button.
+  - New messages from school.
+- **Pupil dashboard:** today's timetable and a link to their results.
+- **Phone tab bar for parents and pupils:**
+  - Parents: Home, Children, Fees, Messages.
+  - Pupils: Home, Timetable, Results, Homework.
+  - Only modules in the school's plan appear. Staff keep the slide-in menu.
+- **Register reminders:**
+  - Only school admins can send them, once per class per day.
+  - Audited, and shown on the teacher's dashboard.
+  - Emailed to the form teacher once email is set up.
+  - Migration `0036_register_reminders` (RLS; the app may only read and add).
+
+### Tests (9.1)
+
+- 9 integration tests on the dashboard data:
+  - every figure comes from this school only
+  - a parent gets only their own linked child
+  - a teacher only their own lessons
+  - the attendance trend
+  - fees by class, balances and payments
+  - reminders once per day, audited and never across schools
+- 1 navigation test for the phone tab bar.
+
 ### Changed (9.0 — look and feel, every page)
 
 - **Colours.**

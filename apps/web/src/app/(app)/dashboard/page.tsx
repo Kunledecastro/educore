@@ -1,4 +1,9 @@
 import { getTranslations } from "next-intl/server";
+import { AdminDashboard, BursarDashboard, ParentDashboard, StudentDashboard, TeacherDashboard, type AdminData, type BursarData, type ParentChild, type TeacherData } from "@/components/dashboard/role-dashboards";
+import { attendanceToday, attendanceTrend, collectedSince, debtors, feesByClass, latestPayments, latestPublishedResult, parentChildren, registersNotTaken, remindersFor, teacherToday } from "@/lib/dashboard/data";
+import { headline } from "@/lib/approvals/describe";
+import { listRequests } from "@/lib/approvals/engine";
+import { getEffectiveSession } from "@/lib/session";
 import { Role } from "@educore/db";
 import { can } from "@educore/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
@@ -10,7 +15,6 @@ import { sampleDataStatus } from "@/lib/sample-data";
 import { SampleDataCard } from "@/components/dashboard/sample-data-card";
 import { getCurrentTerm } from "@/lib/current-term";
 import { isSchoolDay } from "@/lib/attendance";
-import { incompleteRegisters } from "@/lib/attendance-data";
 import { teacherSectionIds } from "@/lib/teacher-sections";
 import { feeTotals } from "@/lib/fee-summary";
 import type { OnboardingChecklist as Checklist } from "@/lib/onboarding";
@@ -31,6 +35,14 @@ import { nowLocal, visitFmt } from "@/lib/health/visit-format";
 import { zonedLocalToUtc } from "@/lib/zoned-time";
 import { VisitList } from "@/components/health/visit-list";
 import { waitingCount } from "@/lib/approvals/engine";
+
+/** The first few requests waiting for this person's decision (admin and bursar dashboards). */
+async function waitingList(tenantId: string, userId: string, role: string, on: boolean) {
+  if (!on) return null;
+  const t = await getTranslations("approvals");
+  const { rows } = await listRequests({ tenantId, userId, role, impersonating: false }, { tab: "waiting", take: 3 }).catch(() => ({ rows: [] }));
+  return rows.map((r) => ({ id: r.id, title: headline(t as never, r.process, r.summary), detail: `${t(`process.${r.process}`)} · ${r.requestedBy}` }));
+}
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -53,6 +65,13 @@ export default async function DashboardPage() {
   const num = (v: number) => formatNumber(v, settings);
 
   let stats: { label: string; value: string | number }[] = [];
+  // Phase 9.1: role dashboards that show what to act on.
+  let admin: AdminData | null = null;
+  let bursar: BursarData | null = null;
+  let teacher: TeacherData | null = null;
+  let parent: ParentChild[] | null = null;
+  let pupil: { results: number; lessons: { id: string; time: string; subject: string; teacher: string | null; room: string | null }[] } | null = null;
+  const impersonating = Boolean((await getEffectiveSession())?.impersonation);
   const { year, term } = user.tenantId ? await getCurrentTerm(db, settings.timezone) : { year: null, term: null };
 
   // Setup checklist (milestone 1.4): school admins only. Shown until they hide
@@ -88,74 +107,93 @@ export default async function DashboardPage() {
     }
     case Role.SCHOOL_ADMIN: {
       const today = todayInTimeZone(settings.timezone);
-      const [studentCount, presentToday, fees, registers] = await Promise.all([
-        db.student.count({ where: { status: "ACTIVE" } }),
-        db.attendance.count({ where: { date: today, status: { in: ["PRESENT", "LATE"] } } }),
-        term ? feeTotals(db, { termId: term.id }, today) : Promise.resolve(null),
-        isSchoolDay(today) ? incompleteRegisters(db, today, "all") : Promise.resolve(null),
+      const ent = await getEntitlements(user.tenantId!);
+      const feesOn = ent.modules.has("fees");
+      const [att, registers, fees, trend, byClass, owing, payments, approvals] = await Promise.all([
+        attendanceToday(db, today),
+        isSchoolDay(today) ? registersNotTaken(db, today) : Promise.resolve(null),
+        feesOn && term ? feeTotals(db, { termId: term.id }, today) : Promise.resolve(null),
+        attendanceTrend(db, today, { from: term?.startDate }),
+        feesOn && term ? feesByClass(db, term.id) : Promise.resolve([]),
+        feesOn ? debtors(db, today, 0) : Promise.resolve(null),
+        feesOn ? latestPayments(db, 5) : Promise.resolve(null),
+        waitingList(user.tenantId!, user.id, user.role, ent.modules.has("approvals")),
       ]);
-      stats = [
-        { label: t("enrollment"), value: num(studentCount) },
-        { label: t("attendanceToday"), value: num(presentToday) },
-        {
-          label: t("registersNotTaken"),
-          value: registers ? t("registersValue", { incomplete: registers.incomplete, total: registers.total }) : t("noSchoolToday"),
-        },
-        {
-          label: t("feeCollectionTerm"),
-          value: fees && fees.count ? t("collectedOf", { paid: money(fees.paid / 100), billed: money(fees.billed / 100) }) : t("notBilledYet"),
-        },
-      ];
+      admin = {
+        today: att,
+        registers,
+        fees: fees && fees.count ? { billed: fees.billed, paid: fees.paid, overdue: fees.overdue, overdueFamilies: owing?.overdueFamilies ?? 0 } : null,
+        trend,
+        byClass,
+        approvals,
+        payments,
+        canRemind: !impersonating,
+      };
       break;
     }
     case Role.ACCOUNTANT: {
       const today = todayInTimeZone(settings.timezone);
-      const [fees, collectedToday] = await Promise.all([
+      const ent = await getEntitlements(user.tenantId!);
+      const [fees, collected, byClass, owing, payments, approvals] = await Promise.all([
         term ? feeTotals(db, { termId: term.id }, today) : Promise.resolve(null),
-        db.payment.aggregate({ _sum: { amount: true }, where: { paidAt: today } }),
+        collectedSince(db, today),
+        term ? feesByClass(db, term.id) : Promise.resolve([]),
+        debtors(db, today, 5),
+        latestPayments(db, 5),
+        waitingList(user.tenantId!, user.id, user.role, ent.modules.has("approvals")),
       ]);
-      stats = [
-        { label: t("feeCollectionTerm"), value: fees && fees.count ? t("collectedOf", { paid: money(fees.paid / 100), billed: money(fees.billed / 100) }) : t("notBilledYet") },
-        { label: t("outstandingFees"), value: money((fees?.outstanding ?? 0) / 100) },
-        { label: t("overdueFees"), value: money((fees?.overdue ?? 0) / 100) },
-        { label: t("collectedToday"), value: money(collectedToday._sum.amount) },
-      ];
+      bursar = {
+        fees: fees && fees.count ? { billed: fees.billed, paid: fees.paid, outstanding: fees.outstanding, overdue: fees.overdue, overdueFamilies: owing.overdueFamilies } : null,
+        collectedToday: collected,
+        byClass,
+        debtors: owing.top,
+        payments,
+        approvals,
+      };
       break;
     }
     case Role.TEACHER: {
       const todayDate = todayInTimeZone(settings.timezone);
       const { teacherId, formSectionIds } = await teacherSectionIds(db, user.id);
-      const classesToday = teacherId
-        ? await db.timetableEntry.count({ where: { teacherId, dayOfWeek: todayDate.getUTCDay(), academicYear: { isActive: true } } })
-        : 0;
-      // Registers are the form teacher's job (decision 4); count only their sections.
-      const pending = isSchoolDay(todayDate) ? await incompleteRegisters(db, todayDate, formSectionIds) : null;
-      stats = [
-        { label: t("todaysClasses"), value: classesToday },
-        { label: t("pendingAttendance"), value: pending ? pending.incomplete : t("noSchoolToday") },
-        ...(unread !== null ? [{ label: t("unreadMessages"), value: unread }] : []),
-      ];
+      const assignmentsOn = (await getEntitlements(user.tenantId!)).modules.has("assignments");
+      const [lessons, reminders, formRegisters, toMark] = await Promise.all([
+        teacherId ? teacherToday(db, teacherId, todayDate) : Promise.resolve([]),
+        isSchoolDay(todayDate) ? remindersFor(db, formSectionIds, todayDate) : Promise.resolve([]),
+        isSchoolDay(todayDate) && formSectionIds.length ? registersNotTaken(db, todayDate, formSectionIds) : Promise.resolve(null),
+        assignmentsOn ? db.assignmentSubmission.count({ where: { status: "SUBMITTED", assignment: { createdById: user.id } } }) : Promise.resolve(null),
+      ]);
+      teacher = {
+        lessons,
+        reminders,
+        formRegisters: formRegisters ? { total: formRegisters.total, missing: formRegisters.missing.map((x) => ({ sectionId: x.sectionId, name: x.name })) } : null,
+        unread,
+        toMark,
+        termId: term?.id ?? null,
+      };
       break;
     }
     case Role.PARENT: {
-      const guardian = await db.guardian.findUnique({
-        where: { userId: user.id },
-        include: { students: { include: { student: true } } },
+      const today = todayInTimeZone(settings.timezone);
+      const [kids, options] = await Promise.all([parentChildren(db, user.id, term, today), db.academicSettings.findFirst({ select: { showPosition: true } })]);
+      const results = await Promise.all(kids.map((k) => latestPublishedResult(db, k)));
+      parent = kids.map((k, i) => {
+        const r = results[i] ?? null;
+        return { ...k, result: r ? { ...r, position: options?.showPosition ? r.position : null } : null };
       });
-      const childCount = guardian?.students.length ?? 0;
-      const studentIds = guardian?.students.map((s) => s.studentId) ?? [];
-      const fees = studentIds.length ? await feeTotals(db, { studentId: { in: studentIds } }, todayInTimeZone(settings.timezone)) : null;
-      stats = [
-        { label: t("childrenOverview"), value: childCount },
-        { label: t("feesDue"), value: money((fees?.outstanding ?? 0) / 100) },
-        ...(unread !== null ? [{ label: t("unreadMessages"), value: unread }] : []),
-      ];
       break;
     }
     case Role.STUDENT: {
       const student = await db.student.findUnique({ where: { userId: user.id } });
       const resultsCount = student ? await db.mark.count({ where: { studentId: student.id } }) : 0;
-      stats = [{ label: t("results"), value: resultsCount }];
+      const today = todayInTimeZone(settings.timezone);
+      const lessons = student?.sectionId
+        ? await db.timetableEntry.findMany({
+            where: { sectionId: student.sectionId, dayOfWeek: today.getUTCDay(), academicYear: { isActive: true } },
+            orderBy: [{ startTime: "asc" }, { period: "asc" }],
+            select: { id: true, startTime: true, endTime: true, room: true, subject: { select: { name: true } }, teacher: { select: { user: { select: { name: true } } } } },
+          })
+        : [];
+      pupil = { results: resultsCount, lessons: lessons.map((l) => ({ id: l.id, time: `${l.startTime}–${l.endTime}`, subject: l.subject.name, teacher: l.teacher.user.name, room: l.room })) };
       break;
     }
   }
@@ -209,11 +247,18 @@ export default async function DashboardPage() {
       {onboarding && onboarding.hidden && !onboarding.checklist.complete ? (
         <OnboardingReminder checklist={onboarding.checklist} />
       ) : null}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {stats.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} />
-        ))}
-      </div>
+      {admin ? <AdminDashboard d={admin} s={settings} /> : null}
+      {bursar ? <BursarDashboard d={bursar} s={settings} /> : null}
+      {teacher ? <TeacherDashboard d={teacher} todayIso={todayInTimeZone(settings.timezone).toISOString().slice(0, 10)} /> : null}
+      {parent ? <ParentDashboard kids={parent} s={settings} unread={unread} canPay={user.tenantId ? (await getEntitlements(user.tenantId)).modules.has("onlinePayments") : false} /> : null}
+      {pupil ? <StudentDashboard lessons={pupil.lessons} results={pupil.results} /> : null}
+      {stats.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {stats.map((s) => (
+            <StatCard key={s.label} label={s.label} value={s.value} />
+          ))}
+        </div>
+      ) : null}
       {health ? (
         <Card>
           <CardHeader className="pb-2">
@@ -231,7 +276,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       ) : null}
-      {approvalsWaiting ? (
+      {approvalsWaiting && !admin && !bursar ? (
         <Card className="border-warning">
           <CardHeader className="pb-2">
             <CardTitle>{t("approvalsTitle")}</CardTitle>

@@ -7,6 +7,12 @@ import { auditContextFor } from "@/lib/guard";
 import { NotFoundError, runAction, UserFacingError } from "@/lib/run-action";
 import { getTranslations } from "next-intl/server";
 import { loadSampleData, removeSampleData, SampleDataError } from "@/lib/sample-data";
+import { remindRegister, RemindError } from "@/lib/dashboard/remind";
+import { CHANNELS, registerReminderEmail } from "@/lib/notify/channels";
+import { appUrl } from "@/lib/inngest/notify-message";
+import { getSettingsForUser, getTenantForUser } from "@/lib/tenant";
+import { todayInTimeZone } from "@/lib/format";
+import { idSchema } from "@/lib/validation/common";
 
 /**
  * Hide or bring back the setup checklist on the dashboard (milestone 1.4).
@@ -64,5 +70,27 @@ export async function removeSampleDataAction() {
     const result = await removeSampleData(auditContextFor(ctx)).catch(sampleError);
     revalidatePath("/", "layout");
     return result;
+  });
+}
+
+/** Admins: remind a form teacher to take today's register (once per class per day, audited). */
+export async function remindRegisterAction(sectionId: unknown) {
+  return runAction(["attendance", "update"] as const, async (ctx) => {
+    if (ctx.user.role !== "SCHOOL_ADMIN") throw new UserFacingError((await getTranslations("dashboard.remind"))("notAllowed"));
+    const audit = auditContextFor(ctx);
+    const settings = await getSettingsForUser(audit.tenantId);
+    try {
+      const r = await remindRegister(audit, idSchema.parse(sectionId), todayInTimeZone(settings.timezone));
+      const channels = CHANNELS.filter((c) => c.enabled());
+      if (channels.length) {
+        const { tenant } = await getTenantForUser(audit.tenantId);
+        const n = registerReminderEmail({ recipient: r.teacher, className: r.sectionName, schoolName: tenant?.name ?? "EduCore", link: `${appUrl()}/attendance` });
+        for (const c of channels) await c.send(n).catch((err) => console.error("[remind] email failed", err));
+      }
+    } catch (err) {
+      if (err instanceof RemindError) throw new UserFacingError((await getTranslations("dashboard.remind"))(err.code));
+      throw err;
+    }
+    revalidatePath("/dashboard");
   });
 }

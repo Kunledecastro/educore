@@ -145,3 +145,17 @@ function navItemsForRole(role: Role): NavItem[] {
   items.push({ labelKey: "settings", href: "/settings", icon: "Settings" });
   return items;
 }
+
+/**
+ * Phase 9.1: the phone tab bar for families — up to four of their menu items,
+ * in this order, when the plan includes them. Staff get no tab bar.
+ */
+const TAB_ORDER: Partial<Record<Role, string[]>> = {
+  [Role.PARENT]: ["/dashboard", "/students", "/fees", "/messages"],
+  [Role.STUDENT]: ["/dashboard", "/timetable", "/assessments", "/assignments"],
+};
+export function bottomTabsFor(role: Role, items: readonly NavItem[]): NavItem[] {
+  const order = TAB_ORDER[role];
+  if (!order) return [];
+  return order.map((href) => items.find((i) => i.href === href)).filter((i): i is NavItem => Boolean(i));
+}

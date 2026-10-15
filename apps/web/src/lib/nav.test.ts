@@ -26,3 +26,15 @@ describe("navigation follows the plan (4.1)", () => {
     for (const r of [Role.TEACHER, Role.PARENT, Role.STUDENT, Role.ACCOUNTANT]) expect(hrefs(r)).not.toContain("/plan");
   });
 });
+
+describe("phone tab bar (Phase 9.1)", () => {
+  it("families get up to four tabs from their own menu, only for modules in the plan; staff get none", async () => {
+    const { bottomTabsFor } = await import("./nav");
+    const parent = getNavItemsForRole(Role.PARENT, new Set(["fees", "messaging"]));
+    expect(bottomTabsFor(Role.PARENT, parent).map((i) => i.href)).toEqual(["/dashboard", "/students", "/fees", "/messages"]);
+    const noFees = getNavItemsForRole(Role.PARENT, new Set(["messaging"]));
+    expect(bottomTabsFor(Role.PARENT, noFees).map((i) => i.href)).toEqual(["/dashboard", "/students", "/messages"]);
+    expect(bottomTabsFor(Role.TEACHER, getNavItemsForRole(Role.TEACHER))).toEqual([]);
+    expect(bottomTabsFor(Role.STUDENT, getNavItemsForRole(Role.STUDENT)).map((i) => i.href)).toEqual(["/dashboard", "/timetable", "/assessments", "/assignments"]);
+  });
+});
