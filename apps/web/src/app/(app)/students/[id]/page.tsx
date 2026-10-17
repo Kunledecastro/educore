@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, HeartHandshake, Mail, Phone } from "lucide-react";
+import { ArrowLeft, FileDown, HeartHandshake, Mail, Phone } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { can } from "@educore/auth";
 import { Role } from "@educore/db";
 import { Badge } from "@educore/ui/badge";
+import { buttonVariants } from "@educore/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@educore/ui/card";
 import { StudentAttendanceCard } from "@/components/attendance/student-attendance-card";
 import { StudentResultsCard } from "@/components/results/student-results-card";
@@ -14,6 +15,7 @@ import { PageHeader } from "@/components/page-header";
 import { formatDateOnly } from "@/lib/format";
 import { requirePermission } from "@/lib/guard";
 import { inviteStatusesFor } from "@/lib/invite-status";
+import { canDownloadProfile } from "@/lib/pupil-profile";
 import { studentScopeFor } from "@/lib/student-scope";
 import { getSettingsForUser } from "@/lib/tenant";
 import { idSchema, toDateInput } from "@/lib/validation/common";
@@ -55,9 +57,10 @@ export default async function StudentProfilePage({ params }: { params: { id: str
   });
   if (!student) notFound();
 
-  const [t, tf, settings] = await Promise.all([
+  const [t, tf, tp, settings] = await Promise.all([
     getTranslations("students"),
     getTranslations("people.fields"),
+    getTranslations("pupilProfile"),
     getSettingsForUser(user.tenantId ?? null),
   ]);
   const canManage = can(user.role, "student", "update") && user.role !== Role.PLATFORM_ADMIN;
@@ -90,7 +93,14 @@ export default async function StudentProfilePage({ params }: { params: { id: str
         title={name}
         description={<Badge variant={STATUS_BADGE[student.status]}>{t(`statuses.${student.status}`)}</Badge>}
         actions={
-          canManage ? (
+          <>
+            {canDownloadProfile(user.role) ? (
+              <a href={`/api/students/${student.id}/profile`} className={buttonVariants({ variant: "outline" })} title={tp("downloadHint")}>
+                <FileDown className="h-4 w-4" aria-hidden="true" />
+                {tp("download")}
+              </a>
+            ) : null}
+            {canManage ? (
             <>
               <EditStudentButton
                 classes={classes}
@@ -108,7 +118,8 @@ export default async function StudentProfilePage({ params }: { params: { id: str
               />
               <StudentStatusButton student={{ id: student.id, name, status: student.status }} />
             </>
-          ) : null
+            ) : null}
+          </>
         }
       />
 

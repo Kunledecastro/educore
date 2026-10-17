@@ -88,6 +88,17 @@ packages/ui/          Design-system primitives (shadcn/ui-style): button,
   function; PDFs are drawn from snapshots (`lib/report-card-pdf.tsx`, Noto
   Sans in `assets/fonts`). Never render a card from live data. Families may
   only download when the class's term results are published.
+- **Pupil profile report** (`/api/students/{id}/profile`, Phase 10.0): one
+  branded PDF of a pupil's whole time at school, built live. Which sections a
+  viewer gets is decided only by `profileSections()` in `lib/pupil-profile.ts`
+  (role × plan module, unit-tested); the data comes from
+  `lib/pupil-profile-data.ts` through the viewer's tenant-scoped client and
+  `studentScopeFor()`, and every download is audited (`PupilProfileReport`).
+  Families get published results and released homework marks only; health is
+  alerts only, never the record.
+- **PDF footers**: react-pdf drops a `fixed` footer anchored with `bottom` when
+  the page sets a `lineHeight`, so place footers with
+  `top: footerTop(PAGE_HEIGHT.A4, …)` from `lib/report-card-pdf.tsx`.
 - **Timetable**: clash and bell-schedule rules are in `lib/timetable.ts`;
   the database enforces the same slot rules (migration 0013), so map a
   unique-violation (P2002) on save to "just booked by someone else".

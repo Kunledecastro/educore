@@ -3,6 +3,23 @@
 All notable changes to EduCore are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## Phase 10 — Pupil profile report (in progress)
+
+Spec: `claude/phase-10-spec.md` (confirmed 2026-10-17: every year at the school, health alerts only, whole-class download later, photo and conduct in this phase).
+
+### Added (10.0 — profile report)
+
+- **Download profile** on every pupil's page: one A4 PDF on the school's letterhead (logo, brand colour, contact line), in the school's language.
+- Contents, newest year first: pupil details, parents and guardians, health alerts, and for each year the class the pupil was in, attendance by term, results by term (grades, average, position when the school shows positions) and homework (set, handed in, late, not handed in, average mark); then fees (billed, discounts, paid, balance) with a total.
+- **Each viewer gets only what they can already see:** admins everything in the plan; teachers no fees; the bursar details, guardians and fees; the nurse details, guardians and alerts; parents their own child without other guardians, published results and released marks only. Pupils and the platform team get no report. Modules outside the school's plan are left out.
+- For past years the class is taken from that year's own registers and marks (EduCore doesn't store class history yet).
+- Every download is in the audit log (who, which pupil, which sections and years, not the contents). Downloads are limited to 60 per person per 10 minutes.
+- Tests: 21 unit (section rules, homework and fee sums, attendance by term, PDF rendering) and 14 integration on real Postgres (tenant isolation, parent own child only, teacher own classes only, bursar no results, unpublished terms hidden from families, support gets no health alerts, audit).
+
+### Fixed
+
+- **PDF footers were missing** on report cards, invoices, receipts and emergency cards: react-pdf drops a bottom-anchored footer when the page sets a line height. Footers ("Generated …", "Page x of y") are now placed from the top of the page and appear again.
+
 ## Phase 9 — UI/UX redesign, "Harmattan Gold" (in progress)
 
 Spec: `claude/phase-9-spec.md`. The design was approved on the EduCore Redesign Mockups canvas.
