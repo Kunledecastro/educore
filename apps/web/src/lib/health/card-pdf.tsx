@@ -1,7 +1,7 @@
 import "server-only";
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { createTranslator } from "next-intl";
-import { pdfFontFamily } from "../report-card-pdf";
+import { footerTop, PAGE_HEIGHT, pdfFontFamily } from "../report-card-pdf";
 import type { EmergencyCard, EmergencyCardsDoc } from "./card";
 
 /**
@@ -37,7 +37,7 @@ const s = StyleSheet.create({
   severe: { color: RED },
   none: { color: MUTED },
   confidential: { fontSize: 7.5, color: MUTED, marginTop: 4 },
-  footer: { position: "absolute", bottom: 16, left: 30, right: 30, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 7.5 },
+  footer: { position: "absolute", top: footerTop(PAGE_HEIGHT.A4, 16, 7.5), left: 30, right: 30, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 7.5 },
   empty: { marginTop: 20, color: MUTED },
 });
 

@@ -2,7 +2,7 @@ import "server-only";
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { DocBranding } from "./branding-data";
 import { createTranslator } from "next-intl";
-import { pdfFontFamily } from "./report-card-pdf";
+import { footerTop, PAGE_HEIGHT, pdfFontFamily } from "./report-card-pdf";
 
 /**
  * Invoice and receipt PDFs (milestones 3.1 / 3.2). A4, labels in the
@@ -39,7 +39,7 @@ const s = StyleSheet.create({
   muted: { color: MUTED },
   big: { fontSize: 18, fontWeight: 700, lineHeight: 1.25 },
   stamp: { marginTop: 8, borderWidth: 2, padding: 8, alignSelf: "flex-start", fontSize: 12, fontWeight: 700 },
-  footer: { position: "absolute", bottom: 24, left: 36, right: 36, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 8 },
+  footer: { position: "absolute", left: 36, right: 36, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 8 },
 });
 
 type T = (key: string, values?: Record<string, string | number>) => string;
@@ -128,9 +128,9 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Footer({ t, generated }: { t: T; generated: string }) {
+function Footer({ t, generated, pageHeight }: { t: T; generated: string; pageHeight: number }) {
   return (
-    <View style={s.footer} fixed>
+    <View style={[s.footer, { top: footerTop(pageHeight, 24, 8) }]} fixed>
       <Text>{t("generated", { when: generated })}</Text>
       <Text render={({ pageNumber, totalPages }) => t("page", { page: pageNumber, pages: totalPages })} />
     </View>
@@ -203,7 +203,7 @@ export async function renderInvoicePdf(doc: InvoiceDoc): Promise<Buffer> {
         ) : (
           <Text style={s.muted}>{t("payBy", { date: f.date(doc.dueDate), invoice: doc.invoiceNo })}</Text>
         )}
-        <Footer t={t} generated={f.date(new Date())} />
+        <Footer t={t} generated={f.date(new Date())} pageHeight={PAGE_HEIGHT.A4} />
       </Page>
     </Document>,
   );
@@ -232,7 +232,7 @@ export async function renderReceiptPdf(doc: ReceiptDoc): Promise<Buffer> {
           <Field label={t("recordedBy")} value={doc.recordedBy ?? "—"} />
         </View>
         {doc.reversed ? <Text style={[s.stamp, { color: "#b91c1c", borderColor: "#b91c1c" }]}>{t("reversedStamp")}</Text> : null}
-        <Footer t={t} generated={f.date(new Date())} />
+        <Footer t={t} generated={f.date(new Date())} pageHeight={PAGE_HEIGHT.A5_LANDSCAPE} />
       </Page>
     </Document>,
   );

@@ -41,6 +41,18 @@ export function pdfFontFamily(): string {
   return fontFamily;
 }
 
+/**
+ * Page heights in points. react-pdf silently drops a `fixed` footer anchored
+ * with `bottom` when the page sets a lineHeight (as every EduCore PDF does),
+ * so footers are placed from the top of the page instead.
+ */
+export const PAGE_HEIGHT = { A4: 841.89, A5_LANDSCAPE: 419.53 } as const;
+
+/** `top` for a one-line footer whose baseline area ends `bottom` points above the page edge. */
+export function footerTop(pageHeight: number, bottom: number, fontSize: number): number {
+  return Math.round((pageHeight - bottom - fontSize * 1.4) * 100) / 100;
+}
+
 const INK = "#1f2937";
 const MUTED = "#6b7280";
 const RULE = "#d1d5db";
@@ -70,7 +82,7 @@ const s = StyleSheet.create({
   big: { fontSize: 14, fontWeight: 700, lineHeight: 1.25, marginVertical: 2 },
   comment: { borderWidth: 1, borderColor: RULE, padding: 6, marginBottom: 8, minHeight: 36 },
   muted: { color: MUTED },
-  footer: { position: "absolute", bottom: 20, left: 32, right: 32, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 7 },
+  footer: { position: "absolute", top: footerTop(PAGE_HEIGHT.A4, 20, 7), left: 32, right: 32, flexDirection: "row", justifyContent: "space-between", color: MUTED, fontSize: 7 },
 });
 
 /** Translator for `reportCards.pdf.*` keys (ICU messages: plurals, ordinals). */
