@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@educore/ui/button";
+import { MotionScope } from "@/components/marketing/motion";
 import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
 import { SUPPORT, whatsappLink } from "@/lib/support";
 
@@ -9,13 +10,14 @@ export default async function MarketingLayout({ children }: { children: React.Re
   const [t, tc] = await Promise.all([getTranslations("marketing.nav"), getTranslations("marketing.contact")]);
   return (
     <div className="flex min-h-screen flex-col">
+      <MotionScope />
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2">
         {t("skip")}
       </a>
       <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
         <nav aria-label={t("label")} className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
           <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
-            <span aria-hidden="true" className="h-8 w-8 rounded-[10px] bg-harmattan ring-1 ring-inset ring-foreground/10" />
+            <span aria-hidden="true" className="motion-drift h-8 w-8 rounded-[10px] bg-harmattan ring-1 ring-inset ring-foreground/10" />
             EduCore
           </Link>
           <div className="flex items-center gap-5 text-sm font-medium">

@@ -18,7 +18,7 @@ export default async function SignupPage() {
   const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "educore.app").split(",").map((d) => d.trim()).filter(Boolean).pop() ?? "educore.app";
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-[1fr_1.2fr]">
-      <div className="space-y-4 self-start rounded-3xl bg-harmattan p-7">
+      <div className="motion-drift space-y-4 self-start rounded-3xl bg-harmattan p-7">
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t("title")}</h1>
         <p className="text-foreground/80">{t("lead")}</p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-foreground/80">

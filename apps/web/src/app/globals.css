@@ -87,6 +87,77 @@
   }
 }
 
+/*
+ * Site motion (public site and sign-in), in the spirit of the MotionSites
+ * template the design is based on. Everything here is decoration: content is
+ * fully visible without it, and it all switches off for people who ask their
+ * device to reduce motion.
+ *
+ *  .motion-rise   fade up once on page load (stagger with style="--d: 120ms")
+ *  .motion-float  slow up-and-down float
+ *  .motion-drift  gold gradient slowly shifting (use with .bg-harmattan[-soft])
+ *  .motion-lift   card lifts a little on hover
+ *  [data-reveal]  fades up when scrolled into view (needs <MotionScope />)
+ */
+@keyframes ec-rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ec-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+@keyframes ec-drift {
+  0% { background-position: 0% 30%; }
+  100% { background-position: 100% 70%; }
+}
+.motion-rise {
+  animation: ec-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms) both;
+}
+.motion-float {
+  animation: ec-float 7s ease-in-out infinite;
+}
+.motion-drift {
+  background-size: 220% 220%;
+  animation: ec-drift 16s ease-in-out infinite alternate;
+}
+.motion-lift {
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s ease;
+}
+.motion-lift:hover {
+  transform: translate3d(0, -4px, 0);
+  box-shadow: 0 18px 40px -18px rgb(24 20 31 / 0.25);
+}
+[data-reveal] {
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms);
+}
+/* Only hidden once the script is running, and only until it's been seen: no script, no hiding. */
+html.motion-ready [data-reveal]:not([data-shown]) {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+/* Hover lift and reveal share `transform`: once shown, hand transform back to hover. */
+html.motion-ready [data-reveal][data-shown].motion-lift {
+  transition: opacity 0.8s ease var(--d, 0ms), transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-rise,
+  .motion-float,
+  .motion-drift {
+    animation: none;
+  }
+  .motion-lift,
+  .motion-lift:hover,
+  [data-reveal] {
+    transition: none;
+    transform: none;
+  }
+  html.motion-ready [data-reveal]:not([data-shown]) {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Student login slips (Phase 5.0): print only the slips, nothing else on the page. */
 @media print {
   body.print-slips * {

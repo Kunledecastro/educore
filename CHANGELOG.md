@@ -11,6 +11,14 @@ Spec: `claude/phase-10-spec.md` (confirmed 2026-10-17: every year at the school,
 
 - **Hero photo:** a teacher with her class in a Nigerian school (Emmanuel Ikwuegbu on Unsplash, credited) now sits beside the headline; the dashboard picture follows below. Served at the right size for each screen from Unsplash's image service; checked at desktop and phone widths with no sideways scrolling.
 
+- **Site motion**, in the spirit of the MotionSites template the design is based on (the look was copied in 9.2, the movement wasn't):
+  - Hero: headline, text and buttons fade up in turn on load; the photo eases in and floats gently.
+  - Sections, feature cards, number cards, steps and the call-to-action band fade up as they scroll into view, one after another.
+  - Number cards count up ("30 days", "from ₦300").
+  - Gold panels shift slowly; cards lift a little on hover.
+  - Sign-in and sign-up: the gold panel shifts, and the sign-in text and form fade in.
+  - Plain CSS plus a small script (no animation library). Content is never hidden without the script, anything passed in a fast scroll is shown, and it all switches off for visitors who ask their device to reduce motion. Tested in a browser at desktop and phone widths, including reduced motion.
+
 ### Added (10.0 — profile report)
 
 - **Download profile** on every pupil's page: one A4 PDF on the school's letterhead (logo, brand colour, contact line), in the school's language.

@@ -31,13 +31,13 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
   return (
     <main className="flex min-h-screen items-stretch">
       {/* Phase 9.2: the warm panel on wide screens; phones get just the form. */}
-      <div aria-hidden="true" className="hidden flex-1 flex-col justify-end bg-harmattan p-12 lg:flex">
-        <p className="max-w-md text-4xl font-extrabold leading-tight tracking-tight">{t("panelTitle")}</p>
-        <p className="mt-3 max-w-md text-lg text-foreground/80">{t("panelBody")}</p>
+      <div aria-hidden="true" className="motion-drift hidden flex-1 flex-col justify-end bg-harmattan p-12 lg:flex">
+        <p className="motion-rise max-w-md text-4xl font-extrabold leading-tight tracking-tight">{t("panelTitle")}</p>
+        <p style={{ "--d": "120ms" } as React.CSSProperties} className="motion-rise mt-3 max-w-md text-lg text-foreground/80">{t("panelBody")}</p>
       </div>
       <div className="flex flex-1 items-center justify-center px-4 py-10">
       <BrandStyle color={branding?.primaryColor ?? null} />
-      <div className="w-full max-w-sm space-y-6">
+      <div style={{ "--d": "80ms" } as React.CSSProperties} className="motion-rise w-full max-w-sm space-y-6">
         <div className="text-center">
           {logo ? (
             // eslint-disable-next-line @next/next/no-img-element -- small, versioned, same-origin logo
