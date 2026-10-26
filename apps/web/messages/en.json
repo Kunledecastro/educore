@@ -2435,7 +2435,9 @@
         "present": "Present today",
         "fees": "Fees collected",
         "registers": "Registers taken"
-      }
+      },
+      "heroPhotoAlt": "A teacher standing in front of a class of smiling pupils in a Nigerian school",
+      "heroPhotoCredit": "Photo: Emmanuel Ikwuegbu on Unsplash"
     },
     "features": {
       "title": "Features",

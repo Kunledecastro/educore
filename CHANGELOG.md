@@ -7,6 +7,10 @@ All notable changes to EduCore are documented here. Format loosely follows
 
 Spec: `claude/phase-10-spec.md` (confirmed 2026-10-17: every year at the school, health alerts only, whole-class download later, photo and conduct in this phase).
 
+### Changed (landing page)
+
+- **Hero photo:** a teacher with her class in a Nigerian school (Emmanuel Ikwuegbu on Unsplash, credited) now sits beside the headline; the dashboard picture follows below. Served at the right size for each screen from Unsplash's image service; checked at desktop and phone widths with no sideways scrolling.
+
 ### Added (10.0 — profile report)
 
 - **Download profile** on every pupil's page: one A4 PDF on the school's letterhead (logo, brand colour, contact line), in the school's language.

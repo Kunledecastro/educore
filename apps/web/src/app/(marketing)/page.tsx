@@ -20,6 +20,39 @@ async function fromPrice(): Promise<number | null> {
   }
 }
 
+/**
+ * Hero photo: Emmanuel Ikwuegbu on Unsplash (free under the Unsplash licence,
+ * credited anyway). Served from Unsplash's image CDN, which resizes it per
+ * screen; the CSP already allows https images.
+ */
+const HERO_PHOTO = "https://images.unsplash.com/photo-1632215861513-130b66fe97f4";
+const HERO_PHOTO_PAGE = "https://unsplash.com/photos/a-woman-standing-in-front-of-a-group-of-children-VC6MGt9ZoBA";
+const heroSrc = (w: number) => `${HERO_PHOTO}?auto=format&fit=crop&w=${w}&h=${Math.round((w * 5) / 4)}&q=75`;
+
+function HeroPhoto({ alt, credit }: { alt: string; credit: string }) {
+  return (
+    <figure className="relative mx-auto w-full max-w-sm pr-3 pt-3 sm:max-w-md sm:pr-4 sm:pt-4 lg:max-w-none">
+      <div aria-hidden="true" className="absolute bottom-6 left-3 right-0 top-0 -z-10 rounded-[28px] bg-harmattan sm:left-4" />
+      {/* eslint-disable-next-line @next/next/no-img-element -- responsive srcset from Unsplash's CDN */}
+      <img
+        src={heroSrc(800)}
+        srcSet={[480, 800, 1200].map((w) => `${heroSrc(w)} ${w}w`).join(", ")}
+        sizes="(min-width: 1024px) 40vw, (min-width: 640px) 28rem, 100vw"
+        width={800}
+        height={1000}
+        alt={alt}
+        fetchPriority="high"
+        className="block aspect-[4/5] h-auto w-full rounded-[28px] object-cover shadow-2xl"
+      />
+      <figcaption className="mt-2 text-right text-xs text-muted-foreground">
+        <a href={HERO_PHOTO_PAGE} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
+          {credit}
+        </a>
+      </figcaption>
+    </figure>
+  );
+}
+
 /** EduCore's home page (Phase 9.2, Harmattan Gold). On a school's own address it goes straight to that school's sign-in. */
 export default async function MarketingHome() {
   if (await getCurrentTenant()) redirect("/login");
@@ -31,13 +64,11 @@ export default async function MarketingHome() {
     <>
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pb-10 pt-14 sm:pt-20">
-        <div className="flex flex-wrap items-end justify-between gap-x-16 gap-y-8">
-          <div className="min-w-0 flex-[1_1_34rem]">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+          <div className="min-w-0">
             <p className="mb-5 inline-flex rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary">{t("eyebrow")}</p>
             <h1 className="text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-6xl">{t("title")}</h1>
-          </div>
-          <div className="flex-[1_1_20rem] sm:max-w-md">
-            <p className="text-lg leading-relaxed text-muted-foreground">{t("lead")}</p>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t("lead")}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link href="/signup">{t("ctaTrial")}</Link>
@@ -56,6 +87,7 @@ export default async function MarketingHome() {
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{t("noCard")}</p>
           </div>
+          <HeroPhoto alt={t("heroPhotoAlt")} credit={t("heroPhotoCredit")} />
         </div>
 
         {/* Product shot: a real screenshot when we have one, otherwise an illustration of the dashboard. */}

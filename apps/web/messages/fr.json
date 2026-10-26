@@ -2435,7 +2435,9 @@
         "present": "Présents aujourd'hui",
         "fees": "Frais encaissés",
         "registers": "Appels faits"
-      }
+      },
+      "heroPhotoAlt": "Une enseignante debout devant une classe d'élèves souriants dans une école nigériane",
+      "heroPhotoCredit": "Photo : Emmanuel Ikwuegbu sur Unsplash"
     },
     "features": {
       "title": "Fonctionnalités",
